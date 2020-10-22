@@ -1,0 +1,102 @@
+const activities = [
+  {
+    "run_id": 9223370434608873807,
+    "name": "run from keep",
+    "distance": 3383.91748046875,
+    "moving_time": "0:27:27",
+    "type": "Run",
+    "start_date": "2020-10-09 11:50:55",
+    "start_date_local": "2020-10-09 19:50:55",
+    "location_country": "{'latitude': 38.86327473958333, 'longitude': 121.51849338107638, 'country': '\u4e2d\u56fd', 'nationCode': '156', 'province': '\u8fbd\u5b81\u7701', 'city': '\u5927\u8fde\u5e02', 'cityCode': '0411'}",
+    "summary_polyline": "",
+    "average_heartrate": null,
+    "average_speed": 2.0545947058098055,
+    "streak": 1
+  },
+  {
+    "run_id": 9223370434348312807,
+    "name": "run from keep",
+    "distance": 4109.78662109375,
+    "moving_time": "0:28:36",
+    "type": "Run",
+    "start_date": "2020-10-12 12:12:27",
+    "start_date_local": "2020-10-12 20:12:27",
+    "location_country": "{'latitude': 38.863307291666665, 'longitude': 121.51847439236111, 'country': '\u4e2d\u56fd', 'nationCode': '156', 'province': '\u8fbd\u5b81\u7701', 'city': '\u5927\u8fde\u5e02', 'cityCode': '0411'}",
+    "summary_polyline": "",
+    "average_heartrate": null,
+    "average_speed": 2.3949805484229314,
+    "streak": 1
+  },
+  {
+    "run_id": 9223370434256157807,
+    "name": "run from keep",
+    "distance": 1066.8966753263699,
+    "moving_time": "0:06:41",
+    "type": "Run",
+    "start_date": "2020-10-13 14:10:12",
+    "start_date_local": "2020-10-13 22:10:12",
+    "location_country": "{'latitude': 38.86323513454861, 'longitude': 121.5177756076389, 'country': '\u4e2d\u56fd', 'nationCode': '156', 'province': '\u8fbd\u5b81\u7701', 'city': '\u5927\u8fde\u5e02', 'cityCode': '0411'}",
+    "summary_polyline": "aoelFidudVAEQfAIz@EVNp@n@EHc@BSHkAQu@e@XGb@ELANC`@ATlAmADQu@g@K`@CNCRQrADx@t@ULq@?c@@SCaAQAWn@Mp@ANR~@L@NKBi@@_@?QBSGw@EJWJ_@jAp@~A",
+    "average_heartrate": 143.0,
+    "average_speed": 2.6605902127839647,
+    "streak": 2
+  },
+  {
+    "run_id": 9223370434180463807,
+    "name": "run from keep",
+    "distance": 4124.69970703125,
+    "moving_time": "0:24:23",
+    "type": "Run",
+    "start_date": "2020-10-14 10:54:08",
+    "start_date_local": "2020-10-14 18:54:08",
+    "location_country": "{'latitude': 38.86341769748264, 'longitude': 121.51849066840278, 'country': '\u4e2d\u56fd', 'nationCode': '156', 'province': '\u8fbd\u5b81\u7701', 'city': '\u5927\u8fde\u5e02', 'cityCode': '0411'}",
+    "summary_polyline": "",
+    "average_heartrate": null,
+    "average_speed": 2.8193436138286057,
+    "streak": 3
+  },
+  {
+    "run_id": 9223370434084248807,
+    "name": "run from keep",
+    "distance": 1482.8870849609375,
+    "moving_time": "0:09:08",
+    "type": "Run",
+    "start_date": "2020-10-15 13:52:59",
+    "start_date_local": "2020-10-15 21:52:59",
+    "location_country": "{'latitude': 38.86341769748264, 'longitude': 121.51849066840278, 'country': '\u4e2d\u56fd', 'nationCode': '156', 'province': '\u8fbd\u5b81\u7701', 'city': '\u5927\u8fde\u5e02', 'cityCode': '0411'}",
+    "summary_polyline": "",
+    "average_heartrate": null,
+    "average_speed": 2.7059983302206887,
+    "streak": 4
+  },
+  {
+    "run_id": 9223370433658288707,
+    "name": "run from keep",
+    "distance": 3048.386826988782,
+    "moving_time": "0:18:00",
+    "type": "Run",
+    "start_date": "2020-10-20 12:03:13",
+    "start_date_local": "2020-10-20 20:03:13",
+    "location_country": "{'latitude': 38.86370713975695, 'longitude': 121.51856526692708, 'country': '\u4e2d\u56fd', 'nationCode': '156', 'province': '\u8fbd\u5b81\u7701', 'city': '\u5927\u8fde\u5e02', 'cityCode': '0411'}",
+    "summary_polyline": "ioelFkiudVTVZTFJJH`@RJHJDb@^VRf@\\LJLFZXHJLNXRJFJF^RNHJFRRJHJHd@^`@Tf@PJ?\\?L@J@\\ATAL@^AP?^BN?L?\\BN?^AZAL@L?^@L?NAj@W?S@g@?S@YCu@CWEeBIqC@S@o@C{@NaDc@e@KC]Ki@WQKa@Q{CoBK?MAg@Vq@_@ICKEKCUMMGIIOGKI[e@QGME]Sy@Oc@McABoAm@YSOKKG]U_@UKKKIGCg@WMI_@OSGWQOIKE[Oo@QKEOEa@QMKg@YQMc@WKGYMkAHMF]RMPWd@GJKRU\\GNIN_A|@OLWV[^g@l@Yj@Sh@Mb@?PCb@OZOhALh@FN`@XNDRN^J\\FLDLBt@XJFJBVFdA^^L`APz@^XHNBNBZDb@TLDh@RJHJD\\LJ@XLLFNXFL[z@Kf@Q^IJMVAHJZPRf@VJFJFHG",
+    "average_heartrate": 158.0,
+    "average_speed": 2.8225803953599833,
+    "streak": 1
+  },
+  {
+    "run_id": 9223370433575478807,
+    "name": "run from keep",
+    "distance": 5417.36328125,
+    "moving_time": "0:32:36",
+    "type": "Run",
+    "start_date": "2020-10-21 10:49:01",
+    "start_date_local": "2020-10-21 18:49:01",
+    "location_country": "{'latitude': 38.863775227864586, 'longitude': 121.51967664930555, 'country': '\u4e2d\u56fd', 'nationCode': '156', 'province': '\u8fbd\u5b81\u7701', 'city': '\u5927\u8fde\u5e02', 'cityCode': '0411'}",
+    "summary_polyline": "",
+    "average_heartrate": null,
+    "average_speed": 2.769613129473415,
+    "streak": 2
+  }
+];
+
+export {activities};
