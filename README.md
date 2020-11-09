@@ -1,4 +1,4 @@
-![image](https://user-images.githubusercontent.com/15976103/87566339-775b9800-c6f5-11ea-803f-6c2f69801ee4.png)
+![running_page](https://socialify.git.ci/yihong0618/running_page/image?description=1&font=Inter&forks=1&issues=1&language=1&logo=https%3A%2F%2Fraw.githubusercontent.com%2Fshaonianche%2Fgallery%2Fmaster%2Frunning_page%2Frunning_page_logo_150*150.jpg&owner=1&pulls=1&stargazers=1&theme=Light)
 
 # [打造个人跑步主页](https://yihong.run/running) 
 简体中文 | [English](README-EN.md)
@@ -14,6 +14,7 @@
 | [guanlan](https://github.com/guanlan) | https://grun.vercel.app | Strava |
 | [tuzimoe](https://github.com/tuzimoe) | https://run.tuzi.moe | Nike |
 | [ben_29](https://github.com/ben-29) | https://running.ben29.xyz | Strava |
+| [kcllf](https://github.com/kcllf) | https://running-tau.vercel.app | Garmin-cn |
 
 ## 特性
 
@@ -66,7 +67,7 @@ rm scripts/data.db
 rm GPX_OUT/*
 rm activities/*
 ```
-## 替换 `src/utils/utils.js` 文件中的 Mapbox token
+## 替换 `src/utils/const.js` 文件中的 Mapbox token
 >建议有能力的同学把代码中的 Mapbox token 自己的 [Mapbox token](https://www.mapbox.com/)
 
 ```javascript
@@ -80,7 +81,7 @@ const MAPBOX_TOKEN = 'pk.eyJ1IjoieWlob25nMDYxOCIsImEiOiJja2J3M28xbG4wYzl0MzJxZm0
 <details>
 <summary>获取您的 Keep 数据</summary>
 
-确保自己的账号能用手机号 + 密码登陆 (不要忘记添加secret和更改自己的账号，在 GitHub Actions中)
+确保自己的账号能用手机号 + 密码登陆 (不要忘记添加secret和更改自己的账号，在 GitHub Actions中), 注: 海外手机号需要换成国内 +86 的手机号
 
 ```python
 python3(python) scripts/keep_sync.py ${your mobile} ${your password}
@@ -254,10 +255,15 @@ https://github.com/flopp/GpxTrackPoster
 
 <details>
 <summary>使用 vercel 部署</summary>
+  
 1. vercel 连接你的 GitHub repo
+
 ![image](https://user-images.githubusercontent.com/15976103/94452465-2599b880-01e2-11eb-9538-582f0f46c421.png)
+
 2. import repo
+
 ![image](https://user-images.githubusercontent.com/15976103/94452556-3f3b0000-01e2-11eb-97a2-3789c2d60766.png)
+
 2. 等待部署完毕
 3. 访问
 </details>
@@ -306,6 +312,6 @@ Actions [源码](https://github.com/yihong0618/running_page/blob/master/.github/
 - 使用 black 对 Python 代码进行格式化。
 
 # 特别感谢
-@[flopp](https://github.com/flopp)
-@[shaonianche](https://github.com/shaonianche)
-@[geekplux](https://github.com/geekplux)
+- @[flopp](https://github.com/flopp)
+- @[shaonianche](https://github.com/shaonianche)
+- @[geekplux](https://github.com/geekplux)

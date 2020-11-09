@@ -21,6 +21,8 @@ env:
   ATHLETE: ben_29
   TITLE: ben_29's Running/Riding/Hiking
   TITLE_GRID: Over 5km Activities
+  GITHUB_NAME: ben_29
+  GITHUB_EMAIL: ben_29@live.com
 
 jobs:
   sync:
@@ -92,5 +94,5 @@ jobs:
           commit-message: "Add new runs"
           files: activities src/static/ scripts/ assets/ GPX_OUT/
           rebase: 'true'
-          name: ben_29
-          email: ben_29_@live.com
+          name: ${{ env.GITHUB_NAME }}
+          email: ${{ env.GITHUB_EMAIL }}
