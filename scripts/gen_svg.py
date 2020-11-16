@@ -215,6 +215,7 @@ def main():
 
     if args.from_db:
         # for svg from db here if you want gpx please do not use --from-db
+        # args.type == "grid" means have polyline data or not 
         tracks = loader.load_tracks_from_db(SQL_FILE, args.type == "grid")
     else:
         tracks = loader.load_tracks(args.gpx_dir)
@@ -248,9 +249,21 @@ def main():
     }
     p.units = args.units
     p.set_tracks(tracks)
+    is_circular = args.type == "circular"
+    # circular not add footer and header
+    p.drawer_type = "plain" if is_circular else "title"
     if args.type == "github":
         p.height = 55 + p.years.count() * 43
-    p.draw(drawers[args.type], args.output)
+    # for special circular
+    if is_circular:
+        years = p.years.all()[:]
+        for y in years:
+            p.years.from_year, p.years.to_year = y, y
+            # may be refactor
+            p.set_tracks(tracks)
+            p.draw(drawers[args.type], os.path.join("assets", f"year_{str(y)}.svg"))
+    else:
+        p.draw(drawers[args.type], args.output)
 
 
 if __name__ == "__main__":
