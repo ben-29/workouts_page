@@ -24,8 +24,12 @@
 | [tuzimoe](https://github.com/tuzimoe) | https://run.tuzi.moe | Nike |
 | [ben_29](https://github.com/ben-29) | https://running.ben29.xyz | Strava |
 | [kcllf](https://github.com/kcllf) | https://running-tau.vercel.app | Garmin-cn |
+| [mq](https://github.com/MQ-0707) | https://running-iota.vercel.app | Keep |
+| [zhaohongxuan](https://github.com/zhaohongxuan) | https://running-page-psi.vercel.app/ | Keep |
 
+## How it works
 
+![image](https://user-images.githubusercontent.com/15976103/100430000-28753480-30d1-11eb-8b4e-258a67038d74.png)
 
 ## Features
 
@@ -43,9 +47,11 @@
 
 - **[Garmin](#garmin)**
 - **[Garmin-CN](#garmin-cnchina)**
-- **[Runtastic(Adidas Run)](#runtasticadidas-run))**
+- **[Runtastic(Adidas Run)](#runtasticadidas-run)**
 - **[Nike Run Club](#nike-run-club)**
 - **[Strava](#strava)**
+- **[GPX](#GPX)**
+- **[Nike_to_Strava(Using NRC Run, Strava backup data)](#Nike_to_Strava)**
 
 ## Download
 Clone or fork the repo.
@@ -62,16 +68,6 @@ yarn develop
 Open your browser and visit http://localhost:8000/ 
 
 ## Local sync data
-### Delete my test data
-```bash
-rm scripts/data.db GPX_OUT/* activities/*
-```
-OR
-```bash
-rm scripts/data.db
-rm GPX_OUT/*
-rm activities/*
-```
 
 ### Modifying Mapbox token in `src/utils/const.js`
 
@@ -86,6 +82,19 @@ const MAPBOX_TOKEN = 'pk.eyJ1IjoieWlob25nMDYxOCIsImEiOiJja2J3M28xbG4wYzl0MzJxZm0
 
 
 ## Download your running data
+
+
+### GPX
+
+<details>
+<summary>Make your <code>GPX</code> data</summary>
+<br>
+
+Copy all your gpx files to GPX_OUT or new gpx files
+```python
+python3(python) scripts/gpx_sync.py
+```
+</details>
 
 ### Garmin
 
@@ -162,32 +171,6 @@ python3(python) scripts/nike_sync.py eyJhbGciThiMTItNGIw******
 
 </details>
 
-### Runtastic(Adidas Run)/Nike Run Club Data Analysis
-
-<details>
-<summary> Running data display </summary>
-<br>
-
-- Generate SVG data display
-- Display of results：[Click to view](https://raw.githubusercontent.com/yihong0618/running_page/master/assets/github.svg)、[Click to view](https://raw.githubusercontent.com/yihong0618/running_page/28fa801e4e30f30af5ae3dc906bf085daa137936/assets/grid.svg)
-
-```
-python scripts/gen_svg.py --from-db --title "${{ env.TITLE }}" --type github --athlete "${{ env.ATHLETE }}" --special-distance 10 --special-distance2 20 --special-color yellow --special-color2 red --output assets/github.svg --use-localtime --min-distance 0.5
-```
-
-```
-python scripts/gen_svg.py --from-db --title "${{ env.TITLE_GRID }}" --type grid --athlete "${{ env.ATHLETE }}"  --output assets/grid.svg --min-distance 10.0 --special-color yellow --special-color2 red --special-distance 20 --special-distance2 40 --use-localtime
-```
-Generate year circular svg show
-```
-python3(python) scripts/gen_svg.py --from-db --type circular --use-localtime
-```
-
-For more display effects, see:     
-https://github.com/flopp/GpxTrackPoster
-
-</details>
-
 ### Strava
 
 <details>
@@ -257,6 +240,50 @@ https://github.com/strava/go.strava
 
 </details>
 
+### Nike_to_Strava
+
+<details>
+<summary>Get your <code>Nike Run Club</code> data and upload to strava</summary>
+
+<br>
+
+1. follow the nike and strava steps
+2. Execute in the root directory:
+```python
+python3(python) scripts/nike_to_strava_sync.py ${nike_refresh_token} ${client_id} ${client_secret} ${strava_refresch_token} 
+```
+example：
+```python
+python3(python) scripts/nike_to_strava_sync.py eyJhbGciThiMTItNGIw******  xxx xxx xxx
+```
+</details>
+
+### Total Data Analysis
+
+<details>
+<summary> Running data display </summary>
+<br>
+
+- Generate SVG data display
+- Display of results：[Click to view](https://raw.githubusercontent.com/yihong0618/running_page/master/assets/github.svg)、[Click to view](https://raw.githubusercontent.com/yihong0618/running_page/28fa801e4e30f30af5ae3dc906bf085daa137936/assets/grid.svg)
+
+```
+python scripts/gen_svg.py --from-db --title "${{ env.TITLE }}" --type github --athlete "${{ env.ATHLETE }}" --special-distance 10 --special-distance2 20 --special-color yellow --special-color2 red --output assets/github.svg --use-localtime --min-distance 0.5
+```
+
+```
+python scripts/gen_svg.py --from-db --title "${{ env.TITLE_GRID }}" --type grid --athlete "${{ env.ATHLETE }}"  --output assets/grid.svg --min-distance 10.0 --special-color yellow --special-color2 red --special-distance 20 --special-distance2 40 --use-localtime
+```
+Generate year circular svg show
+```
+python3(python) scripts/gen_svg.py --from-db --type circular --use-localtime
+```
+
+For more display effects, see:     
+https://github.com/flopp/GpxTrackPoster
+
+</details>
+
 ## server(recommendation vercel)
 
 <details>
@@ -314,9 +341,8 @@ My secret is as follows
 
 - [ ] Complete this document.
 - [x] Support Garmin, Garmin China
-- [ ] Support the JoyRun
-- [ ] support for nike+strava, runtastic+strava
-- [ ] Support English
+- [x] support for nike+strava
+- [x] Support English
 - [ ] Refine the code
 - [x] add new features
 
@@ -330,6 +356,6 @@ Before submitting PR:
 
 # Special thanks
 
-- @[flopp](https://github.com/flopp)
-- @[shaonianche](https://github.com/shaonianche)
-- @[geekplux](https://github.com/geekplux)
+- @[flopp](https://github.com/flopp) great repo [GpxTrackPoster](https://github.com/flopp/GpxTrackPoster)
+- @[shaonianche](https://github.com/shaonianche) icon design and doc
+- @[geekplux](https://github.com/geekplux) Friendly help and encouragement
