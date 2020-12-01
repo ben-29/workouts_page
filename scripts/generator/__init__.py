@@ -9,6 +9,7 @@ from sqlalchemy import func
 from gpxtrackposter import track_loader
 
 from .db import init_db, update_or_create_activity, Activity
+from config import MAPPING_TYPE
 
 
 class Generator:
@@ -56,6 +57,7 @@ class Generator:
                 filters = {"before": datetime.datetime.utcnow()}
 
         for run_activity in self.client.get_activities(**filters):
+            run_activity.source = 'Strava'
             created = update_or_create_activity(self.session, run_activity)
             if created:
                 sys.stdout.write("+")
@@ -104,7 +106,37 @@ class Generator:
         last_date = None
         for activity in activities:
             # Determine running streak.
-            if activity.type == "Run":
+            # if activity.type == "Run" or activity.type == "Walk":
+                date = datetime.datetime.strptime(
+                    activity.start_date_local, "%Y-%m-%d %H:%M:%S"
+                ).date()
+                if last_date is None:
+                    streak = 1
+                elif date == last_date:
+                    pass
+                elif date == last_date + datetime.timedelta(days=1):
+                    streak += 1
+                else:
+                    assert date > last_date
+                    streak = 1
+                activity.streak = streak
+                last_date = date
+                activity_list.append(activity.to_dict())
+
+        return activity_list
+
+    def loadForMapping(self):
+        activities = self.session.query(Activity)\
+            .filter(Activity.type.in_(MAPPING_TYPE))\
+            .filter(Activity.distance.__gt__(0))\
+            .order_by(Activity.start_date_local)
+        activity_list = []
+
+        streak = 0
+        last_date = None
+        for activity in activities:
+            # Determine running streak.
+            # if activity.type == "Run" or activity.type == "Walk":
                 date = datetime.datetime.strptime(
                     activity.start_date_local, "%Y-%m-%d %H:%M:%S"
                 ).date()

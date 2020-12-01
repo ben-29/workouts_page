@@ -12,6 +12,29 @@ BASE_URL = "https://api.nike.com/sport/v3/me"
 TOKEN_REFRESH_URL = "https://unite.nike.com/tokenRefresh"
 NIKE_CLIENT_ID = "HlHa2Cje3ctlaOqnxvgZXNaAs7T9nAuH"
 
+TYPE_DICT = {
+    "running": "Run",
+    "RUN": "Run",
+    "Run": "Run",
+
+    "cycling": "Ride",
+    "CYCLING": "Ride",
+    "Ride": "Ride",
+
+    "indoor_cycling": "Indoor Ride",
+
+    "walking": "Hike",
+    "Walk": "Hike",
+    "Hike": "Hike",
+
+    "Swim": "Swim",
+
+    "rowing": "Rowing",
+}
+
+MAPPING_TYPE = ["Hike", "Ride", "Rowing", "Run"]
+
+
 try:
     with open("config.yaml") as f:
         _config = yaml.safe_load(f)

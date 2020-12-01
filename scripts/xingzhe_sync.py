@@ -37,7 +37,7 @@ class Xingzhe:
         self.headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36",
             "origin": self.URL_DICT.get("SSO_URL_ORIGIN"),
-            "Cookie": "Hm_lvt_7b262f3838ed313bc65b9ec6316c79c4=1604145562; rd=srYg; csrftoken=EMuLFpJNL0YgEaaHbaSoHuDlhmzCaA2D; sessionid=hb1lcvewzl2vdrknh91x6wvby804z7zp; Hm_lpvt_7b262f3838ed313bc65b9ec6316c79c4=1604214872"
+            "Cookie": "Hm_lvt_7b262f3838ed313bc65b9ec6316c79c4=1604310993,1605529219; csrftoken=GwQi8Ai8BPbIamdatfCyCgSyP4El55eG; sessionid=r1s7f3wcgngdvnw7w6y0arizfvzm3pr0; rd=T2t0; Hm_lpvt_7b262f3838ed313bc65b9ec6316c79c4=1606726726"
         }
 
     async def fetch_data(self, url, retrying=False):
@@ -89,7 +89,7 @@ class Xingzhe:
         startYear = 2014
         # nowDate = datetime.date.today()
         # nowDate = datetime.date(2017, 10, 1)
-        nowDate = datetime.date(2014, 11, 1)
+        nowDate = datetime.date(2020, 11, 1)
         while startYear < nowDate.year:
             for m in range(12):
                 print(startYear)
@@ -159,21 +159,22 @@ if __name__ == "__main__":
         os.mkdir(GPX_FOLDER)
 
     async def download_new_activities():
-        client = Xingzhe(userId)
-
-        # because I don't find a para for after time, so I use garmin-id as filename
-        # to find new run to generage
-        downloaded_ids = [i.split(".")[0] for i in os.listdir(GPX_FOLDER) if not i.startswith(".")]
-        activity_ids = await get_activity_id_list(client)
-        print(activity_ids)
-        to_generate_garmin_ids = list(set(activity_ids) - set(downloaded_ids))
-        print(f"{len(to_generate_garmin_ids)} new activities to be downloaded")
-
-        start_time = time.time()
-        await gather_with_concurrency(
-            10, [download_garmin_gpx(client, id) for id in to_generate_garmin_ids]
-        )
-        print(f"Download finished. Elapsed {time.time()-start_time} seconds")
+        # client = Xingzhe(userId)
+        #
+        # # because I don't find a para for after time, so I use garmin-id as filename
+        # # to find new run to generage
+        # downloaded_ids = [i.split(".")[0] for i in os.listdir(GPX_FOLDER) if not i.startswith(".")]
+        # activity_ids = await get_activity_id_list(client)
+        # print(activity_ids)
+        # to_generate_garmin_ids = list(set(activity_ids) - set(downloaded_ids))
+        # print(f"{len(to_generate_garmin_ids)} new activities to be downloaded")
+        #
+        # start_time = time.time()
+        # await gather_with_concurrency(
+        #     10, [download_garmin_gpx(client, id) for id in to_generate_garmin_ids]
+        # )
+        # print(f"Download finished. Elapsed {time.time()-start_time} seconds")
+        # update activities set start_date_local = start_date WHERE source = 'xingzhe'
         make_activities_file(SQL_FILE, GPX_FOLDER, JSON_FILE)
 
     loop = asyncio.get_event_loop()
