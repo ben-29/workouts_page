@@ -129,6 +129,7 @@ class Generator:
         activities = self.session.query(Activity)\
             .filter(Activity.type.in_(MAPPING_TYPE))\
             .filter(Activity.distance.__gt__(0))\
+            .filter(Activity.summary_polyline.isnot(None))\
             .order_by(Activity.start_date_local)
         activity_list = []
 
