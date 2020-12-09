@@ -107,7 +107,7 @@ export default () => {
         ...bounds,
       });
     }
-    setTitle(`${y} Running Heatmap`);
+    setTitle(`${y} Workouts Map`);
     clearInterval(intervalId);
   };
 
@@ -321,7 +321,7 @@ const YearStat = ({ runs, year, onClick }) => {
     <div style={{ cursor: 'pointer' }} onClick={() => onClick(year)} {...eventHandlers}>
       <section>
         <Stat value={year} description=" Journey" />
-        <Stat value={runs.length} description=" Runs" />
+        <Stat value={runs.length} description=" Workouts" />
         <Stat value={sumDistance} description=" KM" />
         <Stat value={avgPace} description=" Avg Pace" />
         <Stat
@@ -375,7 +375,7 @@ const PeriodStat = () => {
     <div style={{ cursor: 'pointer' }}>
       <section>
         {periodArr.map(([period, times]) => (
-          <Stat key={period} value={period} description={` ${times} Runs`} citySize={3} />
+          <Stat key={period} value={period} description={` ${times} Workouts`} citySize={3} />
         ))}
       </section>
       <hr color="red" />
@@ -521,11 +521,13 @@ const RunTable = ({
   const [runIndex, setRunIndex] = useState(-1);
   const [sortFuncInfo, setSortFuncInfo] = useState('');
   // TODO refactor?
+  const sortTypeFunc = (a, b) => (sortFuncInfo === 'Type' ? a.type > b.type ? 1:-1 : b.type < a.type ? -1:1);
   const sortKMFunc = (a, b) => (sortFuncInfo === 'KM' ? a.distance - b.distance : b.distance - a.distance);
   const sortPaceFunc = (a, b) => (sortFuncInfo === 'Pace' ? a.average_speed - b.average_speed : b.average_speed - a.average_speed);
   const sortBPMFunc = (a, b) => (sortFuncInfo === 'BPM' ? a.average_heartrate - b.average_heartrate : b.average_heartrate - a.average_heartrate);
   const sortDateFuncClick = sortFuncInfo === 'Date' ? sortDateFunc : sortDateFuncReverse;
   const sortFuncMap = new Map([
+    ['Type', sortTypeFunc],
     ['KM', sortKMFunc],
     ['Pace', sortPaceFunc],
     ['BPM', sortBPMFunc],
@@ -584,6 +586,8 @@ const RunRow = ({
 
   const heartRate = run.average_heartrate;
 
+  const type = run.type;
+
   // change click color
   const handleClick = (e, runs, run) => {
     const elementIndex = runs.indexOf(run);
@@ -606,6 +610,7 @@ const RunRow = ({
       }}
     >
       <td>{titleForRun(run)}</td>
+      <td>{type}</td>
       <td>{distance}</td>
       {pace && <td>{paceParts}</td>}
       <td>{heartRate && heartRate.toFixed(0)}</td>

@@ -13,9 +13,9 @@ const MUNICIPALITY_CITIES_ARR = [
 // IF you outside China please make sure IS_CHINESE = false
 const IS_CHINESE = true;
 const CHINESE_INFO_MESSAGE = (yearLength, year) =>
-  `我用 App 记录自己跑步 ${yearLength} 年了，下面列表展示的是 ${year} 的数据`;
+  `App/手表 记录自己跑步、骑车、户外 ${yearLength} 年了，下面列表展示的是 ${year} 的数据`;
 const ENGLISH_INFO_MESSAGE = (yearLength, year) =>
-  `Running Journey with ${yearLength} Years, the table shows year ${year} data`;
+  `Running Journey in ${yearLength} Years, the table shows year ${year} data`;
 
 const INFO_MESSAGE = IS_CHINESE ? CHINESE_INFO_MESSAGE : ENGLISH_INFO_MESSAGE;
 const FULL_MARATHON_RUN_TITLE = IS_CHINESE ? '全程马拉松' : 'Full Marathon';
@@ -26,6 +26,11 @@ const AFTERNOON_RUN_TITLE = IS_CHINESE ? '午后跑步' : 'Afternoon Run';
 const EVENING_RUN_TITLE = IS_CHINESE ? '傍晚跑步' : 'Evening Run';
 const NIGHT_RUN_TITLE = IS_CHINESE ? '夜晚跑步' : 'Night Run';
 
+const RIDE_TITLE = IS_CHINESE ? '骑行' : 'Ride';
+const INDOOR_RIDE_TITLE = IS_CHINESE ? '室内骑行' : 'Indoor Ride';
+const HIKE_TITLE = IS_CHINESE ? '徒步' : 'Hike';
+const ROWING_TITLE = IS_CHINESE ? '划船' : 'Rowing';
+
 const RUN_TITLES = {
   FULL_MARATHON_RUN_TITLE,
   HALF_MARATHON_RUN_TITLE,
@@ -34,6 +39,11 @@ const RUN_TITLES = {
   AFTERNOON_RUN_TITLE,
   EVENING_RUN_TITLE,
   NIGHT_RUN_TITLE,
+
+  RIDE_TITLE,
+  INDOOR_RIDE_TITLE,
+  HIKE_TITLE,
+  ROWING_TITLE,
 };
 
 export {
@@ -45,12 +55,12 @@ export {
 };
 
 export const AVATAR =
-  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTtc69JxHNcmN1ETpMUX4dozAgAN6iPjWalQ&usqp=CAU'; // Temp avatar
+  'https://avatars3.githubusercontent.com/u/6956444?s=460&u=97e1062227c4088db3c987146455245c6fa78441&v=4'; // Temp avatar
 export const NAVS = [
-  { text: 'Blog', link: 'https://github.com/yihong0618/running_page' },
-  { text: 'About', link: 'https://github.com/yihong0618/running_page' },
+  { text: 'Blog', link: 'https://ben29.xyz' },
+  { text: 'About', link: 'https://ben29.xyz/about' },
 ];
 
-const nike = 'rgb(224,237,94)';
+const nike = 'rgb(0,237,94)';
 export const MAIN_COLOR = nike;
 export const PROVINCE_FILL_COLOR = '#47b8e0';
