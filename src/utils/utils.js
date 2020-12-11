@@ -84,7 +84,10 @@ const geoJsonForRuns = (runs) => ({
       geometry: {
         type: 'LineString',
         coordinates: points,
+        workoutType: run.type,
       },
+      date: run.start_date_local,
+      name: run.name,
     };
   }),
 });

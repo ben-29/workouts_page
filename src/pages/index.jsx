@@ -18,6 +18,7 @@ import {
   IS_CHINESE,
   INFO_MESSAGE,
   MAIN_COLOR,
+  RIDE_COLOR,
   PROVINCE_FILL_COLOR,
 } from '../utils/const';
 
@@ -420,7 +421,10 @@ const RunMap = ({
     [startLon, startLat] = points[0];
     [endLon, endLat] = points[points.length - 1];
   }
-
+  console.log("geoData {}", geoData.features)
+  console.log("title" + title)
+  console.log("filterProvinces " + filterProvinces)
+  console.log("filterProvinces " + filterProvinces.slice())
   return (
     <ReactMapGL
       {...viewport}
@@ -432,7 +436,7 @@ const RunMap = ({
       <RunMapButtons changeYear={changeYear} />
       <Source id="data" type="geojson" data={geoData}>
         <Layer
-          id="prvince"
+          id="province"
           type="fill"
           paint={{
             'fill-color': PROVINCE_FILL_COLOR,

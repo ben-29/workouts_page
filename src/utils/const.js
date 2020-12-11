@@ -13,9 +13,9 @@ const MUNICIPALITY_CITIES_ARR = [
 // IF you outside China please make sure IS_CHINESE = false
 const IS_CHINESE = true;
 const CHINESE_INFO_MESSAGE = (yearLength, year) =>
-  `App/手表 记录自己跑步、骑车、户外 ${yearLength} 年了，下面列表展示的是 ${year} 的数据`;
+  `App/手表 记录自己户外运动 ${yearLength} 年了，下面列表展示的是 ${year} 的数据`;
 const ENGLISH_INFO_MESSAGE = (yearLength, year) =>
-  `Running Journey in ${yearLength} Years, the table shows year ${year} data`;
+  `Outdoor Workouts Journey in ${yearLength} Years, the table shows year ${year} data`;
 
 const INFO_MESSAGE = IS_CHINESE ? CHINESE_INFO_MESSAGE : ENGLISH_INFO_MESSAGE;
 const FULL_MARATHON_RUN_TITLE = IS_CHINESE ? '全程马拉松' : 'Full Marathon';
@@ -61,6 +61,8 @@ export const NAVS = [
   { text: 'About', link: 'https://ben29.xyz/about' },
 ];
 
-const nike = 'rgb(0,237,94)';
+const nike = 'rgb(224,237,94)';
+const ride = 'rgb(0,237,94)';
 export const MAIN_COLOR = nike;
+export const RIDE_COLOR = ride;
 export const PROVINCE_FILL_COLOR = '#47b8e0';
