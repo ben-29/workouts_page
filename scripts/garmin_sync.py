@@ -41,6 +41,9 @@ GARMIN_CN_URL_DICT = {
     "CSS_URL": "https://static.garmincdn.cn/cn.garmin.connect/ui/css/gauth-custom-v1.2-min.css",
 }
 
+# set to True if you want to sync all time activities
+# default only sync last 20
+GET_ALL = False
 
 class Garmin:
     def __init__(self, email, password, auth_domain):
@@ -215,13 +218,23 @@ async def download_garmin_gpx(client, activity_id):
 
 
 async def get_activity_id_list(client, start=0):
-    activities = await client.get_activities(start, 100)
-    if len(activities) > 0:
-        ids = list(map(lambda a: str(a.get("activityId", "")), activities))
-        print(f"Syncing Activity IDs")
-        return ids + await get_activity_id_list(client, start + 100)
+    if GET_ALL:
+        activities = await client.get_activities(start, 100)
+        if len(activities) > 0:
+            ids = list(map(lambda a: str(a.get("activityId", "")), activities))
+            print(f"Syncing Activity IDs")
+            return ids + await get_activity_id_list(client, start + 100)
+        else:
+            return []
     else:
-        return []
+        activities = await client.get_activities(start, 20)
+        if len(activities) > 0:
+            ids = list(map(lambda a: str(a.get("activityId", "")), activities))
+            print(f"Syncing Activity IDs")
+            return ids
+        else:
+            return []
+
 
 
 async def gather_with_concurrency(n, tasks):
