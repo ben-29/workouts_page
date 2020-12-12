@@ -199,7 +199,7 @@ export default () => {
       <Layout>
         <div className="mb5">
           <div className="w-100">
-            <h1 className="f1 fw9 i">Running</h1>
+            <h1 className="f1 fw9 i">Outdoor Workouts</h1>
           </div>
           {viewport.zoom <= 3 && IS_CHINESE ? <LocationStat runs={activities} location="a" onClick={changeYear} /> : <YearsStat runs={activities} year={year} onClick={changeYear} />}
           <div className="fl w-100 w-70-l">
@@ -421,10 +421,6 @@ const RunMap = ({
     [startLon, startLat] = points[0];
     [endLon, endLat] = points[points.length - 1];
   }
-  console.log("geoData {}", geoData.features)
-  console.log("title" + title)
-  console.log("filterProvinces " + filterProvinces)
-  console.log("filterProvinces " + filterProvinces.slice())
   return (
     <ReactMapGL
       {...viewport}
@@ -447,7 +443,7 @@ const RunMap = ({
           id="runs2"
           type="line"
           paint={{
-            'line-color': MAIN_COLOR,
+            'line-color': ['get', 'color'],
             'line-width': isBigMap ? 1 : 2,
           }}
           layout={{
