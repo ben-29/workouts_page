@@ -261,7 +261,7 @@ class Joyrun:
         end_local = adjust_time(end, "Asia/Shanghai")
         location_country = None
         if run_data["city"] or run_data["province"]:
-            location_country = str(run_data["city"]) + " " + str(run_data["province"])
+            location_country = str(run_data["city"]) + ", " + str(run_data["province"]) + ', 中国'
         d = {
             "id": int(joyrun_id),
             "name": "run from joyrun",
@@ -284,6 +284,7 @@ class Joyrun:
             ),
             "average_speed": run_data["meter"] / run_data["second"],
             "location_country": location_country,
+            "source": "Joyrun",
         }
         return namedtuple("x", d.keys())(*d.values())
 
