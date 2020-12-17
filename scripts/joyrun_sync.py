@@ -252,6 +252,10 @@ class Joyrun:
         heart_rate = None
         if heart_rate_list:
             heart_rate = int(sum(heart_rate_list) / len(heart_rate_list))
+            # fix #66
+            if heart_rate < 0:
+                heart_rate = None
+
         polyline_str = polyline.encode(run_points_data) if run_points_data else ""
         start_latlng = start_point(*run_points_data[0]) if run_points_data else None
         start_date = datetime.utcfromtimestamp(start_time)
@@ -260,8 +264,9 @@ class Joyrun:
         # only for China now
         end_local = adjust_time(end, "Asia/Shanghai")
         location_country = None
-        if run_data["city"] or run_data["province"]:
-            location_country = str(run_data["city"]) + ", " + str(run_data["province"]) + ', 中国'
+        # joyrun location is kind of fucking strage, so I decide not use it, if you want use it, uncomment this two lines
+        # if run_data["city"] or run_data["province"]:
+        #     location_country = str(run_data["city"]) + " " + str(run_data["province"])
         d = {
             "id": int(joyrun_id),
             "name": "run from joyrun",

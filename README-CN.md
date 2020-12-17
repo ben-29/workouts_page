@@ -16,7 +16,7 @@
 | ------- | ------- | ------- |
 | [shaonianche](https://github.com/shaonianche) | https://run.duangfei.org | Nike |
 | [yihong0618](https://github.com/yihong0618) | https://yihong.run/running | Nike |
-| [superleeyom](https://github.com/superleeyom) | https://running.leeyom.top | Keep |
+| [superleeyom](https://github.com/superleeyom) | https://running.leeyom.top | Nike |
 | [geekplux](https://github.com/geekplux) | https://activities.geekplux.com | Nike |
 | [guanlan](https://github.com/guanlan) | https://grun.vercel.app | Strava |
 | [tuzimoe](https://github.com/tuzimoe) | https://run.tuzi.moe | Nike |
@@ -56,7 +56,7 @@
 - **[Garmin](#Garmin)**
 - **[Garmin-cn](#Garmin-CN(大陆用户请用这个))**
 - **[Keep](#Keep)**
-- **[悦跑圈](#Joyrun)**(因悦跑圈限制单个设备原因，无法自动化)
+- **[悦跑圈](#Joyrun)** (因悦跑圈限制单个设备原因，无法自动化)
 - **[GPX](#GPX)**
 - **[Nike+Strava(Using NRC Run, Strava backup data)](#Nike+Strava)**
 
@@ -136,7 +136,7 @@ python3(python) scripts/keep_sync.py 13333xxxx example --with-gpx
 
 确保自己的账号能用手机号 + 验证码登陆
 
-点击获取验证码 **不要在手机输入验证码，拿到验证码就好，用这个验证码放到下方命令中**
+点击获取验证码, 注： **不要在手机输入验证码，拿到验证码就好，用这个验证码放到下方命令中**
 
 ![image](https://user-images.githubusercontent.com/15976103/102352588-e3af3000-3fe2-11eb-8131-14946b0262eb.png)
 
@@ -346,7 +346,7 @@ https://github.com/flopp/GpxTrackPoster
 
 <details>
 <summary>使用 vercel 部署</summary>
-  
+
 1. vercel 连接你的 GitHub repo
 
 ![image](https://user-images.githubusercontent.com/15976103/94452465-2599b880-01e2-11eb-9538-582f0f46c421.png)
