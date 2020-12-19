@@ -93,7 +93,7 @@ jobs:
         with:
           github-token: ${{ secrets.G_TOKEN }}
           commit-message: "Add new runs"
-          files: activities src/static/ scripts/ assets/ GPX_OUT/
+          files: activities src/static/ scripts/ assets/ 
           rebase: 'true'
           name: ${{ env.GITHUB_NAME }}
           email: ${{ env.GITHUB_EMAIL }}
