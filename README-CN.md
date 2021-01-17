@@ -26,10 +26,12 @@
 | [zhaohongxuan](https://github.com/zhaohongxuan) | https://running-page-psi.vercel.app/ | Keep |
 | [yvetterowe](https://github.com/yvetterowe) | https://run.haoluo.io | Strava |
 | [love-exercise](https://github.com/KaiOrange) | https://run.kai666666.top/ | Keep |
-
+| [zstone12](https://github.com/zstone12) | https://running-page.zstone12.vercel.app/ | Keep |
+| [Lax](https://github.com/Lax) | https://running-lax.vercel.app/ | Keep |
+| [lusuzi](https://github.com/lusuzi) | https://running.lusuzi.vercel.app/ | Nike |
 ## 它是怎么工作的
 
-![image](https://user-images.githubusercontent.com/15976103/102441412-2f9ebb00-405d-11eb-9dc7-1a8951748895.png)
+![image](https://user-images.githubusercontent.com/15976103/103496454-4294f600-4e79-11eb-9bd6-8eea7a07ddff.png)
 
 ## 特性
 
@@ -388,8 +390,9 @@ Actions [源码](https://github.com/yihong0618/running_page/blob/master/.github/
 - [x] 支持英语
 - [x] 完善代码
 - [x] 清理整个项目
-- [ ] 完善前端代码
+- [x] 完善前端代码
 - [x] better actions
+- [ ] 支持不同的运动类型
 
 # 参与项目
 
@@ -402,4 +405,4 @@ Actions [源码](https://github.com/yihong0618/running_page/blob/master/.github/
 # 特别感谢
 - @[flopp](https://github.com/flopp) 特别棒的项目 [GpxTrackPoster](https://github.com/flopp/GpxTrackPoster)
 - @[shaonianche](https://github.com/shaonianche) icon 设计及文档
-- @[geekplux](https://github.com/geekplux) 帮助及鼓励 
+- @[geekplux](https://github.com/geekplux) 帮助及鼓励, 重构了前端代码，学到了不少~

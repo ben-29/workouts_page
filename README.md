@@ -28,10 +28,13 @@
 | [zhaohongxuan](https://github.com/zhaohongxuan) | https://running-page-psi.vercel.app/ | Keep |
 | [yvetterowe](https://github.com/yvetterowe) | https://run.haoluo.io | Strava |
 | [love-exercise](https://github.com/KaiOrange) | https://run.kai666666.top/ | Keep |
+| [zstone12](https://github.com/zstone12) | https://running-page.zstone12.vercel.app/ | Keep |
+| [Lax](https://github.com/Lax) | https://running-lax.vercel.app/ | Keep |
+| [lusuzi](https://github.com/lusuzi) | https://running.lusuzi.vercel.app/ | Nike |
 
 ## How it works
 
-![image](https://user-images.githubusercontent.com/15976103/100430000-28753480-30d1-11eb-8b4e-258a67038d74.png)
+![image](https://user-images.githubusercontent.com/15976103/103496454-4294f600-4e79-11eb-9bd6-8eea7a07ddff.png)
 
 ## Features
 
@@ -341,12 +344,14 @@ My secret is as follows
 
 # TODO
 
-- [ ] Complete this document.
+- [x] Complete this document.
 - [x] Support Garmin, Garmin China
 - [x] support for nike+strava
 - [x] Support English
-- [ ] Refine the code
+- [x] Refine the code
 - [x] add new features
+- [ ] support the world map
+- [ ] support multiple types, like hiking, biking~
 
 # Contribution
 
@@ -360,4 +365,4 @@ Before submitting PR:
 
 - @[flopp](https://github.com/flopp) great repo [GpxTrackPoster](https://github.com/flopp/GpxTrackPoster)
 - @[shaonianche](https://github.com/shaonianche) icon design and doc
-- @[geekplux](https://github.com/geekplux) Friendly help and encouragement
+- @[geekplux](https://github.com/geekplux) Friendly help and encouragement, refactored the whole front-end code, learned a lot~
