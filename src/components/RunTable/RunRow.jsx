@@ -11,6 +11,8 @@ const RunRow = ({ runs, run, locateActivity, runIndex, setRunIndex }) => {
 
   const heartRate = run.average_heartrate;
 
+  const type = run.type;
+
   // change click color
   const handleClick = (e, runs, run) => {
     const elementIndex = runs.indexOf(run);
@@ -33,6 +35,7 @@ const RunRow = ({ runs, run, locateActivity, runIndex, setRunIndex }) => {
       }}
     >
       <td>{titleForRun(run)}</td>
+      <td>{type}</td>
       <td>{distance}</td>
       {pace && <td>{paceParts}</td>}
       <td>{heartRate && heartRate.toFixed(0)}</td>

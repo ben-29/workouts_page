@@ -24,7 +24,7 @@ const RunMap = ({
   const { provinces } = useActivities();
   const addControlHandler = (event) => {
     const map = event && event.target;
-    // set lauguage to Chinese if you use English please comment it
+    // set language to Chinese if you use English please comment it
     if (map && IS_CHINESE) {
       map.addControl(
         new MapboxLanguage({
@@ -70,7 +70,7 @@ const RunMap = ({
       <RunMapButtons changeYear={changeYear} thisYear={thisYear} />
       <Source id="data" type="geojson" data={geoData}>
         <Layer
-          id="prvince"
+          id="province"
           type="fill"
           paint={{
             'fill-color': PROVINCE_FILL_COLOR,
@@ -81,7 +81,7 @@ const RunMap = ({
           id="runs2"
           type="line"
           paint={{
-            'line-color': MAIN_COLOR,
+            'line-color': ['get', 'color'],
             'line-width': isBigMap ? 1 : 2,
           }}
           layout={{

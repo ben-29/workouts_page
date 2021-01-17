@@ -40,7 +40,7 @@ export default () => {
   const changeByItem = (item, name, func) => {
     scrollToMap();
     setActivity(filterAndSortRuns(activities, item, func, sortDateFunc));
-    setTitle(`${item} ${name} Running Heatmap`);
+    setTitle(`${item} ${name} Workouts Map`);
     setRunIndex(-1);
   };
 
@@ -157,7 +157,7 @@ export default () => {
     <Layout>
       <div className="mb5">
         <div className="w-100">
-          <h1 className="f1 fw9 i">Running</h1>
+          <h1 className="f1 fw9 i">Outdoor Workouts</h1>
         </div>
         {viewport.zoom <= 3 && IS_CHINESE ? (
           <LocationStat

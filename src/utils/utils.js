@@ -6,7 +6,10 @@ import { MUNICIPALITY_CITIES_ARR, RUN_TITLES, MAIN_COLOR, RIDE_COLOR, HIKE_COLOR
 const titleForShow = (run) => {
   const date = run.start_date_local.slice(0, 11);
   const distance = (run.distance / 1000.0).toFixed(1);
-  let name = run.name;
+  let name = 'Run';
+  if (run.name) {
+    name = run.name;
+  }
   return `${name} ${date} ${distance} KM ${!run.summary_polyline ? '(No map data for this workout)' : ''}`;
 };
 
@@ -108,19 +111,7 @@ const titleForRun = (run) => {
       if (runDistance >= 40) {
         return RUN_TITLES.FULL_MARATHON_RUN_TITLE;
       }
-      if (runHour >= 0 && runHour <= 8) {
-        return RUN_TITLES.MORNING_RUN_TITLE;
-      }
-      if (runHour > 8 && runHour <= 12) {
-        return RUN_TITLES.LUNCH_RUN_TITLE;
-      }
-      if (runHour > 12 && runHour <= 18) {
-        return RUN_TITLES.AFTERNOON_RUN_TITLE;
-      }
-      if (runHour > 18 && runHour <= 21) {
-        return RUN_TITLES.EVENING_RUN_TITLE;
-      }
-      return RUN_TITLES.NIGHT_RUN_TITLE;
+      return RUN_TITLES.RUN_TITLE;
     case 'Ride':
       return RUN_TITLES.RIDE_TITLE;
     case 'Indoor Ride':
@@ -130,7 +121,7 @@ const titleForRun = (run) => {
     case 'Rowing':
       return RUN_TITLES.ROWING_TITLE;
     default:
-      return RUN_TITLES.NIGHT_RUN_TITLE;
+      return RUN_TITLES.RUN_TITLE;
   }
 };
 

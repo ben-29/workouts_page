@@ -20,6 +20,7 @@ const useActivities = () => {
             start_date_local
             streak
             summary_polyline
+            source
           }
         }
       }
