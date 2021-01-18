@@ -16,7 +16,7 @@ import httpx
 import aiofiles
 
 from config import GPX_FOLDER, JSON_FILE, SQL_FILE, config
-from utils import make_activities_file
+from utils import make_activities_file_only
 
 # logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -289,7 +289,7 @@ if __name__ == "__main__":
             10, [download_garmin_gpx(client, id) for id in to_generate_garmin_ids]
         )
         print(f"Download finished. Elapsed {time.time()-start_time} seconds")
-        make_activities_file(SQL_FILE, GPX_FOLDER, JSON_FILE)
+        make_activities_file_only(SQL_FILE, GPX_FOLDER, JSON_FILE)
 
     loop = asyncio.get_event_loop()
     future = asyncio.ensure_future(download_new_activities())
