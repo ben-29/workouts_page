@@ -138,19 +138,22 @@ class Track:
         """Append other track to self."""
         self.end_time = other.end_time
         self.length += other.length
-        self.moving_dict["distance"] += other.moving_dict["distance"]
-        self.moving_dict["moving_time"] += other.moving_dict["moving_time"]
-        self.moving_dict["elapsed_time"] += other.moving_dict["elapsed_time"]
-        self.polyline_container.extend(other.polyline_container)
-
-        self.polyline_str = polyline.encode(self.polyline_container)
-        self.moving_dict["average_speed"] = (
-            self.moving_dict["distance"]
-            / self.moving_dict["moving_time"].total_seconds()
-        )
-
-        self.file_names.extend(other.file_names)
-        self.special = self.special or other.special
+        # TODO maybe a better way
+        try:
+            self.moving_dict["distance"] += other.moving_dict["distance"]
+            self.moving_dict["moving_time"] += other.moving_dict["moving_time"]
+            self.moving_dict["elapsed_time"] += other.moving_dict["elapsed_time"]
+            self.polyline_container.extend(other.polyline_container)
+            self.polyline_str = polyline.encode(self.polyline_container)
+            self.moving_dict["average_speed"] = (
+                self.moving_dict["distance"]
+                / self.moving_dict["moving_time"].total_seconds()
+            )
+            self.file_names.extend(other.file_names)
+            self.special = self.special or other.special
+        except:
+            print(f"something wrong append this {self.end_time},in files {str(self.file_names)}")
+            pass
 
     def load_cache(self, cache_file_name):
         try:
