@@ -29,10 +29,10 @@ did = "24-00000000-03e1-7dd7-0033-c5870033c588"
 # fixed params
 base_url = "https://api.codoon.com"
 davinci = "0"
-basic_auth = 'MDk5Y2NlMjhjMDVmNmMzOWFkNWUwNGU1MWVkNjA3MDQ6YzM5ZDNmYmVhMWU4NWJlY2VlNDFjMTk5N2FjZjBlMzY='
-client_id = '099cce28c05f6c39ad5e04e51ed60704'
+basic_auth = "MDk5Y2NlMjhjMDVmNmMzOWFkNWUwNGU1MWVkNjA3MDQ6YzM5ZDNmYmVhMWU4NWJlY2VlNDFjMTk5N2FjZjBlMzY="
+client_id = "099cce28c05f6c39ad5e04e51ed60704"
 
-
+# for future use
 TYPE_DICT = {
     0: "Hike",
     1: "Run",
@@ -43,12 +43,12 @@ TYPE_DICT = {
 # decrypt from libencrypt.so Java_com_codoon_jni_JNIUtils_encryptHttpSignature
 # sha1 -> base64
 def make_signature(message):
-    key = bytes("ecc140ad6e1e12f7d972af04add2c7ee", 'UTF-8')
-    message = bytes(message, 'UTF-8')
+    key = bytes("ecc140ad6e1e12f7d972af04add2c7ee", "UTF-8")
+    message = bytes(message, "UTF-8")
     digester = hmac.new(key, message, hashlib.sha1)
     signature1 = digester.digest()
     signature2 = base64.b64encode(signature1)
-    return str(signature2, 'UTF-8')
+    return str(signature2, "UTF-8")
 
 
 def device_info_headers():
@@ -85,12 +85,11 @@ class CodoonAuth:
                 refresh_token=refresh_token,
             )
             r = session.post(
-                f"{base_url}/token?"+query,
+                f"{base_url}/token?" + query,
                 data=query,
                 auth=self.reload(query),
             )
             if not r.ok:
-                print(r)
                 print(r.json())
                 raise Exception("refresh_token expired")
 
@@ -107,7 +106,7 @@ class CodoonAuth:
         arr = path.split("?")
         path = arr[0]
         query = arr[1] if len(arr) > 1 else ""
-        body_str = body if body else ''
+        body_str = body if body else ""
         if body is not None and not isinstance(body, str):
             body_str = json.dumps(body)
         if query != "":
@@ -122,7 +121,6 @@ class CodoonAuth:
             query=query,
             timestamp=str(timestamp),
         )
-        # print("pre_string " + pre_string)
         return make_signature(pre_string)
 
     def __call__(self, r):
@@ -137,26 +135,28 @@ class CodoonAuth:
             timestamp = 0
             r.headers["authorization"] = "Basic " + basic_auth
             r.headers["timestamp"] = timestamp
-            sign = self.__get_signature(r.headers["authorization"], r.path_url, timestamp=timestamp)
+            sign = self.__get_signature(
+                r.headers["authorization"], r.path_url, timestamp=timestamp
+            )
         elif r.method == "POST":
             timestamp = int(time.time())
             r.headers["timestamp"] = timestamp
             if "refresh_token" in params:
                 r.headers["authorization"] = "Basic " + basic_auth
-                r.headers["content-type"] = 'application/x-www-form-urlencode; charset=utf-8'
+                r.headers["content-type"] = "application/x-www-form-urlencode; charset=utf-8"
             else:
                 r.headers["authorization"] = "Bearer " + self.token
-                r.headers["content-type"] = 'application/json; charset=utf-8'
-            sign = self.__get_signature(r.headers["authorization"], r.path_url, body=body, timestamp=timestamp)
+                r.headers["content-type"] = "application/json; charset=utf-8"
+            sign = self.__get_signature(
+                r.headers["authorization"], r.path_url, body=body, timestamp=timestamp
+            )
             r.body = body
 
-        # print('sign= ', sign)
         r.headers["signature"] = sign
         return r
 
 
 class Codoon:
-
     def __init__(self, mobile="", password="", refresh_token=None, user_id=""):
         self.mobile = mobile
         self.password = password
@@ -187,31 +187,26 @@ class Codoon:
             params=params,
             auth=self.auth.reload(params),
         )
-        # print(r.json())
         login_data = r.json()
         self.refresh_token = login_data["refresh_token"]
         self.token = login_data["access_token"]
         self.user_id = login_data["user_id"]
         self.auth.reload(token=self.token)
-        print(f"your refresh_token and user_id are {str(self.refresh_token)} {str(self.user_id)}")
+        print(
+            f"your refresh_token and user_id are {str(self.refresh_token)} {str(self.user_id)}"
+        )
 
     def get_runs_records(self, page=1):
-        payload = {
-            "limit": 500,
-            "page": page,
-            "user_id": self.user_id
-        }
+        payload = {"limit": 500, "page": page, "user_id": self.user_id}
         r = self.session.post(
             f"{base_url}/api/get_old_route_log",
             data=payload,
             auth=self.auth.reload(payload),
         )
         if not r.ok:
-            print(r)
             print(r.json())
             raise Exception("get runs records error")
 
-        # print(r.json())
         runs = r.json()["data"]["log_list"]
         if r.json()["data"]["has_more"] == "true":
             return runs + self.get_runs_records(page + 1)
@@ -228,13 +223,12 @@ class Codoon:
             points = []
         return points
 
-    @staticmethod
-    def parse_points_to_gpx(run_points_data, start_time, end_time, interval=5):
+    def parse_points_to_gpx(self, run_points_data, start_time, end_time, interval=5):
         # TODO for now kind of same as `keep` maybe refactor later
         points_dict_list = []
         i = 0
-        start_timestamp = datetime.fromisoformat(start_time).timestamp()
-        end_timestamp = datetime.fromisoformat(end_time).timestamp()
+        start_timestamp = self._gt(start_time).timestamp()
+        end_timestamp = self._gt(end_time).timestamp()
         for point in run_points_data[:-1]:
             points_dict = {
                 "latitude": point["latitude"],
@@ -281,15 +275,20 @@ class Codoon:
             print(r.json())
             raise Exception("get runs records error")
         data = r.json()
-        # print(json.dumps(data))
         return data
+
+    @staticmethod
+    def _gt(dt_str):
+        dt, _, us = dt_str.partition(".")
+        return datetime.strptime(dt, "%Y-%m-%dT%H:%M:%S")
 
     def parse_raw_data_to_namedtuple(self, run_data, old_gpx_ids, with_gpx=False):
         run_data = run_data["data"]
-        # print(run_data)
         log_id = run_data["id"]
 
-        start_time = run_data["start_time"]
+        start_time = run_data.get("start_time")
+        if not start_time:
+            return
         end_time = run_data["end_time"]
         run_points_data = run_data["points"] if "points" in run_data else None
 
@@ -305,10 +304,13 @@ class Codoon:
 
         polyline_str = polyline.encode(latlng_data) if latlng_data else ""
         start_latlng = start_point(*latlng_data[0]) if latlng_data else None
-        start_date = datetime.fromisoformat(start_time)
-        end_date = datetime.fromisoformat(end_time)
+        start_date = self._gt(start_time)
+        end_date = self._gt(end_time)
         location_country = None
         sport_type = run_data["sports_type"]
+        # only support run now, if you want all type comments these two lines
+        # if sport_type != 1:
+        #     return
         cast_type = TYPE_DICT[sport_type] if sport_type in TYPE_DICT else sport_type
         d = {
             "id": log_id,
@@ -316,9 +318,7 @@ class Codoon:
             "type": cast_type,
             "start_date": datetime.strftime(start_date, "%Y-%m-%d %H:%M:%S"),
             "end": datetime.strftime(end_date, "%Y-%m-%d %H:%M:%S"),
-            "start_date_local": datetime.strftime(
-                start_date, "%Y-%m-%d %H:%M:%S"
-            ),
+            "start_date_local": datetime.strftime(start_date, "%Y-%m-%d %H:%M:%S"),
             "end_local": datetime.strftime(end_date, "%Y-%m-%d %H:%M:%S"),
             "length": run_data["total_length"],
             "average_heartrate": heart_rate,
@@ -346,7 +346,8 @@ class Codoon:
             run_data = self.get_single_run_record(i["route_id"])
             run_data["data"]["id"] = i["log_id"]
             track = self.parse_raw_data_to_namedtuple(run_data, old_gpx_ids, with_gpx)
-            tracks.append(track)
+            if track:
+                tracks.append(track)
         return tracks
 
 
