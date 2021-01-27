@@ -138,8 +138,8 @@ const colorFromType = (workoutType) => {
       return HIKE_COLOR;
     case 'Rowing':
       return ROWING_COLOR;
-    case 'Rowing':
-      return ROWING_COLOR;
+    case 'Swim':
+      return SWIM_COLOR;
     default:
       return MAIN_COLOR
   }
