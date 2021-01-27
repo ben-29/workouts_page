@@ -120,6 +120,8 @@ const titleForRun = (run) => {
       return RUN_TITLES.HIKE_TITLE;
     case 'Rowing':
       return RUN_TITLES.ROWING_TITLE;
+    case 'Swim':
+      return RUN_TITLES.SWIM_TITLE;
     default:
       return RUN_TITLES.RUN_TITLE;
   }
