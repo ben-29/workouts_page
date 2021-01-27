@@ -56,10 +56,14 @@ export const NAVS = [
 ];
 
 const nike = 'rgb(224,237,94)';
-const run = 'rgb(224,237,94)';
-const ride = 'rgb(0,237,94)';
-const hike = 'rgb(237,85,219)';
-export const MAIN_COLOR = run;
-export const RIDE_COLOR = ride;
-export const HIKE_COLOR = hike;
+const yellow = 'rgb(224,237,94)';
+const green = 'rgb(0,237,94)';
+const pink = 'rgb(237,85,219)';
+const cyan = 'rgb(112,243,255)';
+const gold = 'rgb(242,190,69)';
+export const MAIN_COLOR = yellow;
+export const RIDE_COLOR = green;
+export const HIKE_COLOR = pink;
+export const SWIM_COLOR = gold;
+export const ROWING_COLOR = cyan;
 export const PROVINCE_FILL_COLOR = '#47b8e0';
