@@ -23,15 +23,16 @@
 | [ben_29](https://github.com/ben-29) | https://running.ben29.xyz | Strava |
 | [kcllf](https://github.com/kcllf) | https://running-tau.vercel.app | Garmin-cn |
 | [mq](https://github.com/MQ-0707) | https://running-iota.vercel.app | Keep |
-| [zhaohongxuan](https://github.com/zhaohongxuan) | https://running-page-psi.vercel.app/ | Keep |
+| [zhaohongxuan](https://github.com/zhaohongxuan) | https://running-page-psi.vercel.app | Keep |
 | [yvetterowe](https://github.com/yvetterowe) | https://run.haoluo.io | Strava |
 | [love-exercise](https://github.com/KaiOrange) | https://run.kai666666.top/ | Keep |
-| [zstone12](https://github.com/zstone12) | https://running-page.zstone12.vercel.app/ | Keep |
-| [Lax](https://github.com/Lax) | https://running-lax.vercel.app/ | Keep |
-| [lusuzi](https://github.com/lusuzi) | https://running.lusuzi.vercel.app/ | Nike |
+| [zstone12](https://github.com/zstone12) | https://running-page.zstone12.vercel.app | Keep |
+| [Lax](https://github.com/Lax) | https://running-lax.vercel.app | Keep |
+| [lusuzi](https://github.com/lusuzi) | https://running.lusuzi.vercel.app | Nike |
+| [wh1994](https://github.com/wh1994) | https://run4life.fun | Garmin |
 ## 它是怎么工作的
 
-![image](https://user-images.githubusercontent.com/15976103/103496454-4294f600-4e79-11eb-9bd6-8eea7a07ddff.png)
+![image](https://user-images.githubusercontent.com/15976103/105784027-e1ad9900-5fb2-11eb-9479-372be21482f1.png)
 
 ## 特性
 
@@ -40,7 +41,7 @@
 3. 支持 Vercel(推荐) 自动部署
 4. React Hooks
 5. Mapbox 进行地图展示
-6. Nike 及 Runtastic(Adidas Run) 以及佳明（佳明中国）及 Keep, 自动备份 gpx 数据，方便备份及上传到其它软件
+6. Nike 及 Runtastic(Adidas Run) 以及佳明（佳明中国）及 Keep 等, 自动备份 gpx 数据，方便备份及上传到其它软件
 
 > 因为数据存在 gpx 和 data.db 中，理论上支持几个软件一起，你可以把之前各类 app 的数据都同步到这里（建议本地同步，之后 actions 选择正在用的 app）
 

@@ -48,7 +48,7 @@ class Track:
                 self._load_gpx_data(mod_gpxpy.parse(file))
         except:
             print(
-                f"Something went wrong when loading GPX. for file {self.file_names[0]}"
+                f"Something went wrong when loading GPX. for file {self.file_names[0]}, we just ignore this file and continue"
             )
             pass
 
