@@ -1,7 +1,7 @@
 import * as mapboxPolyline from '@mapbox/polyline';
 import { WebMercatorViewport } from 'react-map-gl';
 import { chinaGeojson } from '../static/run_countries';
-import { MUNICIPALITY_CITIES_ARR, RUN_TITLES, MAIN_COLOR, RIDE_COLOR, HIKE_COLOR } from './const';
+import { MUNICIPALITY_CITIES_ARR, RUN_TITLES, MAIN_COLOR, RIDE_COLOR, HIKE_COLOR, SWIM_COLOR, ROWING_COLOR } from './const';
 
 const titleForShow = (run) => {
   const date = run.start_date_local.slice(0, 11);
@@ -14,7 +14,7 @@ const titleForShow = (run) => {
 };
 
 const formatPace = (d) => {
-  if (Number.isNaN(d)) return '0';
+  if (Number.isNaN(d) || d == 0) return '0';
   const pace = (1000.0 / 60.0) * (1.0 / d);
   const minutes = Math.floor(pace);
   const seconds = Math.floor((pace - minutes) * 60.0);
@@ -120,6 +120,8 @@ const titleForRun = (run) => {
       return RUN_TITLES.HIKE_TITLE;
     case 'Rowing':
       return RUN_TITLES.ROWING_TITLE;
+    case 'Swim':
+      return RUN_TITLES.SWIM_TITLE;
     default:
       return RUN_TITLES.RUN_TITLE;
   }
@@ -133,8 +135,11 @@ const colorFromType = (workoutType) => {
     case 'Indoor Ride':
       return RIDE_COLOR;
     case 'Hike':
-    case 'Rowing':
       return HIKE_COLOR;
+    case 'Rowing':
+      return ROWING_COLOR;
+    case 'Swim':
+      return SWIM_COLOR;
     default:
       return MAIN_COLOR
   }

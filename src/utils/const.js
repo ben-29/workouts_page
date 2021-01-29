@@ -21,6 +21,7 @@ const INFO_MESSAGE = IS_CHINESE ? CHINESE_INFO_MESSAGE : ENGLISH_INFO_MESSAGE;
 const FULL_MARATHON_RUN_TITLE = IS_CHINESE ? '全程马拉松' : 'Full Marathon';
 const HALF_MARATHON_RUN_TITLE = IS_CHINESE ? '半程马拉松' : 'Half Marathon';
 const RUN_TITLE = IS_CHINESE ? '跑步' : 'Run';
+const SWIM_TITLE = IS_CHINESE ? '游泳' : 'Swim';
 
 const RIDE_TITLE = IS_CHINESE ? '骑行' : 'Ride';
 const INDOOR_RIDE_TITLE = IS_CHINESE ? '室内骑行' : 'Indoor Ride';
@@ -36,6 +37,7 @@ const RUN_TITLES = {
   INDOOR_RIDE_TITLE,
   HIKE_TITLE,
   ROWING_TITLE,
+  SWIM_TITLE,
 };
 
 export {
@@ -54,10 +56,14 @@ export const NAVS = [
 ];
 
 const nike = 'rgb(224,237,94)';
-const run = 'rgb(224,237,94)';
-const ride = 'rgb(0,237,94)';
-const hike = 'rgb(237,85,219)';
-export const MAIN_COLOR = run;
-export const RIDE_COLOR = ride;
-export const HIKE_COLOR = hike;
+const yellow = 'rgb(224,237,94)';
+const green = 'rgb(0,237,94)';
+const pink = 'rgb(237,85,219)';
+const cyan = 'rgb(112,243,255)';
+const gold = 'rgb(242,190,69)';
+export const MAIN_COLOR = yellow;
+export const RIDE_COLOR = green;
+export const HIKE_COLOR = pink;
+export const SWIM_COLOR = gold;
+export const ROWING_COLOR = cyan;
 export const PROVINCE_FILL_COLOR = '#47b8e0';
