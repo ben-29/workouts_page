@@ -1,21 +1,29 @@
-import argparse
-import logging
-import os
-import time
-import datetime
-import re
-import sys
-import traceback
-import asyncio
-import httpx
-import aiofiles
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
-from config import GPX_FOLDER, JSON_FILE, SQL_FILE, config
+import argparse
+import os
+from collections import namedtuple
+from datetime import datetime
+
+import requests
+import bs4
+from base64 import b64encode, b64decode
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import PKCS1_v1_5
+import asyncio
+import aiofiles
 from utils import make_activities_file
 
-logger = logging.getLogger(__name__)
+from config import GPX_FOLDER, JSON_FILE, SQL_FILE
+from generator import Generator
+import gpxpy as mod_gpxpy
 
 
+startYear = 2012
+startYear = 2015
+
+# device info
 XINGZHE_URL_DICT = {
     "BASE_URL": "https://www.imxingzhe.com/user/login",
 
@@ -24,115 +32,149 @@ XINGZHE_URL_DICT = {
     "SSO_URL_ORIGIN": "https://www.imxingzhe.com/portal/",
 }
 
+TYPE_DICT = {
+    0: "Drive",
+    1: "Hike",
+    2: "Run",
+    3: "Ride",
+    8: "Indoor Cycling",
+}
 
 
-class Xingzhe:
-    def __init__(self, userId):
-        self.req = httpx.AsyncClient(timeout=httpx.Timeout(60.0))
-        self.URL_DICT = (XINGZHE_URL_DICT)
-        self.activity_list_url = self.URL_DICT.get("ACTIVITY_LIST_URL")
-        self.download_gpx_url = self.URL_DICT.get("DOWNLOAD_GPX_URL")
-        self.userId = userId
-
-        self.headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36",
-            "origin": self.URL_DICT.get("SSO_URL_ORIGIN"),
-            "Cookie": "Hm_lvt_7b262f3838ed313bc65b9ec6316c79c4=1604310993,1605529219; csrftoken=GwQi8Ai8BPbIamdatfCyCgSyP4El55eG; sessionid=r1s7f3wcgngdvnw7w6y0arizfvzm3pr0; rd=T2t0; Hm_lpvt_7b262f3838ed313bc65b9ec6316c79c4=1606726726"
-        }
-
-    async def fetch_data(self, url, retrying=False):
-        """
-        Fetch and return data
-        """
-        try:
-            response = await self.req.get(url, headers=self.headers)
-            if response.status_code == 429:
-                raise Exception("Too many requests")
-            logger.debug(f"fetch_data got response code {response.status_code}")
-            response.raise_for_status()
-            json = response.json()
-            print(json)
-            if json != None \
-                    and json['data'] != None\
-                    and len(json['data']):
-                return json['data']['wo_info']
-            return []
-        except Exception as err:
-            if retrying:
-                logger.debug(
-                    "Exception occurred during data retrieval, relogin without effect: %s"
-                    % err
-                )
-                raise Exception("Error connecting") from err
-            else:
-                logger.debug(
-                    "Exception occurred during data retrieval - perhaps session expired - trying relogin: %s"
-                    % err
-                )
-                await self.fetch_data(url, retrying=True)
+def encrypt_password(public_key, password, salt):
+    enc = PKCS1_v1_5.new(RSA.importKey(public_key))
+    message = f"{password};{salt}".encode('utf8')
+    ciphertext = enc.encrypt(message)
+    return b64encode(ciphertext).decode('utf8')
 
 
-    async def get_activities_by_month(self, year, month):
-        """
-        Fetch available activities
-        """
-        url = f"{self.activity_list_url}user_id={self.userId}&year={year}&month={month}"
-        print(url)
-        return await self.fetch_data(url)
+def device_info_headers():
+    return {
+        "Connection": "keep-alive",
+        "Accept": "application/json, text/javascript, */*;",
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.96 Safari/537.36",
+        "Content-Type": "application/json",
+        "Origin": "https://www.imxingzhe.com",
+        "Referer": "https://www.imxingzhe.com/user/login",
+        "X-Requested-With": "XMLHttpRequest",
+        "Sec-Fetch-Site": "same-origin",
+        "Sec-Fetch-Mode": "cors",
+        "Sec-Fetch-Dest": "empty",
+    }
 
 
-    async def get_activities(self):
-        """
-        Fetch available activities
-        """
-        results = []
-        startYear = 2014
-        # nowDate = datetime.date.today()
-        # nowDate = datetime.date(2017, 10, 1)
-        nowDate = datetime.date(2020, 11, 1)
-        while startYear < nowDate.year:
-            for m in range(12):
-                print(startYear)
-                activities = await self.get_activities_by_month(year=startYear, month=m+1)
-                if len(activities) == 0:
-                    pass
-                logger.info(f"{startYear} - {m}: {activities}")
-                ids = list(map(lambda a: str(a.get("id", "")), activities))
-                results = results + ids
-                logger.debug(f"Activity IDs: {ids}")
-            startYear = startYear +1
-        for m in range(nowDate.month):
-            activities = await self.get_activities_by_month(year=startYear, month=m+1)
-            if len(activities) == 0:
-                pass
-            logger.info(f"{startYear} - {m}: {activities}")
-            ids = list(map(lambda a: str(a.get("id", "")), activities))
-            results = results + ids
-            logger.debug(f"Activity IDs: {ids}")
-        return results
-
-    async def download_activity(self, activity_id):
-        url = f"{self.download_gpx_url}/{activity_id}/gpx/"
-        logger.info(f"Download activity from {url}")
-        response = await self.req.get(url, headers=self.headers)
-        response.raise_for_status()
-        return response.read()
-
-
-async def download_garmin_gpx(client, activity_id):
+def download_codoon_gpx(gpx_data, log_id):
     try:
-        gpx_data = await client.download_activity(activity_id)
-        file_path = os.path.join(GPX_FOLDER, f"{activity_id}.gpx")
-        async with aiofiles.open(file_path, "wb") as fb:
-            await fb.write(gpx_data)
+        print(f"downloading codoon {str(log_id)} gpx")
+        file_path = os.path.join(GPX_FOLDER, str(log_id) + ".gpx")
+        with open(file_path, "w") as fb:
+            fb.write(gpx_data)
     except:
-        print(f"Failed to download activity {activity_id}: ")
-        traceback.print_exc()
+        print(f"wrong id {log_id}")
         pass
 
 
-async def get_activity_id_list(client):
-    return await client.get_activities()
+class Xingzhe:
+    def __init__(self, mobile=None, password="", session_id=None, user_id=""):
+        self.mobile = mobile
+        self.password = password
+        self.session_id = session_id
+        self.user_id = user_id
+
+        self.session = requests.Session()
+        self.session.headers.update(device_info_headers())
+        if session_id:
+            self.session.headers.update({"Cookie": f"sessionid={session_id}"})
+
+    def login_by_password(self):
+        params = {}
+        r = self.session.get(
+            f"{XINGZHE_URL_DICT['BASE_URL']}",
+            params=params,
+        )
+        rd = r.cookies['rd']
+        soup = bs4.BeautifulSoup(r.content, 'html')
+        pubkey = soup.find(attrs={'id': 'pubkey'}).text
+
+        params = {
+            "account": self.mobile,
+            "password": encrypt_password(pubkey, self.password, rd),
+            "source": "web"
+        }
+        r = self.session.post(
+            f"{XINGZHE_URL_DICT['BASE_URL']}",
+            json=params,
+        )
+        login_data = r.json()
+        if not r.ok:
+            print(r.json())
+            raise Exception("Login Fail " + login_data["error_message"])
+
+        self.session_id = r.cookies['sessionid']
+        self.user_id = login_data["data"]["userid"]
+        print(
+            f"your refresh_token and user_id are {str(self.session_id)} {str(self.user_id)}"
+        )
+
+    def get_activities_by_month(self, year, month):
+        url = f"{XINGZHE_URL_DICT['ACTIVITY_LIST_URL']}user_id={self.user_id}&year={year}&month={month}"
+        print(url)
+
+        response = self.session.get(url)
+        json = response.json()
+        print(json)
+        if json is not None \
+                and json['data'] is not None \
+                and len(json['data']):
+            print("y-m " + str(year) + " " + str(month) )
+            return json['data']['wo_info']
+        return []
+
+    def get_old_tracks(self):
+        results = []
+        now_date = datetime.now() #.date.today()
+        now_date = datetime(year=2014, month=7, day=1)
+        for year in range(now_date.year - startYear):
+            for m in range(12):
+                activities = self.get_activities_by_month(year=year+startYear, month=m+1)
+                if len(activities) == 0:
+                    pass
+                ids = [i["id"] for i in activities]
+                results = results + ids
+        for m in range(now_date.month):
+            activities = self.get_activities_by_month(year=now_date.year, month=m+1)
+            if len(activities) == 0:
+                pass
+            ids = [i["id"] for i in activities]
+            results = results + ids
+        return results
+
+    def download_gpx(self, activity_id):
+        url = f"{XINGZHE_URL_DICT['DOWNLOAD_GPX_URL']}/{activity_id}/gpx/"
+        response = self.session.get(url)
+        print(response)
+        print(url)
+        # print(response.content.decode('utf8'))
+        response.raise_for_status()
+        return response.content
+
+    async def download_xingzhe_gpx(self, activity_id):
+        try:
+            print('try' + str(activity_id))
+            gpx_data = self.download_gpx(activity_id)
+            gpx = mod_gpxpy.parse(gpx_data.decode('utf8'))
+            tracks = gpx.tracks
+            tracks[0].source = "xingzhe"
+            tracks[0].type = "xingzhe"
+            # gpx.tracks = tracks
+            # print(gpx.to_xml())
+            file_path = os.path.join(GPX_FOLDER, f"{activity_id}.gpx")
+            print(file_path)
+            async with aiofiles.open(file_path, "wb") as fb:
+                await fb.write(gpx.to_xml(version="1.1").encode('utf8'))
+        except Exception as err:
+            print(f"Failed to download activity {activity_id}: " + err)
+            pass
 
 
 async def gather_with_concurrency(n, tasks):
@@ -144,39 +186,60 @@ async def gather_with_concurrency(n, tasks):
 
     return await asyncio.gather(*(sem_task(task) for task in tasks))
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("userId", nargs="?", help="userId of xingzhe")
+    parser.add_argument("mobile_or_token", help="Xingzhe phone number or session_id")
+    parser.add_argument("password_or_user_id", help="Xinzhe password or user_id")
+    parser.add_argument(
+        "--with-gpx",
+        dest="with_gpx",
+        action="store_true",
+        help="get all data to gpx and download",
+    )
+    parser.add_argument(
+        "--from-auth-token",
+        dest="from_session_id",
+        action="store_true",
+        help="from authorization token for download data",
+    )
     options = parser.parse_args()
-    userId = options.userId
-    if userId == None:
-        print("Missing argument nor valid configuration file")
-        sys.exit(1)
+    if options.from_session_id:
+        x = Xingzhe(
+            session_id=str(options.mobile_or_token),
+            user_id=str(options.password_or_user_id),
+        )
+    else:
+        x = Xingzhe(
+            mobile=str(options.mobile_or_token),
+            password=str(options.password_or_user_id),
+        )
+        x.login_by_password()
 
-    # make gpx dir
-    if not os.path.exists(GPX_FOLDER):
-        os.mkdir(GPX_FOLDER)
+    generator = Generator(SQL_FILE)
+    old_tracks_ids = generator.get_old_tracks_ids()
+    tracks = x.get_old_tracks()
+    new_track_ids = set(tracks) - set(old_tracks_ids)
+
+    print(f"{len(new_track_ids)} new activities to be downloaded")
+
+    # start_time = time.time()
+    # for track_id in new_track_ids:
+    #     x.download_xingzhe_gpx(track_id)
 
     async def download_new_activities():
-        # client = Xingzhe(userId)
-        #
-        # # because I don't find a para for after time, so I use garmin-id as filename
-        # # to find new run to generage
-        # downloaded_ids = [i.split(".")[0] for i in os.listdir(GPX_FOLDER) if not i.startswith(".")]
-        # activity_ids = await get_activity_id_list(client)
-        # print(activity_ids)
-        # to_generate_garmin_ids = list(set(activity_ids) - set(downloaded_ids))
-        # print(f"{len(to_generate_garmin_ids)} new activities to be downloaded")
-        #
-        # start_time = time.time()
-        # await gather_with_concurrency(
-        #     10, [download_garmin_gpx(client, id) for id in to_generate_garmin_ids]
-        # )
-        # print(f"Download finished. Elapsed {time.time()-start_time} seconds")
-        # update activities set start_date_local = start_date WHERE source = 'xingzhe'
-        make_activities_file(SQL_FILE, GPX_FOLDER, JSON_FILE)
+        await gather_with_concurrency(
+            3, [x.download_xingzhe_gpx(track_id) for track_id in new_track_ids]
+        )
 
     loop = asyncio.get_event_loop()
     future = asyncio.ensure_future(download_new_activities())
     loop.run_until_complete(future)
+
+    print("executed")
+
+    # generator.sync_from_app(tracks)
+    # activities_list = generator.load()
+    # with open(JSON_FILE, "w") as f:
+    #     json.dump(activities_list, f, indent=2)
+
+    make_activities_file(SQL_FILE, GPX_FOLDER, JSON_FILE)

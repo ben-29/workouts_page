@@ -95,14 +95,14 @@ class Track:
             self.type = gpx.tracks[0].type
             if gpx.creator:
                 self.source = gpx.creator
+        if gpx.tracks[0].source:
+            self.source = gpx.tracks[0].source
+            if self.source == "xingzhe":
+                self.start_time_local = self.end_time_local
+        if gpx.name:
+            self.name = gpx.name
+        else:
             self.name = self.type + " from " + self.source
-        elif gpx.description == '行者骑行软件':
-            self.type = "cycling"
-            self.source = "xingzhe"
-            if gpx.name:
-                self.name = gpx.name
-            else:
-                self.name = self.type + " from " + self.source
 
 
         for t in gpx.tracks:
