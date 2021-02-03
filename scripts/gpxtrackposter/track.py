@@ -93,12 +93,11 @@ class Track:
         # determinate type and source
         if gpx.tracks[0].type:
             self.type = gpx.tracks[0].type
-            if gpx.creator:
-                self.source = gpx.creator
         if gpx.tracks[0].source:
             self.source = gpx.tracks[0].source
             if self.source == "xingzhe":
-                self.start_time_local = self.end_time_local
+                # self.start_time_local = self.start_time
+                self.run_id = gpx.tracks[0].number
         if gpx.name:
             self.name = gpx.name
         else:

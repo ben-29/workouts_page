@@ -3,12 +3,11 @@
 
 import argparse
 import os
-from collections import namedtuple
 from datetime import datetime
 
 import requests
 import bs4
-from base64 import b64encode, b64decode
+from base64 import b64encode
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5
 import asyncio
@@ -21,7 +20,6 @@ import gpxpy as mod_gpxpy
 
 
 startYear = 2012
-startYear = 2015
 
 # device info
 XINGZHE_URL_DICT = {
@@ -61,17 +59,6 @@ def device_info_headers():
         "Sec-Fetch-Mode": "cors",
         "Sec-Fetch-Dest": "empty",
     }
-
-
-def download_codoon_gpx(gpx_data, log_id):
-    try:
-        print(f"downloading codoon {str(log_id)} gpx")
-        file_path = os.path.join(GPX_FOLDER, str(log_id) + ".gpx")
-        with open(file_path, "w") as fb:
-            fb.write(gpx_data)
-    except:
-        print(f"wrong id {log_id}")
-        pass
 
 
 class Xingzhe:
@@ -118,62 +105,56 @@ class Xingzhe:
 
     def get_activities_by_month(self, year, month):
         url = f"{XINGZHE_URL_DICT['ACTIVITY_LIST_URL']}user_id={self.user_id}&year={year}&month={month}"
-        print(url)
 
         response = self.session.get(url)
         json = response.json()
-        print(json)
         if json is not None \
                 and json['data'] is not None \
                 and len(json['data']):
-            print("y-m " + str(year) + " " + str(month) )
             return json['data']['wo_info']
         return []
 
     def get_old_tracks(self):
         results = []
-        now_date = datetime.now() #.date.today()
-        now_date = datetime(year=2014, month=7, day=1)
+        now_date = datetime.now()
         for year in range(now_date.year - startYear):
             for m in range(12):
                 activities = self.get_activities_by_month(year=year+startYear, month=m+1)
                 if len(activities) == 0:
                     pass
-                ids = [i["id"] for i in activities]
+                ids = [{"id": i["id"], "type": TYPE_DICT[i["sport"]]} for i in activities]
                 results = results + ids
         for m in range(now_date.month):
             activities = self.get_activities_by_month(year=now_date.year, month=m+1)
             if len(activities) == 0:
                 pass
-            ids = [i["id"] for i in activities]
+            ids = [{"id": i["id"], "type": TYPE_DICT[i["sport"]]} for i in activities]
             results = results + ids
         return results
 
     def download_gpx(self, activity_id):
         url = f"{XINGZHE_URL_DICT['DOWNLOAD_GPX_URL']}/{activity_id}/gpx/"
         response = self.session.get(url)
-        print(response)
-        print(url)
-        # print(response.content.decode('utf8'))
         response.raise_for_status()
         return response.content
 
-    async def download_xingzhe_gpx(self, activity_id):
+    async def download_xingzhe_gpx(self, track):
         try:
-            print('try' + str(activity_id))
-            gpx_data = self.download_gpx(activity_id)
+            file_path = os.path.join(GPX_FOLDER, f"{track['id']}.gpx")
+            if os.path.exists(file_path):
+                print(f"activity {str(track['id'])}: downloaded already")
+                pass
+            gpx_data = self.download_gpx(track["id"])
             gpx = mod_gpxpy.parse(gpx_data.decode('utf8'))
             tracks = gpx.tracks
             tracks[0].source = "xingzhe"
-            tracks[0].type = "xingzhe"
-            # gpx.tracks = tracks
-            # print(gpx.to_xml())
-            file_path = os.path.join(GPX_FOLDER, f"{activity_id}.gpx")
-            print(file_path)
+            tracks[0].type = track["type"]
+            tracks[0].number = track["id"]
             async with aiofiles.open(file_path, "wb") as fb:
+
                 await fb.write(gpx.to_xml(version="1.1").encode('utf8'))
         except Exception as err:
-            print(f"Failed to download activity {activity_id}: " + err)
+            print(f"Failed to download activity {track}: " + str(err))
             pass
 
 
@@ -218,28 +199,18 @@ if __name__ == "__main__":
     generator = Generator(SQL_FILE)
     old_tracks_ids = generator.get_old_tracks_ids()
     tracks = x.get_old_tracks()
-    new_track_ids = set(tracks) - set(old_tracks_ids)
+    new_tracks = [i for i in tracks if str(i["id"]) not in old_tracks_ids]
 
-    print(f"{len(new_track_ids)} new activities to be downloaded")
-
-    # start_time = time.time()
-    # for track_id in new_track_ids:
-    #     x.download_xingzhe_gpx(track_id)
+    print(f"{len(new_tracks)} new activities to be downloaded")
 
     async def download_new_activities():
         await gather_with_concurrency(
-            3, [x.download_xingzhe_gpx(track_id) for track_id in new_track_ids]
+            3, [x.download_xingzhe_gpx(track) for track in new_tracks]
         )
+
 
     loop = asyncio.get_event_loop()
     future = asyncio.ensure_future(download_new_activities())
     loop.run_until_complete(future)
-
-    print("executed")
-
-    # generator.sync_from_app(tracks)
-    # activities_list = generator.load()
-    # with open(JSON_FILE, "w") as f:
-    #     json.dump(activities_list, f, indent=2)
 
     make_activities_file(SQL_FILE, GPX_FOLDER, JSON_FILE)
