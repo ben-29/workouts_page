@@ -24,7 +24,6 @@ startYear = 2012
 # device info
 XINGZHE_URL_DICT = {
     "BASE_URL": "https://www.imxingzhe.com/user/login",
-
     "ACTIVITY_LIST_URL": "https://www.imxingzhe.com/api/v4/user_month_info/?",
     "DOWNLOAD_GPX_URL": "https://www.imxingzhe.com/xing",
     "SSO_URL_ORIGIN": "https://www.imxingzhe.com/portal/",
@@ -41,9 +40,9 @@ TYPE_DICT = {
 
 def encrypt_password(public_key, password, salt):
     enc = PKCS1_v1_5.new(RSA.importKey(public_key))
-    message = f"{password};{salt}".encode('utf8')
+    message = f"{password};{salt}".encode("utf8")
     ciphertext = enc.encrypt(message)
-    return b64encode(ciphertext).decode('utf8')
+    return b64encode(ciphertext).decode("utf8")
 
 
 def device_info_headers():
@@ -79,14 +78,14 @@ class Xingzhe:
             f"{XINGZHE_URL_DICT['BASE_URL']}",
             params=params,
         )
-        rd = r.cookies['rd']
-        soup = bs4.BeautifulSoup(r.content, 'html')
-        pubkey = soup.find(attrs={'id': 'pubkey'}).text
+        rd = r.cookies["rd"]
+        soup = bs4.BeautifulSoup(r.content, "html.parser")
+        pubkey = soup.find(attrs={"id": "pubkey"}).text
 
         params = {
             "account": self.mobile,
             "password": encrypt_password(pubkey, self.password, rd),
-            "source": "web"
+            "source": "web",
         }
         r = self.session.post(
             f"{XINGZHE_URL_DICT['BASE_URL']}",
@@ -97,7 +96,7 @@ class Xingzhe:
             print(r.json())
             raise Exception("Login Fail " + login_data["error_message"])
 
-        self.session_id = r.cookies['sessionid']
+        self.session_id = r.cookies["sessionid"]
         self.user_id = login_data["data"]["userid"]
         print(
             f"your refresh_token and user_id are {str(self.session_id)} {str(self.user_id)}"
@@ -108,10 +107,10 @@ class Xingzhe:
 
         response = self.session.get(url)
         json = response.json()
-        if json is not None \
-                and json['data'] is not None \
-                and len(json['data']):
-            return json['data']['wo_info']
+        if json is not None\
+                and json["data"] is not None\
+                and len(json["data"]):
+            return json["data"]["wo_info"]
         return []
 
     def get_old_tracks(self):
@@ -119,13 +118,17 @@ class Xingzhe:
         now_date = datetime.now()
         for year in range(now_date.year - startYear):
             for m in range(12):
-                activities = self.get_activities_by_month(year=year+startYear, month=m+1)
+                activities = self.get_activities_by_month(
+                    year=year + startYear, month=m + 1
+                )
                 if len(activities) == 0:
                     pass
-                ids = [{"id": i["id"], "type": TYPE_DICT[i["sport"]]} for i in activities]
+                ids = [
+                    {"id": i["id"], "type": TYPE_DICT[i["sport"]]} for i in activities
+                ]
                 results = results + ids
         for m in range(now_date.month):
-            activities = self.get_activities_by_month(year=now_date.year, month=m+1)
+            activities = self.get_activities_by_month(year=now_date.year, month=m + 1)
             if len(activities) == 0:
                 pass
             ids = [{"id": i["id"], "type": TYPE_DICT[i["sport"]]} for i in activities]
@@ -145,14 +148,14 @@ class Xingzhe:
                 print(f"activity {str(track['id'])}: downloaded already")
                 pass
             gpx_data = self.download_gpx(track["id"])
-            gpx = mod_gpxpy.parse(gpx_data.decode('utf8'))
+            gpx = mod_gpxpy.parse(gpx_data.decode("utf8"))
             tracks = gpx.tracks
             tracks[0].source = "xingzhe"
             tracks[0].type = track["type"]
             tracks[0].number = track["id"]
             async with aiofiles.open(file_path, "wb") as fb:
 
-                await fb.write(gpx.to_xml(version="1.1").encode('utf8'))
+                await fb.write(gpx.to_xml(version="1.1").encode("utf8"))
         except Exception as err:
             print(f"Failed to download activity {track}: " + str(err))
             pass
@@ -166,6 +169,7 @@ async def gather_with_concurrency(n, tasks):
             return await task
 
     return await asyncio.gather(*(sem_task(task) for task in tasks))
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -207,7 +211,6 @@ if __name__ == "__main__":
         await gather_with_concurrency(
             3, [x.download_xingzhe_gpx(track) for track in new_tracks]
         )
-
 
     loop = asyncio.get_event_loop()
     future = asyncio.ensure_future(download_new_activities())
