@@ -34,7 +34,7 @@ const RunRow = ({ runs, run, locateActivity, runIndex, setRunIndex }) => {
         locateActivity(run);
       }}
     >
-      <td>{titleForRun(run)}</td>
+      <td>{run.name}</td>
       <td>{type}</td>
       <td>{distance}</td>
       {pace && <td>{paceParts}</td>}
