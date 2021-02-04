@@ -90,16 +90,22 @@ class Track:
         gpx.simplify()
         polyline_container = []
         heart_rate_list = []
-        # determinate type and source
+        # determinate type
         if gpx.tracks[0].type:
             self.type = gpx.tracks[0].type
-        if gpx.tracks[0].source:
+        # determinate source
+        if gpx.creator:
+            self.source = gpx.creator
+        elif gpx.tracks[0].source:
             self.source = gpx.tracks[0].source
-            if self.source == "xingzhe":
-                # self.start_time_local = self.start_time
-                self.run_id = gpx.tracks[0].number
+        if self.source == "xingzhe":
+            self.start_time_local = self.start_time
+            self.run_id = gpx.tracks[0].number
+        # determinate name
         if gpx.name:
             self.name = gpx.name
+        elif gpx.tracks[0].name:
+            self.name = gpx.tracks[0].name
         else:
             self.name = self.type + " from " + self.source
 
