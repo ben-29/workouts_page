@@ -13,6 +13,7 @@ import {
   filterCityRuns,
   filterYearRuns,
   filterTitleRuns,
+  filterTypeRuns,
   filterAndSortRuns,
   sortDateFunc,
   getBoundsForGeoData,
@@ -40,7 +41,7 @@ export default () => {
   const changeByItem = (item, name, func) => {
     scrollToMap();
     setActivity(filterAndSortRuns(activities, item, func, sortDateFunc));
-    setTitle(`${item} ${name} Workouts Map`);
+    setTitle(`${item} ${name} Map`);
     setRunIndex(-1);
   };
 
@@ -64,6 +65,10 @@ export default () => {
 
   const changeTitle = (title) => {
     changeByItem(title, 'Title', filterTitleRuns);
+  };
+
+  const changeType = (type) => {
+    changeByItem(type, 'Type', filterTypeRuns);
   };
 
   const locateActivity = (run) => {
@@ -163,7 +168,7 @@ export default () => {
           <LocationStat
             changeYear={changeYear}
             changeCity={changeCity}
-            changeTitle={changeTitle}
+            changeType={changeType}
           />
         ) : (
           <YearsStat year={year} onClick={changeYear} />
