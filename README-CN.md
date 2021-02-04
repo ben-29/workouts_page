@@ -276,7 +276,7 @@ python3(python) scripts/xingzhe_sync.py 13333xxxx xxxx --with-gpx
 
 > 注：因为登录token有过期时间限制，我增加了 refresh_token&user_id 登陆的方式， refresh_token 及 user_id 在您登陆过程中会在控制台打印出来
 
-![image](https://user-images.githubusercontent.com/6956444/106767811-39fd2e80-6676-11eb-9ad1-c46c9aae3034.png)
+![image](https://user-images.githubusercontent.com/6956444/106879771-87c97380-6716-11eb-9c28-fbf70e15e1c3.png)
 
 示例：
 
