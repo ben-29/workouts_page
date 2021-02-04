@@ -24,28 +24,17 @@ const YearStat = ({ year, onClick }) => {
   let streak = 0;
   let heartRate = 0;
   let heartRateNullCount = 0;
-  let countsMap = new Map();
-  let avgSpdMap = new Map();
-  let distanceMap = new Map();
+  const workoutsCounts = {};
+  
   runs.forEach((run) => {
     sumDistance += run.distance || 0;
     if (run.average_speed) {
-      let type = run.type;
-      let count = 1;
-      let avgSpd = run.average_speed;
-      let distance = run.distance;
-      if(countsMap.has(type)){
-        count += countsMap.get(type);
+      if(workoutsCounts[run.type]){
+        var [oriCount, oriAvgSpd, oriDistance] = workoutsCounts[run.type]
+        workoutsCounts[run.type] = [oriCount + 1, oriAvgSpd + run.average_speed, oriDistance + run.distance]
+      }else{
+        workoutsCounts[run.type] = [1, run.average_speed, run.distance]
       }
-      if(avgSpdMap.has(type)){
-        avgSpd += avgSpdMap.get(type);
-      }
-      if(distanceMap.has(type)){
-        distance += distanceMap.get(type);
-      }
-      countsMap.set(type, count)
-      avgSpdMap.set(type, avgSpd)
-      distanceMap.set(type, distance)
     }
     if (run.average_heartrate) {
       heartRate += run.average_heartrate;
@@ -61,6 +50,11 @@ const YearStat = ({ year, onClick }) => {
   const avgHeartRate = (heartRate / (runs.length - heartRateNullCount)).toFixed(
     0
   );
+
+  const workoutsArr = Object.entries(workoutsCounts);
+  workoutsArr.sort((a, b) => {
+    return b[1][0] - a[1][0]
+  });
   return (
     <div
       style={{ cursor: 'pointer' }}
@@ -69,14 +63,16 @@ const YearStat = ({ year, onClick }) => {
     >
       <section>
         <Stat value={year} description=" Journey" />
-        { countsMap.has('Run') && (<WorkoutStat value={`${countsMap.get('Run')}`} description=" Runs" pace={formatPace(avgSpdMap.get('Run') / countsMap.get('Run'))} /* distance={(distanceMap.get('Run')/1000).toFixed(1)} *//>)}
-        { countsMap.has('Ride') && (<WorkoutStat value={`${countsMap.get('Ride')}`} description=" Rides" pace={formatPace(avgSpdMap.get('Ride') / countsMap.get('Ride'))} /* distance={(distanceMap.get('Ride')/1000).toFixed(1)} *//>)}
-        { countsMap.has('Hike') && (<WorkoutStat value={`${countsMap.get('Hike')}`} description=" Hikes" pace={formatPace(avgSpdMap.get('Hike') / countsMap.get('Hike'))} /* distance={(distanceMap.get('Hike')/1000).toFixed(1)} *//>)}
-        { countsMap.has('Swim') && (<WorkoutStat value={`${countsMap.get('Swim')}`} description=" Swims" pace={formatPace(avgSpdMap.get('Swim') / countsMap.get('Swim'))} /* distance={(distanceMap.get('Swim')/1000).toFixed(1)} */ />)}
-        { countsMap.has('Rowing') && (<WorkoutStat value={`${countsMap.get('Rowing')}`} description=" Rowings" pace={formatPace(avgSpdMap.get('Rowing') / countsMap.get('Rowing')) } /* distance={(distanceMap.get('Rowing')/1000).toFixed(1)} *//>)}
+
+        {workoutsArr.map(([type, count]) => (
+          <WorkoutStat
+            value={count[0]}
+            description={` ${type}`+"s"}
+            pace={formatPace(count[1] / count[0])}
+            /* distance={(count[2]/1000).toFixed(1)} */
+          />
+        ))}
         <Stat value={sumDistance} description=" KM" />
-        {/* { avgRunningPace != '0' && (<Stat value={avgRunningPace} description=" Avg Running Pace" />)}
-        { avgRidingPace != '0' && (<Stat value={avgRidingPace} description=" Avg Riding Pace" />)} */}
         <Stat
           value={`${streak} day`}
           description=" Streak"
