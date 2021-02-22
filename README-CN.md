@@ -67,7 +67,7 @@
 
 ## 下载
 ```
-git clone https://github.com/yihong0618/running_page.git
+git clone https://github.com/ben29/running_page.git
 ```
 
 ## 安装及测试
