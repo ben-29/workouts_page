@@ -1,7 +1,7 @@
 ![running_page](https://socialify.git.ci/yihong0618/running_page/image?description=1&font=Inter&forks=1&issues=1&language=1&logo=https%3A%2F%2Fraw.githubusercontent.com%2Fshaonianche%2Fgallery%2Fmaster%2Frunning_page%2Frunning_page_logo_150*150.jpg&owner=1&pulls=1&stargazers=1&theme=Light)
 
 # [打造个人跑步主页](https://yihong.run/running) 
-简体中文 | [English](README-EN.md)
+简体中文 | [English](README.md)
 
 <details>
 <summary>GIF 展示</summary>
@@ -67,7 +67,7 @@
 
 ## 下载
 ```
-git clone https://github.com/ben29/running_page.git
+git clone https://github.com/ben-29/running_page.git
 ```
 
 ## 安装及测试

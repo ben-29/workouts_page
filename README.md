@@ -3,7 +3,7 @@
 
 # [Create a personal running home page](https://yihong.run/running)
 
-[简体中文](https://github.com/ben29/running_page/blob/master/README-CN.md) | English
+[简体中文](README-CN.md) | English
 
 <details>
 <summary>GIF SHOW</summary>
@@ -62,7 +62,7 @@
 ## Download
 Clone or fork the repo.
 ```
-git clone https://github.com/ben29/running_page.git
+git clone https://github.com/ben-29/running_page.git
 ```
 
 ## Installation and testing
@@ -99,7 +99,7 @@ Change `NAVS` in `src/utils/const.js` to the link you want, just like:
 ```javascript
 export const NAVS = [
   { text: 'Blog', link: 'https://yihong.run/running' },
-  { text: 'About', link: 'https://github.com/ben29/running_page/blob/master/README-CN.md' },
+  { text: 'About', link: 'https://github.com/ben-29/running_page/blob/master/README-CN.md' },
 ];
 ```
 
