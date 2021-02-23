@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatPace, titleForRun } from 'src/utils/utils';
+import { formatPace, titleForRun, colorFromType } from 'src/utils/utils';
 import { MAIN_COLOR } from 'src/utils/const';
 import styles from './style.module.scss';
 
@@ -33,6 +33,7 @@ const RunRow = ({ runs, run, locateActivity, runIndex, setRunIndex }) => {
         handleClick(e, runs, run);
         locateActivity(run);
       }}
+      style={{color: colorFromType(type)}}
     >
       <td>{run.name}</td>
       <td>{type}</td>
