@@ -20,7 +20,7 @@ const RunRow = ({ runs, run, locateActivity, runIndex, setRunIndex }) => {
 
     const elements = document.getElementsByClassName(styles.runRow);
     if (runIndex !== -1 && elementIndex !== runIndex) {
-      elements[runIndex].style.color = MAIN_COLOR;
+      elements[runIndex].style.color = colorFromType(runs[runIndex].type);
     }
     setRunIndex(elementIndex);
   };
