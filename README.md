@@ -1,414 +1,84 @@
-![running_page](https://socialify.git.ci/yihong0618/running_page/image?description=1&font=Inter&forks=1&issues=1&language=1&logo=https%3A%2F%2Fraw.githubusercontent.com%2Fshaonianche%2Fgallery%2Fmaster%2Frunning_page%2Frunning_page_logo_150*150.jpg&owner=1&pulls=1&stargazers=1&theme=Light)
-
-
-# [Create a personal running home page](https://yihong.run/running)
+# [Create a personal workouts home page](http://workouts.ben29.xyz) 
 
 [简体中文](README-CN.md) | English
 
-<details>
-<summary>GIF SHOW</summary>
-
-![running_page](https://user-images.githubusercontent.com/15976103/98808834-c02f1d80-2457-11eb-9a7c-70e91faa5e30.gif)
-
-</details>
-
-## [Runner's Page Show](https://github.com/yihong0618/running_page/issues/12)
-
-| Runner | page | App |
-| ------- | ------- | ------- |
-| [shaonianche](https://github.com/shaonianche) | https://run.duangfei.org | Nike |
-| [yihong0618](https://github.com/yihong0618) | https://yihong.run/running | Nike |
-| [superleeyom](https://github.com/superleeyom) | https://running.leeyom.top | Nike |
-| [geekplux](https://github.com/geekplux) | https://activities.geekplux.com | Nike |
-| [guanlan](https://github.com/guanlan) | https://grun.vercel.app | Strava |
-| [tuzimoe](https://github.com/tuzimoe) | https://run.tuzi.moe | Nike |
-| [ben_29](https://github.com/ben-29) | https://running.ben29.xyz | Strava |
-| [kcllf](https://github.com/kcllf) | https://running-tau.vercel.app | Garmin-cn |
-| [mq](https://github.com/MQ-0707) | https://running-iota.vercel.app | Keep |
-| [zhaohongxuan](https://github.com/zhaohongxuan) | https://running-page-psi.vercel.app | Keep |
-| [yvetterowe](https://github.com/yvetterowe) | https://run.haoluo.io | Strava |
-| [love-exercise](https://github.com/KaiOrange) | https://run.kai666666.top | Keep |
-| [zstone12](https://github.com/zstone12) | https://running-page.zstone12.vercel.app | Keep |
-| [Lax](https://github.com/Lax) | https://lax.github.io/running | Keep |
-| [lusuzi](https://github.com/lusuzi) | https://running.lusuzi.vercel.app | Nike |
-| [wh1994](https://github.com/wh1994) | https://run4life.fun | Garmin |
-| [liuyihui](https://github.com/YiHui-Liu) | https://run.foolishfox.cn | Keep |
-| [FrankSun](https://github.com/hi-franksun) | https://hi-franksun.github.io/running_page | Nike |
-| [AhianZhang](https://github.com/AhianZhang) | https://running.ahianzhang.com | Keep |
-| [L1cardo](https://github.com/L1cardo) | https://run.licardo.cn | Nike |
-
-## How it works
-
-![image](https://user-images.githubusercontent.com/15976103/103496454-4294f600-4e79-11eb-9bd6-8eea7a07ddff.png)
-
-## Features
-
-1. GitHub Actions manages automatic synchronization of runs and generation of new pages.
-2. Gatsby-generated static pages, fast
-3. Support for Vercel (recommended) and GitHub Pages automated deployment
-4. React Hooks
-5. Mapbox for map display
-6. Supports most sports apps such as nike strava...
-
-> automatically backup gpx data for easy backup and uploading to other software.
+This project is based on [running_page](https://github.com/yihong0618/running_page), add support for multi sports type. Follow the steps in origin repo to deploy.
 
 
-## Support
+## New Features
+1. support multi sports type, like Ride/Hike/Swim/Rowing
+1. support new apps
+    - **[Codoon（咕咚）](#codoon咕咚)** (Couldn't automate for its limitation from server side)
+    - **[Xingzhe（行者）](#xingzhe行者)**
 
-- **[Garmin](#garmin)**
-- **[Garmin-CN](#garmin-cnchina)**
-- **[Runtastic(Adidas Run)](#runtasticadidas-run)**
-- **[Nike Run Club](#nike-run-club)**
-- **[Strava](#strava)**
-- **[GPX](#GPX)**
-- **[Nike_to_Strava(Using NRC Run, Strava backup data)](#Nike_to_Strava)**
-
-## Download
-Clone or fork the repo.
-```
-git clone https://github.com/ben-29/running_page.git
-```
-
-## Installation and testing
-```
-pip3 install -r requirements.txt
-yarn install
-yarn develop
-```
-Open your browser and visit http://localhost:8000/ 
-
-## Local sync data
-
-### Modifying Mapbox token in `src/utils/const.js`
-
-> If you use English please change `IS_CHINESE = false` in `src/utils/const.js`
-
-> Suggested changes to your own [Mapbox token](https://www.mapbox.com/)
-
-```javascript
-const MAPBOX_TOKEN = 'pk.eyJ1IjoieWlob25nMDYxOCIsImEiOiJja2J3M28xbG4wYzl0MzJxZm0ya2Fua2p2In0.PNKfkeQwYuyGOTT_x9BJ4Q';
-```
 
 ## Custom your page
 
-### avatar
+### Change Sports Color
 
-Modify `export const AVATAR =
-  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTtc69JxHNcmN1ETpMUX4dozAgAN6iPjWalQ&usqp=CAU';` Replace it with the link to the image you want.
+* Modify Ride Color: `RIDE_COLOR` in `src/utils/const.js` 
 
-### NAVS
+### Add Sports Type
 
-Change `NAVS` in `src/utils/const.js` to the link you want, just like:
-
-```javascript
-export const NAVS = [
-  { text: 'Blog', link: 'https://yihong.run/running' },
-  { text: 'About', link: 'https://github.com/ben-29/running_page/blob/master/README-CN.md' },
-];
-```
-
-You can also add multiple links, just like the above.
-
-### Title and site link
-
-Find `gatsby-config.js` in the repository directory, find the following content, and change it to what you want.
-
-```javascript
-siteMetadata: {
-  title: 'Running page',
-  siteUrl: 'https://yihong.run',
-  description: 'Personal site and blog',
-},
-```
-
-## Download your running data and do not forget to [generate svg in `total` page](#Total-Data-Analysis).
-
-### GPX
+* Modify `TYPE_DICT` in  `scripts/config.py`
+* Modify `colorFromType` in  `src/utils/util.js` 
+---
+### Codoon（咕咚）
 
 <details>
-<summary>Make your <code>GPX</code> data</summary>
-<br>
-
-Copy all your gpx files to GPX_OUT or new gpx files
-```python
-python3(python) scripts/gpx_sync.py
-```
-</details>
-
-### Garmin
-
-<details>
-<summary>Get your <code>Garmin</code> data</summary>
-<br>
+<summary>Get your <code>Codoon</code> data</summary>
 
 ```python
-python3(python) scripts/garmin_sync.py ${your email} ${your password}
+python3(python) scripts/codoon_sync.py ${your mobile or email} ${your password}
 ```
+
 example：
 ```python
-python3(python) scripts/garmin_sync.py example@gmail.com example
+python3(python) scripts/codoon_sync.py 13333xxxx xxxx
 ```
-</details>
 
+> use `--with-gpx` flag to save your gpx data
+>
+> use `--from-auth-token` flag to login by refresh_token&user_id
 
-### Garmin-CN(China)
+![image](https://user-images.githubusercontent.com/6956444/105690972-9efaab00-5f37-11eb-905c-65a198ad2300.png)
 
-<details>
-<summary>Get your <code>Garmin-CN</code> data</summary>
-<br>
-
-```python
-python3(python) scripts/garmin_sync.py ${your email} ${your password} --is-cn
-```
-example：
-```python
-python3(python) scripts/garmin_sync.py example@gmail.com example --is-cn
-```
-</details>
-
-### Runtastic(Adidas Run)
-
-<details>
-<summary>Get your <code>Runtastic</code> data</summary>
-
-<br>
-
-```python
-python3(python) scripts/runtastic_sync.py ${your email} ${your password}
-```
 example：
 
 ```python
-python3(python) scripts/runtastic_sync.py example@gmail.com example
+python3(python) scripts/codoon_sync.py 54bxxxxxxx fefxxxxx-xxxx-xxxx --from-auth-token
 ```
+
 </details>
 
-### Nike Run Club
+### Xingzhe（行者）
 
 <details>
-<summary>Get your <code>Nike Run Club</code> data</summary>
+<summary>Get your <code>Xingzhe</code> data</summary>
 
-<br>
-
-Get Nike's `refresh_token`
-1. Login [Nike](https://www.nike.com) website
-2. In Develop -> Application-> Storage -> https:unite.nike.com look for `refresh_token`
-
-<br>
-
-![image](https://user-images.githubusercontent.com/15976103/94448123-23812b00-01dd-11eb-8143-4b0839c31d90.png)
-
-3. Execute in the root directory:
 ```python
-python3(python) scripts/nike_sync.py ${nike refresh_token}
+python3(python) scripts/xingzhe_sync.py ${your mobile or email} ${your password}
 ```
+
 example：
 ```python
-python3(python) scripts/nike_sync.py eyJhbGciThiMTItNGIw******
+python3(python) scripts/xingzhe_sync.py 13333xxxx xxxx
 ```
-![example img](https://raw.githubusercontent.com/shaonianche/gallery/master/running_page/nike_sync_%20example.png)
 
-</details>
+> use `--with-gpx` flag to save your gpx data
+>
+> use `--from-auth-token` flag to login by refresh_token&user_id
 
-### Strava
-
-<details>
-<summary> Get your <code>Strava</code> data </summary>
-<br>
-
-1. Sign in/Sign up [Strava](https://www.strava.com/) account
-2. Open after successful Signin [Strava Developers](http://developers.strava.com) -> [Create & Manage Your App](https://strava.com/settings/api)
-
-3. Create `My API Application`: Enter the following information
-
-<br>
-
-![My API Application](https://raw.githubusercontent.com/shaonianche/gallery/master/running_page/strava_settings_api.png)
-Created successfully：
-
-<br>
-
-![](https://raw.githubusercontent.com/shaonianche/gallery/master/running_page/created_successfully_1.png)
-
-4. Use the link below to request all permissions: Replace `${your_id}` in the link with `My API Application` Client ID 
-```
-https://www.strava.com/oauth/authorize?client_id=${your_id}&response_type=code&redirect_uri=http://localhost/exchange_token&approval_prompt=force&scope=read_all,profile:read_all,activity:read_all,profile:write,activity:write
-```
-![get_all_permissions](https://raw.githubusercontent.com/shaonianche/gallery/master/running_page/get_all_permissions.png)
-
-5. Get the `code` value in the link   
-
-<br>
+![image](https://user-images.githubusercontent.com/6956444/106879771-87c97380-6716-11eb-9c28-fbf70e15e1c3.png)
 
 example：
-```
-http://localhost/exchange_token?state=&code=1dab37edd9970971fb502c9efdd087f4f3471e6e&scope=read,activity:write,activity:read_all,profile:write,profile:read_all,read_all
-```
-`code` value：
-```
-1dab37edd9970971fb502c9efdd087f4f3471e6
-```
-![get_code](https://raw.githubusercontent.com/shaonianche/gallery/master/running_page/get_code.png)
 
-6. Use `Client_id`、`Client_secret`、`Code` get `refresch_token`: Execute in `Terminal/iTerm`
-```
-curl -X POST https://www.strava.com/oauth/token \
--F client_id=${Your Client ID} \
--F client_secret=${Your Client Secret} \
--F code=${Your Code} \
--F grant_type=authorization_code
-```
-example：
-```
-curl -X POST https://www.strava.com/oauth/token \
--F client_id=12345 \
--F client_secret=b21******d0bfb377998ed1ac3b0 \
--F code=d09******b58abface48003 \
--F grant_type=authorization_code
-```
-![get_refresch_token](https://raw.githubusercontent.com/shaonianche/gallery/master/running_page/get_refresch_token.png)
-
-7. Sync `Strava` data 
 ```python
-python3(python) scripts/strava_sync.py ${client_id} ${client_secret} ${refresch_token}
+python3(python) scripts/xingzhe_sync.py w0xxx 185000 --from-auth-token
 ```
-References：   
-https://developers.strava.com/docs/getting-started   
-https://github.com/barrald/strava-uploader   
-https://github.com/strava/go.strava   
 
 </details>
 
-### Nike_to_Strava
-
-<details>
-<summary>Get your <code>Nike Run Club</code> data and upload to strava</summary>
-
-<br>
-
-1. follow the nike and strava steps
-2. Execute in the root directory:
-```python
-python3(python) scripts/nike_to_strava_sync.py ${nike_refresh_token} ${client_id} ${client_secret} ${strava_refresch_token} 
-```
-example：
-```python
-python3(python) scripts/nike_to_strava_sync.py eyJhbGciThiMTItNGIw******  xxx xxx xxx
-```
-</details>
-
-### Total Data Analysis
-
-<details>
-<summary> Running data display </summary>
-<br>
-
-- Generate SVG data display
-- Display of results：[Click to view](https://raw.githubusercontent.com/yihong0618/running_page/master/assets/github.svg)、[Click to view](https://raw.githubusercontent.com/yihong0618/running_page/28fa801e4e30f30af5ae3dc906bf085daa137936/assets/grid.svg)
-
-```
-python scripts/gen_svg.py --from-db --title "${{ env.TITLE }}" --type github --athlete "${{ env.ATHLETE }}" --special-distance 10 --special-distance2 20 --special-color yellow --special-color2 red --output assets/github.svg --use-localtime --min-distance 0.5
-```
-
-```
-python scripts/gen_svg.py --from-db --title "${{ env.TITLE_GRID }}" --type grid --athlete "${{ env.ATHLETE }}"  --output assets/grid.svg --min-distance 10.0 --special-color yellow --special-color2 red --special-distance 20 --special-distance2 40 --use-localtime
-```
-Generate year circular svg show
-```
-python3(python) scripts/gen_svg.py --from-db --type circular --use-localtime
-```
-
-For more display effects, see:     
-https://github.com/flopp/GpxTrackPoster
-
-</details>
-
-## server(recommendation vercel)
-
-<details>
-<summary> Use <code>vercel</code> deploy </summary>
-<br>
-
-1. vercel connects to your GitHub repo.
-
-<br>
-
-![image](https://user-images.githubusercontent.com/15976103/94452465-2599b880-01e2-11eb-9538-582f0f46c421.png)
-2. import repo
-
-<br>
-
-![image](https://user-images.githubusercontent.com/15976103/94452556-3f3b0000-01e2-11eb-97a2-3789c2d60766.png)
-
-2. Awaiting completion of deployment
-3. Visits
-
-</details>
-
-<details>
-<summary> Deploy to GitHub Pages </summary>
-
-1. If you are using a custom domain for GitHub Pages, open [.github/workflows/gh-pages.yml](.github/workflows/gh-pages.yml), change `fqdn` value to the domain name of your site.
-
-2. (*Skip this step if you're **NOT** using a custom domain*) Modify `gatsby-config.js`, change `pathPrefix` value to the root path. If the repository name is `running_page`, the value will be `/running_page`.
-
-3. Go to repository's `Actions -> Workflows -> All Workflows`, choose `Publish GitHub Pages` from the left panel, click `Run workflow`. Make sure the workflow runs without errors, and `gh-pages` branch is created.
-
-4. Go to repository's `Settings -> GitHub Pages -> Source`, choose `Branch: gh-pages`, click `Save`.
-</details>
-
-## GitHub Actions 
-
-<details>
-<summary> Modifying information in <code>GitHub Actions</code>  </summary>
-<br>
-
-Actions [source code](https://github.com/yihong0618/running_page/blob/master/.github/workflows/run_data_sync.yml)
-The following steps need to be taken
-1. change to your app type and info
-
-<br>
-
-![image](https://user-images.githubusercontent.com/15976103/94450124-73f98800-01df-11eb-9b3c-ac1a6224f46f.png)
-Add your secret in repo Settings > Secrets (add only the ones you need).
-
-<br>
-
-![image](https://user-images.githubusercontent.com/15976103/94450295-aacf9e00-01df-11eb-80b7-a92b9cd1461e.png)
-My secret is as follows
-
-<br>
-
-![image](https://user-images.githubusercontent.com/15976103/94451037-8922e680-01e0-11eb-9bb9-729f0eadcdb7.png)
-3. add your [GitHub secret](https://github.com/settings/tokens) and have the same name as the GitHub secret in your project.
-
-<br>
-
-![image](https://user-images.githubusercontent.com/15976103/94450721-2f222100-01e0-11eb-94a7-ef1f06fc0a59.png)
-
-</details>
-
-# TODO
-
-- [x] Complete this document.
-- [x] Support Garmin, Garmin China
-- [x] support for nike+strava
-- [x] Support English
-- [x] Refine the code
-- [x] add new features
-- [ ] support the world map
-- [ ] support multiple types, like hiking, biking~
-
-# Contribution
-
-- Any Issues PR welcome.
-- You can PR share your Running page in README I will merge it.
-
-Before submitting PR:
-- Format Python code with Black
 
 # Special thanks
-
-- @[flopp](https://github.com/flopp) great repo [GpxTrackPoster](https://github.com/flopp/GpxTrackPoster)
-- @[shaonianche](https://github.com/shaonianche) icon design and doc
-- @[geekplux](https://github.com/geekplux) Friendly help and encouragement, refactored the whole front-end code, learned a lot~
+- @[yihong0618](https://github.com/yihong0618) for Awesome [running_page](https://github.com/yihong0618/running_page) , Great Thanks
