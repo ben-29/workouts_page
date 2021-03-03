@@ -1,5 +1,4 @@
 import datetime
-import time
 import sys
 
 
@@ -26,8 +25,7 @@ class Generator:
         self.client_secret = client_secret
         self.refresh_token = refresh_token
 
-    def check_access(self) -> None:
-        now = datetime.datetime.fromtimestamp(time.time())
+    def check_access(self):
         response = self.client.refresh_access_token(
             client_id=self.client_id,
             client_secret=self.client_secret,
@@ -36,7 +34,6 @@ class Generator:
         # Update the authdata object
         self.access_token = response["access_token"]
         self.refresh_token = response["refresh_token"]
-        self.expires_at = datetime.datetime.fromtimestamp(response["expires_at"])
 
         self.client.access_token = response["access_token"]
         print("Access ok")
@@ -70,7 +67,7 @@ class Generator:
     def sync_from_gpx(self, gpx_dir):
         loader = track_loader.TrackLoader()
         tracks = loader.load_tracks(gpx_dir)
-        print(len(tracks))
+        print(f"load {len(tracks)} tracks")
         if not tracks:
             print("No tracks found.")
             return
@@ -88,6 +85,7 @@ class Generator:
         if not app_tracks:
             print("No tracks found.")
             return
+        print("Syncing tracks '+' means new track '.' means update tracks")
         for t in app_tracks:
             created = update_or_create_activity(self.session, t)
             if created:
