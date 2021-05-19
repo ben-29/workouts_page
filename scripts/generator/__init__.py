@@ -8,6 +8,7 @@ from sqlalchemy import func
 from gpxtrackposter import track_loader
 
 from .db import init_db, update_or_create_activity, Activity
+from config import TYPE_DICT
 
 
 class Generator:
