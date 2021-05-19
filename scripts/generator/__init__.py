@@ -8,7 +8,6 @@ from sqlalchemy import func
 from gpxtrackposter import track_loader
 
 from .db import init_db, update_or_create_activity, Activity
-from config import MAPPING_TYPE
 
 
 class Generator:
@@ -54,7 +53,6 @@ class Generator:
                 filters = {"before": datetime.datetime.utcnow()}
 
         for run_activity in self.client.get_activities(**filters):
-            run_activity.source = 'Strava'
             created = update_or_create_activity(self.session, run_activity)
             if created:
                 sys.stdout.write("+")
@@ -95,9 +93,14 @@ class Generator:
             sys.stdout.flush()
 
         self.session.commit()
+            
 
     def load(self):
-        activities = self.session.query(Activity).order_by(Activity.start_date_local)
+        activities = (
+            self.session.query(Activity)
+            .filter(Activity.distance > 0.1)
+            .order_by(Activity.start_date_local)
+        )
         activity_list = []
 
         streak = 0

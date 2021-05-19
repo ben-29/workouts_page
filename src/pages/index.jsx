@@ -23,6 +23,7 @@ import { IS_CHINESE, USE_ANIMATION_FOR_GRID } from 'src/utils/const';
 export default () => {
   const { activities, thisYear } = useActivities();
   const [year, setYear] = useState(thisYear);
+  const [mapButtonYear,setMapButtonYear] = useState(thisYear)
   const [runIndex, setRunIndex] = useState(-1);
   const [runs, setActivity] = useState(
     filterAndSortRuns(activities, year, filterYearRuns, sortDateFunc)
@@ -48,6 +49,7 @@ export default () => {
   const changeYear = (y) => {
     // default year
     setYear(y);
+    setMapButtonYear(y)
     if (viewport.zoom > 3) {
       setViewport({
         width: '100%',
@@ -70,7 +72,6 @@ export default () => {
   const changeType = (type) => {
     changeByItem(type, 'Type', filterTypeRuns);
   };
-
   const locateActivity = (run) => {
     setGeoData(geoJsonForRuns([run]));
     setTitle(titleForShow(run));
@@ -205,6 +206,7 @@ export default () => {
             setViewport={setViewport}
             changeYear={changeYear}
             thisYear={thisYear}
+            mapButtonYear={mapButtonYear}
           />
           {year === 'Total' ? (
             <SVGStat />

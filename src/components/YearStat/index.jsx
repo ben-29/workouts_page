@@ -25,7 +25,7 @@ const YearStat = ({ year, onClick }) => {
   let heartRate = 0;
   let heartRateNullCount = 0;
   const workoutsCounts = {};
-  
+
   runs.forEach((run) => {
     sumDistance += run.distance || 0;
     if (run.average_speed) {

@@ -13,7 +13,6 @@ Base = declarative_base()
 import random
 import string
 
-from config import TYPE_DICT
 
 # random user name 8 letters
 def randomword():
