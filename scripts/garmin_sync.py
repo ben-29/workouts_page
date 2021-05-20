@@ -70,7 +70,7 @@ class Garmin:
             "origin": self.URL_DICT.get("SSO_URL_ORIGIN"),
         }
 
-    def login(self):
+    async def login(self):
         """
         Login to portal
         """
@@ -156,8 +156,8 @@ class Garmin:
                     "Exception occurred during data retrieval - perhaps session expired - trying relogin: %s"
                     % err
                 )
-                self.login()
-                await self.fetch_data(url, retrying=True)
+                await self.login()
+                return await self.fetch_data(url, retrying=True)
 
     async def get_activities(self, start, limit):
         """
@@ -275,7 +275,7 @@ if __name__ == "__main__":
 
     async def download_new_activities():
         client = Garmin(email, password, auth_domain)
-        client.login()
+        await client.login()
 
         # because I don't find a para for after time, so I use garmin-id as filename
         # to find new run to generage

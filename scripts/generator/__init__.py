@@ -8,8 +8,7 @@ from sqlalchemy import func
 from gpxtrackposter import track_loader
 
 from .db import init_db, update_or_create_activity, Activity
-from config import TYPE_DICT
-
+from scripts.config import MAPPING_TYPE
 
 class Generator:
     def __init__(self, db_path):
