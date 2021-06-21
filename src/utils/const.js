@@ -19,8 +19,9 @@ const ENGLISH_INFO_MESSAGE = (yearLength, year) =>
   `Outdoor Workouts Journey in ${yearLength} Years, the table shows year ${year} data`;
 
 // not support English for now
-const CHINESE_LOCATION_INFO_MESSAGE_FIRST = "我跑过了一些地方，希望随着时间推移，地图点亮的地方越来越多";
-const CHINESE_LOCATION_INFO_MESSAGE_SECOND = "不要停下来，不要停下奔跑的脚步";
+const CHINESE_LOCATION_INFO_MESSAGE_FIRST =
+  '我跑过了一些地方，希望随着时间推移，地图点亮的地方越来越多';
+const CHINESE_LOCATION_INFO_MESSAGE_SECOND = '不要停下来，不要停下奔跑的脚步';
 
 const INFO_MESSAGE = IS_CHINESE ? CHINESE_INFO_MESSAGE : ENGLISH_INFO_MESSAGE;
 const FULL_MARATHON_RUN_TITLE = IS_CHINESE ? '全程马拉松' : 'Full Marathon';
@@ -55,13 +56,6 @@ export {
   RUN_TITLES,
   USE_ANIMATION_FOR_GRID,
 };
-
-export const AVATAR =
-  'https://avatars3.githubusercontent.com/u/6956444?s=460&u=97e1062227c4088db3c987146455245c6fa78441&v=4'; // Temp avatar
-export const NAVS = [
-  { text: 'Blog', link: 'https://ben29.xyz' },
-  { text: 'About', link: 'https://ben29.xyz/about' },
-];
 
 const nike = 'rgb(224,237,94)';
 const yellow = 'rgb(224,237,94)';

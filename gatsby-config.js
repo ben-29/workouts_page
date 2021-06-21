@@ -1,9 +1,20 @@
 module.exports = {
   pathPrefix: '/', // Change to `/running_page` when running on github pages
   siteMetadata: {
-    title: 'Workouts Map',
+    siteTitle: 'Workouts Map',
     siteUrl: 'https://ben29.xyz',
+    logo: 'https://avatars3.githubusercontent.com/u/6956444?s=460&u=97e1062227c4088db3c987146455245c6fa78441',
     description: 'Personal site and blog',
+    navLinks: [
+      {
+        name: 'Blog',
+        url: 'https://ben29.xyz',
+      },
+      {
+        name: 'About',
+        url: 'https://github.com/ben-29/running_page/blob/master/README-CN.md',
+      },
+    ],
   },
   plugins: [
     'gatsby-transformer-json',
@@ -66,7 +77,7 @@ module.exports = {
         background_color: '#e1e1e1',
         theme_color: '#e1e1e1',
         display: 'minimal-ui',
-        icon: 'src/images/favicon.ico', // This path is relative to the root of the site.
+        icon: 'src/images/favicon.png', // This path is relative to the root of the site.
       },
     },
     'gatsby-transformer-sharp',
