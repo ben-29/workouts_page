@@ -1,7 +1,6 @@
 import React from 'react';
 import Stat from 'src/components/Stat';
 import WorkoutStat from 'src/components/WorkoutStat';
-import { formatPace } from 'src/utils/utils';
 import useActivities from 'src/hooks/useActivities';
 import useHover from 'src/hooks/useHover';
 import { formatPace } from 'src/utils/utils';
