@@ -194,7 +194,7 @@ export default () => {
             geoData={geoData}
             setViewport={setViewport}
             changeYear={changeYear}
-            thisYear={thisYear}
+            thisYear={year}
           />
           {year === 'Total' ? (
             <SVGStat />
