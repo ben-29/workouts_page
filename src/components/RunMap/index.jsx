@@ -88,7 +88,8 @@ const RunMap = ({
           paint={{
             'line-color': ['get', 'color'],
             'line-width': isBigMap ? 1 : 2,
-            'line-dasharray': [3, 3],
+            'line-dasharray': [5, 2],
+            'line-opacity': 0.4,
           }}
           layout={{
             'line-join': 'round',
