@@ -3,11 +3,11 @@ import random
 import string
 import time
 
+from config import TYPE_DICT
 from geopy.geocoders import Nominatim
 from sqlalchemy import Column, Float, Integer, Interval, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from config import TYPE_DICT
 
 Base = declarative_base()
 

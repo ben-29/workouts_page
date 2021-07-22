@@ -3,11 +3,12 @@ import sys
 
 import arrow
 import stravalib
+from config import MAPPING_TYPE
 from gpxtrackposter import track_loader
 from sqlalchemy import func
 
 from .db import Activity, init_db, update_or_create_activity
-from config import MAPPING_TYPE
+
 
 class Generator:
     def __init__(self, db_path):
@@ -93,7 +94,6 @@ class Generator:
 
         self.session.commit()
 
-
     def load(self):
         activities = (
             self.session.query(Activity)
@@ -107,28 +107,30 @@ class Generator:
         for activity in activities:
             # Determine running streak.
             # if activity.type == "Run" or activity.type == "Walk":
-                date = datetime.datetime.strptime(
-                    activity.start_date_local, "%Y-%m-%d %H:%M:%S"
-                ).date()
-                if last_date is None:
-                    streak = 1
-                elif date == last_date:
-                    pass
-                elif date == last_date + datetime.timedelta(days=1):
-                    streak += 1
-                else:
-                    assert date > last_date
-                    streak = 1
-                activity.streak = streak
-                last_date = date
-                activity_list.append(activity.to_dict())
+            date = datetime.datetime.strptime(
+                activity.start_date_local, "%Y-%m-%d %H:%M:%S"
+            ).date()
+            if last_date is None:
+                streak = 1
+            elif date == last_date:
+                pass
+            elif date == last_date + datetime.timedelta(days=1):
+                streak += 1
+            else:
+                assert date > last_date
+                streak = 1
+            activity.streak = streak
+            last_date = date
+            activity_list.append(activity.to_dict())
 
         return activity_list
 
     def loadForMapping(self):
-        activities = self.session.query(Activity)\
-            .filter(Activity.type.in_(MAPPING_TYPE))\
+        activities = (
+            self.session.query(Activity)
+            .filter(Activity.type.in_(MAPPING_TYPE))
             .order_by(Activity.start_date_local)
+        )
         activity_list = []
 
         streak = 0
@@ -136,21 +138,21 @@ class Generator:
         for activity in activities:
             # Determine running streak.
             # if activity.type == "Run" or activity.type == "Walk":
-                date = datetime.datetime.strptime(
-                    activity.start_date_local, "%Y-%m-%d %H:%M:%S"
-                ).date()
-                if last_date is None:
-                    streak = 1
-                elif date == last_date:
-                    pass
-                elif date == last_date + datetime.timedelta(days=1):
-                    streak += 1
-                else:
-                    assert date > last_date
-                    streak = 1
-                activity.streak = streak
-                last_date = date
-                activity_list.append(activity.to_dict())
+            date = datetime.datetime.strptime(
+                activity.start_date_local, "%Y-%m-%d %H:%M:%S"
+            ).date()
+            if last_date is None:
+                streak = 1
+            elif date == last_date:
+                pass
+            elif date == last_date + datetime.timedelta(days=1):
+                streak += 1
+            else:
+                assert date > last_date
+                streak = 1
+            activity.streak = streak
+            last_date = date
+            activity_list.append(activity.to_dict())
 
         return activity_list
 

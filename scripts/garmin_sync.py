@@ -7,10 +7,10 @@ Copy most code from https://github.com/cyberjunky/python-garminconnect
 
 import argparse
 import asyncio
+import json
 import logging
 import os
 import re
-import json
 import sys
 import time
 import traceback
@@ -54,6 +54,7 @@ GARMIN_CN_URL_DICT = {
 # set to True if you want to sync all time activities
 # default only sync last 20
 GET_ALL = False
+
 
 class Garmin:
     def __init__(self, email, password, auth_domain, is_only_running=False):

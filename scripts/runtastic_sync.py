@@ -11,8 +11,8 @@ from xml.etree import ElementTree
 
 import gpxpy.gpx
 import httpx
-
 from config import GPX_FOLDER, JSON_FILE, SQL_FILE
+
 from utils import make_activities_file
 
 GPX_FILE_DIR = "GPX_OUT"

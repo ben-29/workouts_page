@@ -112,7 +112,6 @@ class Track:
         else:
             self.name = self.type + " from " + self.source
 
-
         for t in gpx.tracks:
             for s in t.segments:
                 try:
@@ -255,7 +254,7 @@ class Track:
             else None,
             "map": run_map(self.polyline_str),
             "start_latlng": self.start_latlng,
-            "source":  self.source,
+            "source": self.source,
         }
         d.update(self.moving_dict)
         # return a nametuple that can use . to get attr

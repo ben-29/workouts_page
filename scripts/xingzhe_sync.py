@@ -2,22 +2,21 @@
 # -*- coding: utf-8 -*-
 
 import argparse
+import asyncio
 import os
+from base64 import b64encode
 from datetime import datetime
 
-import requests
-import bs4
-from base64 import b64encode
-from Crypto.PublicKey import RSA
-from Crypto.Cipher import PKCS1_v1_5
-import asyncio
 import aiofiles
-from utils import make_activities_file
-
-from config import GPX_FOLDER, JSON_FILE, SQL_FILE
-from generator import Generator
+import bs4
 import gpxpy as mod_gpxpy
+import requests
+from config import GPX_FOLDER, JSON_FILE, SQL_FILE
+from Crypto.Cipher import PKCS1_v1_5
+from Crypto.PublicKey import RSA
+from generator import Generator
 
+from utils import make_activities_file
 
 startYear = 2012
 
@@ -107,9 +106,7 @@ class Xingzhe:
 
         response = self.session.get(url)
         json = response.json()
-        if json is not None\
-                and json["data"] is not None\
-                and len(json["data"]):
+        if json is not None and json["data"] is not None and len(json["data"]):
             return json["data"]["wo_info"]
         return []
 
