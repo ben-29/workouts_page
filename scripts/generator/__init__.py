@@ -79,6 +79,16 @@ class Generator:
 
         self.session.commit()
 
+    def sync_from_kml_track(self, track):
+        created = update_or_create_activity(self.session, track.to_namedtuple())
+        if created:
+            sys.stdout.write("+")
+        else:
+            sys.stdout.write(".")
+        sys.stdout.flush()
+
+        self.session.commit()
+
     def sync_from_app(self, app_tracks):
         if not app_tracks:
             print("No tracks found.")
