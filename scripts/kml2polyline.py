@@ -1,11 +1,15 @@
-from datetime import datetime, timedelta
-from fastkml import kml
-import polyline
-from generator import Generator
 import json
-from gpxtrackposter.track import Track, start_point
-from config import JSON_FILE, SQL_FILE
+from datetime import datetime, timedelta
+
 import eviltransform
+import polyline
+from config import JSON_FILE, SQL_FILE
+from fastkml import kml
+from generator import Generator
+from gpxtrackposter.track import Track, start_point
+
+# set to False if your trip is not in china mainland
+IN_CHINA = True
 
 
 def get_points_from_kml(k: kml):
@@ -17,7 +21,7 @@ def get_points_from_kml(k: kml):
     return [(p[1], p[0]) for p in points]
 
 
-def load_kml_file(k:kml):
+def load_kml_file(k: kml):
     file = "scripts/import.kml"
     try:
         with open(file, "rb") as f:
@@ -43,8 +47,11 @@ def load_kml_data(track, k):
         days * hours_per_day * 60 * 60
     )
     polyline_container = get_points_from_kml(k)
-    # convert WGS-84 to GCJ-02
-    polyline_container = [eviltransform.gcj2wgs(p[0], p[1]) for p in polyline_container]
+    if IN_CHINA:
+        # convert WGS-84 to GCJ-02
+        polyline_container = [
+            eviltransform.gcj2wgs(p[0], p[1]) for p in polyline_container
+        ]
 
     track.start_latlng = start_point(polyline_container[0][0], polyline_container[0][1])
     track.polyline_str = polyline.encode(polyline_container)
