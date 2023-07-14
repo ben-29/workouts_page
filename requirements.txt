@@ -24,6 +24,7 @@ numpy
 tzlocal
 fit-tool
 haversine==2.8.0
+garmin-fit-sdk
 
 bs4
 pycrypto

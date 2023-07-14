@@ -252,16 +252,24 @@ class Track:
         _polylines = []
         self.polyline_container = []
 
+        manufacturer = None
+        product = None
+        part_number = None
         try:
           for record in fit.records:
 
             message = record.message
 
-
-            if(isinstance(message, RecordMessage)):
+            if (isinstance(message, FileIdMessage)):
+                manufacturer = message.manufacturer
+                product = message.product if message.product else message.favero_product
+            elif(isinstance(message, RecordMessage)):
               if (message.position_lat and message.position_long):
                 _polylines.append(s2.LatLng.from_degrees(message.position_lat, message.position_long))
                 self.polyline_container.append([message.position_lat, message.position_long])
+            elif(isinstance(message, SoftwareMessage)):
+              if manufacturer == 107 and message.part_number != "USER_OPERATION": #107迈金， 产品名写在part_number中
+                part_number = message.part_number
             elif(isinstance(message, SessionMessage)):
               self.start_time = datetime.datetime.utcfromtimestamp(message.start_time / 1000)
               self.run_id = message.start_time
@@ -281,9 +289,22 @@ class Track:
           self.start_latlng = start_point(*self.polyline_container[0])
           self.polylines.append(_polylines)
           self.polyline_str = polyline.encode(self.polyline_container)
+          self.source = self._get_source(manufacturer, product, part_number)
+          self.name = f"{self.type} from {self.source}"
         except Exception as e:
             print(e)
             pass
+
+
+    def _get_source(self, manufacturer, product, part_number):
+        manufacturer_name = GarminProfile["types"]["manufacturer"][manufacturer.__str__()]
+        if(manufacturer == 1): #Garmin
+          product_name = GarminProfile["types"]["garmin_product"][product.__str__()]
+          return f"{manufacturer_name} {product_name}"
+        if(manufacturer == 107): #magene（迈金）
+          return part_number
+
+        return None
 
     def append(self, other):
         """Append other track to self."""
