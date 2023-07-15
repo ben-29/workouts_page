@@ -89,16 +89,13 @@ class Track:
             )
             print(str(e))
 
-
     def load_fit(self, file_name):
-
         try:
             self.file_names = [os.path.basename(file_name)]
             # Handle empty fit files
             # (for example, treadmill runs pulled via garmin-connect-export)
             if os.path.getsize(file_name) == 0:
                 raise TrackLoadError("Empty FIT file")
-
 
             fit = FitFile.from_file(file_name)
             self._load_fit_data(fit)
@@ -248,7 +245,6 @@ class Track:
         self.moving_dict = self._get_moving_data(gpx)
 
     def _load_fit_data(self, fit: FitFile):
-
         _polylines = []
         self.polyline_container = []
 
@@ -256,53 +252,80 @@ class Track:
         product = None
         part_number = None
         try:
-          for record in fit.records:
+            for record in fit.records:
+                message = record.message
 
-            message = record.message
+                if isinstance(message, FileIdMessage):
+                    manufacturer = message.manufacturer
+                    product = (
+                        message.product if message.product else message.favero_product
+                    )
+                elif isinstance(message, RecordMessage):
+                    if message.position_lat and message.position_long:
+                        _polylines.append(
+                            s2.LatLng.from_degrees(
+                                message.position_lat, message.position_long
+                            )
+                        )
+                        self.polyline_container.append(
+                            [message.position_lat, message.position_long]
+                        )
+                elif isinstance(message, SoftwareMessage):
+                    if (
+                        manufacturer == 107 and message.part_number != "USER_OPERATION"
+                    ):  # 107迈金， 产品名写在part_number中
+                        part_number = message.part_number
+                elif isinstance(message, SessionMessage):
+                    self.start_time = datetime.datetime.utcfromtimestamp(
+                        message.start_time / 1000
+                    )
+                    self.run_id = message.start_time
+                    self.end_time = datetime.datetime.utcfromtimestamp(
+                        (message.start_time + message.total_elapsed_time * 1000) / 1000
+                    )
+                    self.length = message.total_distance
+                    self.average_heartrate = (
+                        message.avg_heart_rate if message.avg_heart_rate != 0 else None
+                    )
+                    self.type = Sport(message.sport).name.lower()
 
-            if (isinstance(message, FileIdMessage)):
-                manufacturer = message.manufacturer
-                product = message.product if message.product else message.favero_product
-            elif(isinstance(message, RecordMessage)):
-              if (message.position_lat and message.position_long):
-                _polylines.append(s2.LatLng.from_degrees(message.position_lat, message.position_long))
-                self.polyline_container.append([message.position_lat, message.position_long])
-            elif(isinstance(message, SoftwareMessage)):
-              if manufacturer == 107 and message.part_number != "USER_OPERATION": #107迈金， 产品名写在part_number中
-                part_number = message.part_number
-            elif(isinstance(message, SessionMessage)):
-              self.start_time = datetime.datetime.utcfromtimestamp(message.start_time / 1000)
-              self.run_id = message.start_time
-              self.end_time = datetime.datetime.utcfromtimestamp((message.start_time + message.total_elapsed_time * 1000) / 1000)
-              self.length =  message.total_distance
-              self.average_heartrate = message.avg_heart_rate if message.avg_heart_rate != 0 else None
-              self.type = Sport(message.sport).name.lower()
+                    # moving_dict
+                    self.moving_dict["distance"] = message.total_distance
+                    self.moving_dict["moving_time"] = datetime.timedelta(
+                        seconds=message.total_moving_time
+                        if message.total_moving_time
+                        else message.total_timer_time
+                    )
+                    self.moving_dict["elapsed_time"] = datetime.timedelta(
+                        seconds=message.total_elapsed_time
+                    )
+                    self.moving_dict["average_speed"] = (
+                        message.enhanced_avg_speed
+                        if message.enhanced_avg_speed
+                        else message.avg_speed
+                    )
 
-              # moving_dict
-              self.moving_dict["distance"] = message.total_distance
-              self.moving_dict["moving_time"] = datetime.timedelta(seconds=message.total_moving_time if message.total_moving_time else message.total_timer_time)
-              self.moving_dict["elapsed_time"] = datetime.timedelta(seconds=message.total_elapsed_time)
-              self.moving_dict["average_speed"] = message.enhanced_avg_speed if message.enhanced_avg_speed else message.avg_speed
-
-
-          self.start_time_local, self.end_time_local = parse_datetime_to_local(self.start_time, self.end_time, self.polyline_container[0])
-          self.start_latlng = start_point(*self.polyline_container[0])
-          self.polylines.append(_polylines)
-          self.polyline_str = polyline.encode(self.polyline_container)
-          self.source = self._get_source(manufacturer, product, part_number)
-          self.name = f"{self.type} from {self.source}"
+            self.start_time_local, self.end_time_local = parse_datetime_to_local(
+                self.start_time, self.end_time, self.polyline_container[0]
+            )
+            self.start_latlng = start_point(*self.polyline_container[0])
+            self.polylines.append(_polylines)
+            self.polyline_str = polyline.encode(self.polyline_container)
+            self.source = self._get_source(manufacturer, product, part_number)
+            self.name = f"{self.type} from {self.source}"
         except Exception as e:
             print(e)
             pass
 
-
     def _get_source(self, manufacturer, product, part_number):
-        manufacturer_name = GarminProfile["types"]["manufacturer"][manufacturer.__str__()]
-        if(manufacturer == 1): #Garmin
-          product_name = GarminProfile["types"]["garmin_product"][product.__str__()]
-          return f"{manufacturer_name} {product_name}"
-        if(manufacturer == 107): #magene（迈金）
-          return part_number
+        manufacturer_name = GarminProfile["types"]["manufacturer"][
+            manufacturer.__str__()
+        ]
+        if manufacturer == 1:  # Garmin
+            product_name = GarminProfile["types"]["garmin_product"][product.__str__()]
+            return f"{manufacturer_name} {product_name}"
+        if manufacturer == 107:  # magene（迈金）
+            return part_number
 
         return None
 
