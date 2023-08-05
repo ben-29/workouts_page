@@ -77,7 +77,7 @@ const Index = () => {
   const locateActivity = (runIds) => {
     const ids = new Set(runIds)
 
-    const selectedRuns = runs.filter((r) => ids.has(r.id));
+    const selectedRuns = runs.filter((r) => ids.has(r.run_id));
 
     if (!selectedRuns.length) {
       return;
@@ -133,13 +133,12 @@ const Index = () => {
 
         // 点击的是 github 样式 svg
         if (tagName === 'rect' &&
-        parseFloat(target.getAttribute('width')) === 2.6 &&
-        parseFloat(target.getAttribute('height')) === 2.6 &&
-        target.getAttribute('fill') !== '#444444') {
+          parseFloat(target.getAttribute('width')) === 2.6 &&
+          parseFloat(target.getAttribute('height')) === 2.6 &&
+          target.getAttribute('fill') !== '#444444') {
 
           const [runDate] = target.innerHTML.match(/\d{4}-\d{1,2}-\d{1,2}/) || [`${+thisYear + 1}`];
-
-          const runIDsOnDate = runs.filter((r) => r.start_date_local.slice(0, 10) === runDate).map((r) => r.id)
+          const runIDsOnDate = runs.filter((r) => r.start_date_local.slice(0, 10) === runDate).map((r) => r.run_id)
           if (!runIDsOnDate.length) {
             return
           }
@@ -148,12 +147,11 @@ const Index = () => {
         } else if (tagName === 'polyline') { // 点击的是路线缩略图
           const desc = target.getElementsByTagName('desc')[0]
           if (!desc) { return }
-          const detailDate = desc.innerHTML
-          const runIDsOnDate = runs.filter((r) => r.start_date_local === detailDate).map((r) => r.id)
-          if (!runIDsOnDate.length) {
+          const run_id = Number(desc.innerHTML)
+          if (!run_id) {
             return
           }
-          locateActivity(runIDsOnDate)
+          locateActivity([run_id])
         }
       }
     })

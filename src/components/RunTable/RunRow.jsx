@@ -14,7 +14,7 @@ const RunRow = ({ elementIndex, locateActivity, run, runIndex, setRunIndex }) =>
   const handleClick = (e) => {
     if (runIndex === elementIndex) return;
     setRunIndex(elementIndex);
-    locateActivity([run.id]);
+    locateActivity([run.run_id]);
   };
 
   return (
