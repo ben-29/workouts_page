@@ -1,5 +1,5 @@
 import React from 'react';
-import { intComma } from 'src/utils/utils';
+import { intComma } from '../../utils/utils';
 
 
 const WorkoutStat = ({ value, description, pace, className, distance, onClick }) => (

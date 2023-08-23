@@ -79,7 +79,7 @@ const Index = () => {
     changeByItem(type, 'Type', filterTypeRuns, false);
   };
 
-  const locateActivity = (runIds: string) => {
+  const locateActivity = (runIds: number[]) => {
     const ids = new Set(runIds)
 
     const selectedRuns = runs.filter((r) => ids.has(r.run_id));

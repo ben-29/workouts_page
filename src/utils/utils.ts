@@ -177,7 +177,6 @@ const geoJsonForRuns = (runs: Activity[]): FeatureCollection<LineString> => ({
 
     return {
       type: 'Feature',
-      properties: {},
       geometry: {
         type: 'LineString',
         coordinates: points,
@@ -193,7 +192,7 @@ const geoJsonForRuns = (runs: Activity[]): FeatureCollection<LineString> => ({
 
 const geoJsonForMap = () => chinaGeojson;
 
-const titleForType = (type) => {
+const titleForType = (type: string) => {
   switch (type) {
     case 'Run':
       return RUN_TITLES.RUN_TITLE;
@@ -222,7 +221,7 @@ const titleForType = (type) => {
   }
 }
 
-const titleForRun = (run) => {
+const titleForRun = (run: Activity) => {
   const type = run.type;
   if (type == 'Run'){
       const runDistance = run.distance / 1000;
@@ -236,7 +235,7 @@ const titleForRun = (run) => {
   return titleForType(type);
 };
 
-const colorFromType = (workoutType) => {
+const colorFromType = (workoutType: string) => {
   switch (workoutType) {
     case 'Run':
       return RUN_COLOR;
@@ -337,8 +336,8 @@ const filterAndSortRuns = (
 const sortDateFunc = (a: Activity, b: Activity) => {
   // @ts-ignore
   return (
-    new Date(b.start_date_local.replace(' ', 'T')) -
-    new Date(a.start_date_local.replace(' ', 'T'))
+    new Date(b.start_date_local.replace(' ', 'T')).getTime() -
+    new Date(a.start_date_local.replace(' ', 'T')).getTime()
   );
 };
 const sortDateFuncReverse = (a: Activity, b: Activity) => sortDateFunc(b, a);

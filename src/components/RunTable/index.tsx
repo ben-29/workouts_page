@@ -10,7 +10,7 @@ import styles from './style.module.scss';
 
 interface IRunTableProperties {
   runs: Activity[];
-  locateActivity: (_date: string) => void;
+  locateActivity: (_runIds: number[]) => void;
   setActivity: (_runs: Activity[]) => void;
   runIndex: number;
   setRunIndex: (_index: number) => void;

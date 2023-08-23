@@ -4,7 +4,7 @@ import styles from './style.module.scss';
 
 interface IRunRowProperties {
   elementIndex: number;
-  locateActivity: (_date: string) => void;
+  locateActivity: (_runIds: number[]) => void;
   run: Activity;
   runIndex: number;
   setRunIndex: (_ndex: number) => void;
