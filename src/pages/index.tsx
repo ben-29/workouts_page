@@ -1,15 +1,17 @@
 import { Analytics } from '@vercel/analytics/react';
 import React, { useEffect, useState } from 'react';
-import Layout from 'src/components/Layout';
-import LocationStat from 'src/components/LocationStat';
-import RunMap from 'src/components/RunMap';
-import RunTable from 'src/components/RunTable';
-import SVGStat from 'src/components/SVGStat';
-import YearsStat from 'src/components/YearsStat';
-import useActivities from 'src/hooks/useActivities';
-import useSiteMetadata from 'src/hooks/useSiteMetadata';
-import { IS_CHINESE } from 'src/utils/const';
+import Layout from '@/components/Layout';
+import LocationStat from '@/components/LocationStat';
+import RunMap from '@/components/RunMap';
+import RunTable from '@/components/RunTable';
+import SVGStat from '@/components/SVGStat';
+import YearsStat from '@/components/YearsStat';
+import useActivities from '@/hooks/useActivities';
+import useSiteMetadata from '@/hooks/useSiteMetadata';
+import { IS_CHINESE } from '@/utils/const';
 import {
+  Activity,
+  IViewport,
   filterAndSortRuns,
   filterCityRuns,
   filterTitleRuns,
@@ -20,7 +22,7 @@ import {
   scrollToMap,
   sortDateFunc,
   titleForShow,
-} from 'src/utils/utils';
+} from '@/utils/utils';
 
 const Index = () => {
   const { siteTitle } = useSiteMetadata();
@@ -34,47 +36,50 @@ const Index = () => {
   const [geoData, setGeoData] = useState(geoJsonForRuns(runs));
   // for auto zoom
   const bounds = getBoundsForGeoData(geoData);
-  const [intervalId, setIntervalId] = useState();
+  const [intervalId, setIntervalId] = useState<number>();
 
-  const [viewport, setViewport] = useState({
+  const [viewport, setViewport] = useState<IViewport>({
     ...bounds,
   });
 
-  const changeByItem = (item, name, func, isChanged) => {
+  const changeByItem = (
+    item: string,
+    name: string,
+    func: (_run: Activity, _value: string) => boolean
+  ) => {
     scrollToMap();
     setActivity(filterAndSortRuns(activities, item, func, sortDateFunc));
     setRunIndex(-1);
     setTitle(`${item} ${name} Heatmap`);
   };
 
-  const changeYear = (y) => {
-    const isChanged = y === year;
+  const changeYear = (y: string) => {
     // default year
     setYear(y);
 
-    if (viewport.zoom > 3) {
+    if ((viewport.zoom ?? 0) > 3) {
       setViewport({
         ...bounds,
       });
     }
 
-    changeByItem(y, 'Year', filterYearRuns, isChanged);
+    changeByItem(y, 'Year', filterYearRuns);
     clearInterval(intervalId);
   };
 
-  const changeCity = (city) => {
-    changeByItem(city, 'City', filterCityRuns, false);
+  const changeCity = (city: string) => {
+    changeByItem(city, 'City', filterCityRuns);
   };
 
-  const changeTitle = (title) => {
-    changeByItem(title, 'Title', filterTitleRuns, false);
+  const changeTitle = (title: string) => {
+    changeByItem(title, 'Title', filterTitleRuns);
   };
 
-  const changeType = (type) => {
+  const changeType = (type: string) => {
     changeByItem(type, 'Type', filterTypeRuns, false);
   };
 
-  const locateActivity = (runIds) => {
+  const locateActivity = (runIds: string) => {
     const ids = new Set(runIds)
 
     const selectedRuns = runs.filter((r) => ids.has(r.run_id));
@@ -122,14 +127,14 @@ const Index = () => {
       return;
     }
 
-    let svgStat = document.getElementById('svgStat')
+    let svgStat = document.getElementById('svgStat');
     if (!svgStat) {
-      return
+      return;
     }
     svgStat.addEventListener('click', (e) => {
-      const target = e.target;
+      const target = e.target as HTMLElement;
       if (target) {
-        const tagName = target.tagName.toLowerCase()
+        const tagName = target.tagName.toLowerCase();
 
         // 点击的是 github 样式 svg
         if (tagName === 'rect' &&
@@ -140,21 +145,21 @@ const Index = () => {
           const [runDate] = target.innerHTML.match(/\d{4}-\d{1,2}-\d{1,2}/) || [`${+thisYear + 1}`];
           const runIDsOnDate = runs.filter((r) => r.start_date_local.slice(0, 10) === runDate).map((r) => r.run_id)
           if (!runIDsOnDate.length) {
-            return
+            return;
           }
-          locateActivity(runIDsOnDate)
+          locateActivity(runIDsOnDate);
 
         } else if (tagName === 'polyline') { // 点击的是路线缩略图
-          const desc = target.getElementsByTagName('desc')[0]
+          const desc = target.getElementsByTagName('desc')[0];
           if (!desc) { return }
-          const run_id = Number(desc.innerHTML)
+          const run_id = Number(desc.innerHTML);
           if (!run_id) {
-            return
+            return;
           }
-          locateActivity([run_id])
+          locateActivity([run_id]);
         }
       }
-    })
+    });
   }, [year]);
 
   return (
@@ -163,7 +168,7 @@ const Index = () => {
         <h1 className="f1 fw9 i">
           <a href="/">{siteTitle}</a>
         </h1>
-        {viewport.zoom <= 3 && IS_CHINESE ? (
+        {(viewport.zoom ?? 0) <= 3 && IS_CHINESE ? (
           <LocationStat
             changeYear={changeYear}
             changeCity={changeCity}

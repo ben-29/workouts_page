@@ -1,8 +1,8 @@
 import * as mapboxPolyline from '@mapbox/polyline';
 import gcoord from 'gcoord';
 import { WebMercatorViewport } from 'react-map-gl';
-import { chinaGeojson } from 'src/static/run_countries';
-import { chinaCities } from 'src/static/city';
+import { chinaGeojson } from '@/static/run_countries';
+import { chinaCities } from '@/static/city';
 import {
   MUNICIPALITY_CITIES_ARR,
   NEED_FIX_MAP,
@@ -19,8 +19,26 @@ import {
   KAYAKING_COLOR,
   SNOWBOARD_COLOR,
 } from './const';
+import { FeatureCollection, LineString } from 'geojson';
 
-const titleForShow = (run) => {
+export type Coordinate = [number, number];
+
+export interface Activity {
+  run_id: number;
+  name: string;
+  distance: number;
+  moving_time: string;
+  type: 'Run';
+  start_date: string;
+  start_date_local: string;
+  location_country: string;
+  summary_polyline: string;
+  average_heartrate?: number;
+  average_speed: number;
+  streak: number;
+}
+
+const titleForShow = (run: Activity): string => {
   const date = run.start_date_local.slice(0, 11);
   const distance = (run.distance / 1000.0).toFixed(2);
   let name = 'Run';
@@ -32,7 +50,7 @@ const titleForShow = (run) => {
   }`;
 };
 
-const formatPace = (d) => {
+const formatPace = (d: number): string => {
   if (Number.isNaN(d) || d == 0) return '0';
   const pace = (1000.0 / 60.0) * (1.0 / d);
   const minutes = Math.floor(pace);
@@ -40,7 +58,7 @@ const formatPace = (d) => {
   return `${minutes}'${seconds.toFixed(0).toString().padStart(2, '0')}"`;
 };
 
-const convertMovingTime2Sec = (moving_time) => {
+const convertMovingTime2Sec = (moving_time: string): number => {
   if (!moving_time) {
     return 0;
   }
@@ -53,7 +71,7 @@ const convertMovingTime2Sec = (moving_time) => {
   return totalSeconds;
 };
 
-const formatRunTime = (moving_time) => {
+const formatRunTime = (moving_time: string): string => {
   const totalSeconds = convertMovingTime2Sec(moving_time);
   const seconds = totalSeconds % 60;
   const minutes = (totalSeconds - seconds) / 60;
@@ -66,25 +84,33 @@ const formatRunTime = (moving_time) => {
 // for scroll to the map
 const scrollToMap = () => {
   const el = document.querySelector('.fl.w-100.w-70-l');
-  const rect = el.getBoundingClientRect();
-  window.scroll(rect.left + window.scrollX, rect.top + window.scrollY);
+  const rect = el?.getBoundingClientRect();
+  if (rect) {
+    window.scroll(rect.left + window.scrollX, rect.top + window.scrollY);
+  }
 };
 
 const pattern = /([\u4e00-\u9fa5]{2,}(市|自治州))/g;
-const extractLocations = (str) => {
+const extractLocations = (str: string): string[] => {
   const locations = [];
   let match;
-  
+
   while ((match = pattern.exec(str)) !== null) {
     locations.push(match[0]);
   }
-  
+
   return locations;
 };
 
 const cities = chinaCities.map((c) => c.name);
 // what about oversea?
-const locationForRun = (run) => {
+const locationForRun = (
+  run: Activity
+): {
+  country: string;
+  province: string;
+  city: string;
+} => {
   let location = run.location_country;
   let [city, province, country] = ['', '', ''];
   if (location) {
@@ -94,9 +120,8 @@ const locationForRun = (run) => {
     const provinceMatch = location.match(/[\u4e00-\u9fa5]{2,}(省|自治区)/);
 
     if (cityMatch) {
-      [city] = cityMatch;
-	    city = cities.find(value => cityMatch.includes(value));
-	  
+      city = cities.find((value) => cityMatch.includes(value)) as string;
+
       if (!city) {
         city = '';
       }
@@ -130,7 +155,7 @@ const intComma = (x = '') => {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };
 
-const pathForRun = (run) => {
+const pathForRun = (run: Activity): Coordinate[] => {
   try {
     const c = mapboxPolyline.decode(run.summary_polyline);
     // reverse lat long for mapbox
@@ -145,16 +170,14 @@ const pathForRun = (run) => {
   }
 };
 
-const geoJsonForRuns = (runs) => ({
+const geoJsonForRuns = (runs: Activity[]): FeatureCollection<LineString> => ({
   type: 'FeatureCollection',
   features: runs.map((run) => {
     const points = pathForRun(run);
-    if (!points) {
-      return null;
-    }
 
     return {
       type: 'Feature',
+      properties: {},
       geometry: {
         type: 'LineString',
         coordinates: points,
@@ -241,14 +264,21 @@ const colorFromType = (workoutType) => {
   }
 };
 
-const applyToArray = (func, array) => func.apply(Math, array);
-const getBoundsForGeoData = (geoData) => {
+export interface IViewport {
+  longitude?: number;
+  latitude?: number;
+  zoom?: number;
+}
+
+const getBoundsForGeoData = (
+  geoData: FeatureCollection<LineString>
+): IViewport => {
   const { features } = geoData;
-  let points;
+  let points: Coordinate[] = [];
   // find first have data
   for (const f of features) {
     if (f.geometry.coordinates.length) {
-      points = f.geometry.coordinates;
+      points = f.geometry.coordinates as Coordinate[];
       break;
     }
   }
@@ -256,11 +286,11 @@ const getBoundsForGeoData = (geoData) => {
     return {};
   }
   // Calculate corner values of bounds
-  const pointsLong = points.map((point) => point[0]);
-  const pointsLat = points.map((point) => point[1]);
-  const cornersLongLat = [
-    [applyToArray(Math.min, pointsLong), applyToArray(Math.min, pointsLat)],
-    [applyToArray(Math.max, pointsLong), applyToArray(Math.max, pointsLat)],
+  const pointsLong = points.map((point) => point[0]) as number[];
+  const pointsLat = points.map((point) => point[1]) as number[];
+  const cornersLongLat: [Coordinate, Coordinate] = [
+    [Math.min(...pointsLong), Math.min(...pointsLat)],
+    [Math.max(...pointsLong), Math.max(...pointsLat)],
   ];
   const viewport = new WebMercatorViewport({
     width: 800,
@@ -273,24 +303,30 @@ const getBoundsForGeoData = (geoData) => {
   return { longitude, latitude, zoom };
 };
 
-const filterYearRuns = (run, year) => {
+const filterYearRuns = (run: Activity, year: string) => {
   if (run && run.start_date_local) {
     return run.start_date_local.slice(0, 4) === year;
   }
   return false;
 };
 
-const filterCityRuns = (run, city) => {
+const filterCityRuns = (run: Activity, city: string) => {
   if (run && run.location_country) {
     return run.location_country.includes(city);
   }
   return false;
 };
-const filterTitleRuns = (run, title) => titleForRun(run) === title;
+const filterTitleRuns = (run: Activity, title: string) =>
+  titleForRun(run) === title;
 
-const filterTypeRuns = (run, type) => run.type === type;
+const filterTypeRuns = (run: Activity, type: string) => run.type === type;
 
-const filterAndSortRuns = (activities, item, filterFunc, sortFunc) => {
+const filterAndSortRuns = (
+  activities: Activity[],
+  item: string,
+  filterFunc: (_run: Activity, _bvalue: string) => boolean,
+  sortFunc: (_a: Activity, _b: Activity) => number
+) => {
   let s = activities;
   if (item !== 'Total') {
     s = activities.filter((run) => filterFunc(run, item));
@@ -298,10 +334,14 @@ const filterAndSortRuns = (activities, item, filterFunc, sortFunc) => {
   return s.sort(sortFunc);
 };
 
-const sortDateFunc = (a, b) =>
-  new Date(b.start_date_local.replace(' ', 'T')) -
-  new Date(a.start_date_local.replace(' ', 'T'));
-const sortDateFuncReverse = (a, b) => sortDateFunc(b, a);
+const sortDateFunc = (a: Activity, b: Activity) => {
+  // @ts-ignore
+  return (
+    new Date(b.start_date_local.replace(' ', 'T')) -
+    new Date(a.start_date_local.replace(' ', 'T'))
+  );
+};
+const sortDateFuncReverse = (a: Activity, b: Activity) => sortDateFunc(b, a);
 
 export {
   titleForShow,

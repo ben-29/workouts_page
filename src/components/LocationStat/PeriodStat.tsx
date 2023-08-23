@@ -1,10 +1,10 @@
 import React from 'react';
-import Stat from 'src/components/Stat';
-import useActivities from 'src/hooks/useActivities';
-import { IS_CHINESE } from 'src/utils/const';
-import { titleForType } from 'src/utils/utils';
+import Stat from '@/components/Stat';
+import useActivities from '@/hooks/useActivities';
+import { IS_CHINESE } from '@/utils/const';
+import { titleForType } from '@/utils/utils';
 
-const PeriodStat = ({ onClick }) => {
+const PeriodStat = ({ onClick }: { onClick: (_type: string) => void }) => {
   const { workoutsCounts } = useActivities();
   const periodArr = Object.entries(workoutsCounts);
   periodArr.sort((a, b) => b[1] - a[1]);
