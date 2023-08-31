@@ -10,7 +10,7 @@ module.exports = {
     navLinks: [
       {
         name: 'Blog',
-        url: 'www.aetherhjf.com/',
+        url: 'https://www.aetherhjf.com',
       },
       {
         name: 'About',
