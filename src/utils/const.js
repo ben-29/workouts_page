@@ -1,6 +1,6 @@
 // const
 const MAPBOX_TOKEN =
-    'pk.eyJ1IjoiYmVuLTI5IiwiYSI6ImNrZ3Q4Ym9mMDBqMGYyeXFvODV2dWl6YzQifQ.gSKoWF-fMjhzU67TuDezJQ';
+  'pk.eyJ1IjoiYmVuLTI5IiwiYSI6ImNrZ3Q4Ym9mMDBqMGYyeXFvODV2dWl6YzQifQ.gSKoWF-fMjhzU67TuDezJQ';
 const MUNICIPALITY_CITIES_ARR = [
   '北京市',
   '上海市',
@@ -37,10 +37,12 @@ const ROAD_LABEL_DISPLAY = true;
 const IS_CHINESE = true;
 const USE_ANIMATION_FOR_GRID = false;
 const CHINESE_INFO_MESSAGE = (yearLength, year) =>
-  `户外运动 ${yearLength} 年 ` + ( year === 'Total' ? '' : `，地图展示的是 ${year} 年的轨迹`);
+  `户外运动 ${yearLength} 年 ` +
+  (year === 'Total' ? '' : `，地图展示的是 ${year} 年的轨迹`);
 
 const ENGLISH_INFO_MESSAGE = (yearLength, year) =>
-  `Logged ${yearLength} Years of Outdoor Journey` +  ( year === 'Total' ? '' : `, the map show routes in ${year}`);
+  `Logged ${yearLength} Years of Outdoor Journey` +
+  (year === 'Total' ? '' : `, the map show routes in ${year}`);
 
 // not support English for now
 const CHINESE_LOCATION_INFO_MESSAGE_FIRST =
@@ -105,8 +107,8 @@ const IKB = 'rgb(0,47,167)';
 const wpink = 'rgb(228,212,220)';
 const gold = 'rgb(242,190,69)';
 const purple = 'rgb(154,118,252)';
-const veryPeri = 'rgb(105,106,173)';//长春花蓝
-const red = 'rgb(255,0,0)';//大红色
+const veryPeri = 'rgb(105,106,173)'; //长春花蓝
+const red = 'rgb(255,0,0)'; //大红色
 
 // If your map has an offset please change this line
 // issues #92 and #198

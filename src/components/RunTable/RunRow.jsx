@@ -5,7 +5,7 @@ import { element } from 'prop-types';
 
 const RunRow = ({ elementIndex, locateActivity, run, runIndex, setRunIndex }) => {
   const distance = (run.distance / 1000.0).toFixed(2);
-  const paceParts = run.average_speed ? formatPace(run.average_speed) : null;
+  const paceParts = run.average_speed ? formatPace(run.type, run.average_speed) : null;
   const heartRate = run.average_heartrate;
 
   const type = run.type;

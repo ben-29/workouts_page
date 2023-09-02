@@ -32,9 +32,12 @@ const titleForShow = (run) => {
   }`;
 };
 
-const formatPace = (d) => {
+const formatPace = (t, d) => {
   if (Number.isNaN(d) || d == 0) return '0';
   const pace = (1000.0 / 60.0) * (1.0 / d);
+  if (t === 'Ride' || t === 'VirtualRide' || t === 'Hike') {
+    return Math.round((60 / pace) * 100) / 100 + 'km/h';
+  }
   const minutes = Math.floor(pace);
   const seconds = Math.floor((pace - minutes) * 60.0);
   return `${minutes}'${seconds.toFixed(0).toString().padStart(2, '0')}"`;
@@ -74,11 +77,11 @@ const pattern = /([\u4e00-\u9fa5]{2,}(市|自治州))/g;
 const extractLocations = (str) => {
   const locations = [];
   let match;
-  
+
   while ((match = pattern.exec(str)) !== null) {
     locations.push(match[0]);
   }
-  
+
   return locations;
 };
 
@@ -95,8 +98,8 @@ const locationForRun = (run) => {
 
     if (cityMatch) {
       [city] = cityMatch;
-	    city = cities.find(value => cityMatch.includes(value));
-	  
+      city = cities.find((value) => cityMatch.includes(value));
+
       if (!city) {
         city = '';
       }
@@ -161,7 +164,7 @@ const geoJsonForRuns = (runs) => ({
         workoutType: run.type,
       },
       properties: {
-        'color': colorFromType(run.type),
+        color: colorFromType(run.type),
       },
       name: run.name,
     };
@@ -197,18 +200,17 @@ const titleForType = (type) => {
     default:
       return RUN_TITLES.RUN_TITLE;
   }
-}
+};
 
 const titleForRun = (run) => {
   const type = run.type;
-  if (type == 'Run'){
-      const runDistance = run.distance / 1000;
-      if (runDistance >= 40) {
-        return RUN_TITLES.FULL_MARATHON_RUN_TITLE;
-      }
-      else if (runDistance > 20) {
-        return RUN_TITLES.HALF_MARATHON_RUN_TITLE;
-      }
+  if (type == 'Run') {
+    const runDistance = run.distance / 1000;
+    if (runDistance >= 40) {
+      return RUN_TITLES.FULL_MARATHON_RUN_TITLE;
+    } else if (runDistance > 20) {
+      return RUN_TITLES.HALF_MARATHON_RUN_TITLE;
+    }
   }
   return titleForType(type);
 };
