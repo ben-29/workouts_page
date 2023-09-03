@@ -4,13 +4,17 @@ module.exports = {
   pathPrefix: process.env.PATH_PREFIX || '/',
   siteMetadata: {
     siteTitle: "jusing50a's Running Page",
-    siteUrl: 'https://github.com/jusing50a',
+    siteUrl: 'https://jusing50a.github.io/running_page',
     logo: 'https://avatars.githubusercontent.com/u/37446043?v=4',
     description: "jusing50a's Personal Running Page",
     keywords: 'workouts, running, cycling, riding, roadtrip, hiking, swimming',
     navLinks: [
       {
-        name: 'About',
+        name: 'Strava',
+        url: 'https://www.strava.com/athletes/91018631',
+      },
+      {
+        name: 'Github',
         url: 'https://github.com/ben-29/workouts_page/blob/master/README-CN.md',
       },
     ],

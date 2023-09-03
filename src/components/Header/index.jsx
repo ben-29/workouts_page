@@ -9,7 +9,7 @@ const Header = () => {
     <>
       <nav
         className="db flex justify-between w-100 ph5-l"
-        style={{ marginTop: '3rem' }}
+        style={{ marginTop: '3rem', alignItems: "center" }}
       >
         <div className="dib w-25 v-mid">
           <Link to={siteUrl} className="link dim">
@@ -23,6 +23,8 @@ const Header = () => {
             <a
               key={i}
               href={n.url}
+              target="_blank"
+              rel="noreferrer"
               className="light-gray link dim f6 f5-l mr3 mr4-l"
             >
               {n.name}
