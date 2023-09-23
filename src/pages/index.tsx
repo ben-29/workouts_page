@@ -11,7 +11,7 @@ import useSiteMetadata from '@/hooks/useSiteMetadata';
 import { IS_CHINESE } from '@/utils/const';
 import {
   Activity,
-  IViewport,
+  IViewState,
   filterAndSortRuns,
   filterCityRuns,
   filterTitleRuns,
@@ -27,7 +27,7 @@ import {
 const Index = () => {
   const { siteTitle } = useSiteMetadata();
   const { activities, thisYear } = useActivities();
-  const [year, setYear] = useState('Total');
+  const [year, setYear] = useState(thisYear);
   const [runIndex, setRunIndex] = useState(-1);
   const [runs, setActivity] = useState(
     filterAndSortRuns(activities, year, filterYearRuns, sortDateFunc)
@@ -38,7 +38,7 @@ const Index = () => {
   const bounds = getBoundsForGeoData(geoData);
   const [intervalId, setIntervalId] = useState<number>();
 
-  const [viewport, setViewport] = useState<IViewport>({
+  const [viewState, setViewState] = useState<IViewState>({
     ...bounds,
   });
 
@@ -57,8 +57,8 @@ const Index = () => {
     // default year
     setYear(y);
 
-    if ((viewport.zoom ?? 0) > 3) {
-      setViewport({
+    if ((viewState.zoom ?? 0) > 3) {
+      setViewState({
         ...bounds,
       });
     }
@@ -79,7 +79,7 @@ const Index = () => {
     changeByItem(type, 'Type', filterTypeRuns, false);
   };
 
-  const locateActivity = (runIds: number[]) => {
+  const locateActivity = (runIds: [Number]) => {
     const ids = new Set(runIds)
 
     const selectedRuns = runs.filter((r) => ids.has(r.run_id));
@@ -100,7 +100,7 @@ const Index = () => {
   };
 
   useEffect(() => {
-    setViewport({
+    setViewState({
       ...bounds,
     });
   }, [geoData]);
@@ -136,27 +136,27 @@ const Index = () => {
       if (target) {
         const tagName = target.tagName.toLowerCase();
 
-        // 点击的是 github 样式 svg
+        // click the github-stat style svg
         if (tagName === 'rect' &&
-          parseFloat(target.getAttribute('width')) === 2.6 &&
-          parseFloat(target.getAttribute('height')) === 2.6 &&
+          parseFloat(target.getAttribute('width') || '0.0') === 2.6 &&
+          parseFloat(target.getAttribute('height') || '0.0') === 2.6 &&
           target.getAttribute('fill') !== '#444444') {
 
           const [runDate] = target.innerHTML.match(/\d{4}-\d{1,2}-\d{1,2}/) || [`${+thisYear + 1}`];
           const runIDsOnDate = runs.filter((r) => r.start_date_local.slice(0, 10) === runDate).map((r) => r.run_id)
           if (!runIDsOnDate.length) {
-            return;
+            return
           }
-          locateActivity(runIDsOnDate);
+          locateActivity(runIDsOnDate)
 
-        } else if (tagName === 'polyline') { // 点击的是路线缩略图
-          const desc = target.getElementsByTagName('desc')[0];
+        } else if (tagName === 'polyline') { // click the route grid svg
+          const desc = target.getElementsByTagName('desc')[0]
           if (!desc) { return }
-          const run_id = Number(desc.innerHTML);
+          const run_id = Number(desc.innerHTML)
           if (!run_id) {
-            return;
+            return
           }
-          locateActivity([run_id]);
+          locateActivity([run_id])
         }
       }
     });
@@ -168,7 +168,7 @@ const Index = () => {
         <h1 className="f1 fw9 i">
           <a href="/">{siteTitle}</a>
         </h1>
-        {(viewport.zoom ?? 0) <= 3 && IS_CHINESE ? (
+        {(viewState.zoom ?? 0) <= 3 && IS_CHINESE ? (
           <LocationStat
             changeYear={changeYear}
             changeCity={changeCity}
@@ -181,9 +181,9 @@ const Index = () => {
       <div className="fl w-100 w-70-l">
         <RunMap
           title={title}
-          viewport={viewport}
+          viewState={viewState}
           geoData={geoData}
-          setViewport={setViewport}
+          setViewState={setViewState}
           changeYear={changeYear}
           thisYear={year}
         />

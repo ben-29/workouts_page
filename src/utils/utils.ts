@@ -1,6 +1,6 @@
 import * as mapboxPolyline from '@mapbox/polyline';
 import gcoord from 'gcoord';
-import { WebMercatorViewport } from 'react-map-gl';
+import { WebMercatorViewport } from 'viewport-mercator-project';
 import { chinaGeojson } from '@/static/run_countries';
 import { chinaCities } from '@/static/city';
 import {
@@ -263,7 +263,7 @@ const colorFromType = (workoutType: string) => {
   }
 };
 
-export interface IViewport {
+export interface IViewState {
   longitude?: number;
   latitude?: number;
   zoom?: number;
@@ -271,7 +271,7 @@ export interface IViewport {
 
 const getBoundsForGeoData = (
   geoData: FeatureCollection<LineString>
-): IViewport => {
+): IViewState => {
   const { features } = geoData;
   let points: Coordinate[] = [];
   // find first have data
@@ -291,11 +291,11 @@ const getBoundsForGeoData = (
     [Math.min(...pointsLong), Math.min(...pointsLat)],
     [Math.max(...pointsLong), Math.max(...pointsLat)],
   ];
-  const viewport = new WebMercatorViewport({
+  const viewState = new WebMercatorViewport({
     width: 800,
     height: 600,
   }).fitBounds(cornersLongLat, { padding: 200 });
-  let { longitude, latitude, zoom } = viewport;
+  let { longitude, latitude, zoom } = viewState;
   if (features.length > 1) {
     zoom = 11.5;
   }
