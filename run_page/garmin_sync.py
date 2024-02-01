@@ -44,6 +44,7 @@ GARMIN_CN_URL_DICT = {
 }
 
 
+
 class Garmin:
     def __init__(self, secret_string, auth_domain, is_only_running=False):
         """
