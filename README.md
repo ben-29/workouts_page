@@ -1,3 +1,7 @@
+## note1: use v2.0 need change vercel setting from Gatsby to Vite
+
+## note2: 2023.09.26 garmin need secret_string(and in Actions) get `python run_page/garmin_sync.py ${secret_string}` if cn `python run_page/garmin_sync.py ${secret_string} --is-cn`
+
 # [Create a personal workouts home page](http://workouts.ben29.xyz)
 
 ![screenshot](https://user-images.githubusercontent.com/6956444/163125711-24d0ad99-490d-4c04-b89f-5b7fe776eb38.png)
@@ -25,8 +29,8 @@ This project is based on [running_page](https://github.com/yihong0618/running_pa
 - Modify `TYPE_DICT` & `MAPPING_TYPE` in `scripts/config.py`
 - Add Type Name and add it into `RUN_TITLES` in `src/utils/const.js`
 - Modify `colorFromType` & `titleForRun` in `src/utils/util.js`
-
-- see [commit](https://github.com/ben-29/workouts_page/commit/bfb6e9da4f72bdbdec669c42bdd10062558039cd)
+- see [commit](https://github.com/ben-29/workouts_page/commit/f3a35884d626009d33e05adc76bbc8372498f317)
+- or comment [here](https://github.com/ben-29/workouts_page/issues/20)
 
 ---
 
