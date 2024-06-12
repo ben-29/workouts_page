@@ -11,8 +11,8 @@ interface ISiteMetadataResult {
 }
 
 const data: ISiteMetadataResult = {
-  siteTitle: 'Workouts map of shog',
-  siteUrl: 'https://www.linkedin.com/in/gezhongjun/',
+  siteTitle: 'Workouts of shog',
+  siteUrl: 'https://shog86.github.io/workouts/',
   logo: 'https://media.licdn.com/dms/image/C4D03AQEscF8G9GIO9g/profile-displayphoto-shrink_400_400/0/1593513985221?e=1723680000&v=beta&t=oCibi9MKlBtP6_A9s6UvFQbcOd50UMnH7UIdLQvR94Y',
   description: '',
   keywords: 'workouts, running, cycling, riding, roadtrip, hiking, swimming',
