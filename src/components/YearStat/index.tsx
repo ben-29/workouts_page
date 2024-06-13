@@ -59,7 +59,7 @@ const YearStat = ({ year, onClick, onClickTypeInYear }: { year: string, onClick:
       {...eventHandlers}
     >
       <section>
-        <Stat value={year} description=" Journey" />
+        <Stat value={year} description=" Records" />
         { sumDistance > 0 &&
           <WorkoutStat
             key='total'

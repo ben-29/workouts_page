@@ -54,7 +54,7 @@ const Index = () => {
     }
     setActivity(filterAndSortRuns(activities, item, func, sortDateFunc));
     setRunIndex(-1);
-    setTitle(`${item} ${name} Heatmap`);
+    setTitle(`${item} Heatmap`);
   };
 
   const changeYear = (y: string) => {
@@ -95,7 +95,7 @@ const Index = () => {
       setActivity(filterAndSortRuns(activities, type, filterTypeRuns, sortDateFunc));
     }
     setRunIndex(-1);
-    setTitle(`${year} ${type} Type Heatmap`);
+    setTitle(`${year} ${type} Heatmap`);
   };
 
 
