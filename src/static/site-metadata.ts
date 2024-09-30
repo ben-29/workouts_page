@@ -11,19 +11,19 @@ interface ISiteMetadataResult {
 }
 
 const data: ISiteMetadataResult = {
-  siteTitle: 'Workouts Map',
-  siteUrl: 'https://ben29.xyz',
-  logo: 'https://avatars3.githubusercontent.com/u/6956444?s=460&u=97e1062227c4088db3c987146455245c6fa78441',
+  siteTitle: 'Feng Siyuan锻炼记录',
+  siteUrl: 'https://fengsy.cn',
+  logo: 'https://pan.4a1801.life:11443/d/public/logo1.jpg',
   description: 'Personal site and blog',
   keywords: 'workouts, running, cycling, riding, roadtrip, hiking, swimming',
   navLinks: [
     {
-      name: 'Blog',
-      url: 'https://ben29.xyz',
+      name: '家庭博客',
+      url: 'https://fengsy.cn',
     },
     {
-      name: 'About',
-      url: 'https://github.com/ben-29/workouts_page/blob/master/README-CN.md',
+      name: '关于我们',
+      url: 'https://fengsy.cn/%E5%AE%B6%E5%BA%AD/intro.html',
     },
   ],
 };
