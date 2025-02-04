@@ -17,8 +17,10 @@ on:
       - run_page/keep_sync.py
       - run_page/gpx_sync.py
       - run_page/tcx_sync.py
+      - run_page/tcx_to_garmin_sync.py
       - run_page/garmin_to_strava_sync.py
       - run_page/keep_to_strava_sync.py
+      - run_page/oppo_sync.py
       - requirements.txt
 
 env:
@@ -121,6 +123,12 @@ jobs:
         run: |
           python run_page/codoon_sync.py ${{ secrets.CODOON_MOBILE }} ${{ secrets.CODOON_PASSWORD }}
 
+      - name: Run sync tcx to Garmin script
+        if: env.RUN_TYPE == 'tcx_to_garmin'
+        run: |
+            # python run_page/tcx_to_garmin_sync.py ${{ secrets.GARMIN_SECRET_STRING }}
+            python run_page/tcx_to_garmin_sync.py ${{ secrets.GARMIN_SECRET_STRING_CN }} --is-cn
+
       # for garmin if you want generate `tcx` you can add --tcx command in the args.
       - name: Run sync Garmin script
         if: env.RUN_TYPE == 'garmin'
@@ -186,6 +194,18 @@ jobs:
         if: env.RUN_TYPE == 'tulipsport'
         run: |
           python run_page/tulipsport_sync.py ${{ secrets.TULIPSPORT_TOKEN }} --with-gpx
+
+      - name: Run sync Oppo heytap script, note currently this script is not worked
+        if: env.RUN_TYPE == 'oppo'
+        run: |
+            python run_page/oppo_sync.py ${{ secrets.OPPO_ID }} ${{ secrets.OPPO_CLIENT_SECRET }} ${{ secrets.OPPO_CLIENT_REFRESH_TOKEN }} --with-tcx
+        # If you want to sync fit activity in gpx format, please consider the following script:
+        # python run_page/oppo_sync.py ${{ secrets.OPPO_ID }} ${{ secrets.OPPO_CLIENT_SECRET }} ${{ secrets.OPPO_CLIENT_REFRESH_TOKEN }} --with-gpx
+
+      - name: Run db updater script to add "Elevation Gain" field to db
+        if: env.RUN_TYPE == 'db_updater'
+        run: |
+            python run_page/db_updater.py
 
       - name: Make svg GitHub profile
         if: env.RUN_TYPE != 'pass'

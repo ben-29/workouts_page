@@ -42,6 +42,8 @@ const ROAD_LABEL_DISPLAY = true;
 const PRIVACY_MODE = false;
 //set to `false` if you want to make light off as default, only effect when `PRIVACY_MODE` = false
 const LIGHTS_ON = true;
+//set to `true` if you want to show the 'Elevation Gain' column
+const SHOW_ELEVATION_GAIN = false;
 
 // IF you outside China please make sure IS_CHINESE = false
 const IS_CHINESE = true;
@@ -112,6 +114,7 @@ export {
   MAP_HEIGHT,
   PRIVACY_MODE,
   LIGHTS_ON,
+  SHOW_ELEVATION_GAIN,
 };
 
 const nike = 'rgb(224,237,94)';
@@ -140,6 +143,3 @@ export const ROAD_TRIP_COLOR = purple;
 export const FLIGHT_COLOR = dark_vanilla;
 export const PROVINCE_FILL_COLOR = '#47b8e0';
 export const COUNTRY_FILL_COLOR = dark_vanilla;
-export const KAYAKING_COLOR = red;
-export const SNOWBOARD_COLOR = dark_vanilla;
-export const TRAIL_RUN_COLOR = IKB;

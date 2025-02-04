@@ -6,6 +6,7 @@ import { formatPace, colorFromType } from '@/utils/utils';
 import useHover from '@/hooks/useHover';
 import { yearStats } from '@assets/index';
 import { loadSvgComponent } from '@/utils/svgUtils';
+import { SHOW_ELEVATION_GAIN } from "@/utils/const";
 
 const YearStat = ({ year, onClick, onClickTypeInYear }: { year: string, onClick: (_year: string) => void ,
     onClickTypeInYear: (_year: string, _type: string) => void }) => {
@@ -20,12 +21,16 @@ const YearStat = ({ year, onClick, onClickTypeInYear }: { year: string, onClick:
   }
   let sumDistance = 0;
   let streak = 0;
+  let sumElevationGain = 0;
+  let pace = 0; // eslint-disable-line no-unused-vars
+  let paceNullCount = 0; // eslint-disable-line no-unused-vars
   let heartRate = 0;
   let heartRateNullCount = 0;
   const workoutsCounts = {};
 
   runs.forEach((run) => {
     sumDistance += run.distance || 0;
+    sumElevationGain += run.elevation_gain || 0;
     if (run.average_speed) {
       if(workoutsCounts[run.type]){
         var [oriCount, oriSecondsAvail, oriMetersAvail] = workoutsCounts[run.type]
@@ -43,6 +48,9 @@ const YearStat = ({ year, onClick, onClickTypeInYear }: { year: string, onClick:
       streak = Math.max(streak, run.streak);
     }
   });
+  sumDistance = parseFloat((sumDistance / 1000.0).toFixed(1));
+  sumElevationGain = (sumElevationGain).toFixed(0);
+  const avgPace = formatPace(totalMetersAvail / totalSecondsAvail);
   const hasHeartRate = !(heartRate === 0);
   const avgHeartRate = (heartRate / (runs.length - heartRateNullCount)).toFixed(
     0
@@ -60,33 +68,11 @@ const YearStat = ({ year, onClick, onClickTypeInYear }: { year: string, onClick:
     >
       <section>
         <Stat value={year} description=" Records" />
-        { sumDistance > 0 &&
-          <WorkoutStat
-            key='total'
-            value={runs.length}
-            description={" Total"}
-            distance={(sumDistance / 1000.0).toFixed(0)}
-          />
-        }
-        { workoutsArr.map(([type, count]) => (
-          <WorkoutStat
-            key={type}
-            value={count[0]}
-            description={` ${type}`+"s"}
-            // pace={formatPace(count[2] / count[1])}
-            distance={(count[2] / 1000.0).toFixed(0)}
-            // color={colorFromType(type)}
-            onClick={(e: Event) => {
-              onClickTypeInYear(year, type);
-              e.stopPropagation();
-            }}
-          />
-        ))}
-        <Stat
-          value={`${streak} day`}
-          description=" Streak"
-          className="pb-2"
-        />
+        <Stat value={runs.length} description=" Total" />
+        <Stat value={sumDistance} description=" Distance" />
+        {SHOW_ELEVATION_GAIN && <Stat value={sumElevationGain} description=" Elevation Gain" />}
+        <Stat value={avgPace} description=" Avg Pace" />
+        <Stat value={`${streak} day`} description=" Streak" />
         {hasHeartRate && (
           <Stat value={avgHeartRate} description=" Avg Heart Rate" />
         )}
