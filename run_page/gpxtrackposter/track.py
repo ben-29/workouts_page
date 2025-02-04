@@ -53,7 +53,8 @@ class Track:
         self.run_id = 0
         self.start_latlng = []
         self.type = "Run"
-        self.device = ""
+        self.source = ""
+        self.name = ""
 
     def load_gpx(self, file_name):
         """

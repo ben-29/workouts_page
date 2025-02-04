@@ -1,10 +1,10 @@
-import { formatPace, titleForRun, formatRunTime, Activity, RunIds } from '@/utils/utils';
-import { SHOW_ELEVATION_GAIN } from '@/utils/const';
-import styles from './style.module.css';
+import React from 'react';
+import { formatPace, colorFromType, formatRunTime, Activity } from '@/utils/utils';
+import styles from './style.module.scss';
 
 interface IRunRowProperties {
   elementIndex: number;
-  locateActivity: (_runIds: RunIds) => void;
+  locateActivity: (_runIds: number[]) => void;
   run: Activity;
   runIndex: number;
   setRunIndex: (_ndex: number) => void;

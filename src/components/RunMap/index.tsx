@@ -44,19 +44,6 @@ const RunMap = ({
 }: IRunMapProps) => {
   const { countries, provinces } = useActivities();
   const mapRef = useRef<MapRef>();
-  const [lights, setLights] = useState(PRIVACY_MODE ? false : LIGHTS_ON);
-  const keepWhenLightsOff = ['runs2']
-  function switchLayerVisibility(map: MapInstance, lights: boolean) {
-    const styleJson = map.getStyle();
-    styleJson.layers.forEach((it: { id: string; }) => {
-      if (!keepWhenLightsOff.includes(it.id)) {
-        if (lights)
-          map.setLayoutProperty(it.id, 'visibility', 'visible');
-        else
-          map.setLayoutProperty(it.id, 'visibility', 'none');
-      }
-    })
-  }
   const mapRefCallback = useCallback(
     (ref: MapRef) => {
       if (ref !== null) {

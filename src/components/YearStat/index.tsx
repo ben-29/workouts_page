@@ -1,8 +1,9 @@
-import { lazy, Suspense } from 'react';
+import React from 'react';
 import Stat from '@/components/Stat';
 import WorkoutStat from '@/components/WorkoutStat';
 import useActivities from '@/hooks/useActivities';
-import { formatPace, colorFromType } from '@/utils/utils';
+import { formatPace } from '@/utils/utils';
+import styles from './style.module.scss';
 import useHover from '@/hooks/useHover';
 import { yearStats } from '@assets/index';
 import { loadSvgComponent } from '@/utils/svgUtils';
@@ -68,11 +69,27 @@ const YearStat = ({ year, onClick, onClickTypeInYear }: { year: string, onClick:
     >
       <section>
         <Stat value={year} description=" Records" />
-        <Stat value={runs.length} description=" Total" />
-        <Stat value={sumDistance} description=" Distance" />
-        {SHOW_ELEVATION_GAIN && <Stat value={sumElevationGain} description=" Elevation Gain" />}
-        <Stat value={avgPace} description=" Avg Pace" />
-        <Stat value={`${streak} day`} description=" Streak" />
+        { sumDistance > 0 &&
+          <WorkoutStat
+            value={runs.length}
+            description={" Total"}
+            distance={(sumDistance / 1000.0).toFixed(0)}
+          />
+        }
+        { workoutsArr.map(([type, count]) => (
+          <WorkoutStat
+            key={type}
+            value={count[0]}
+            description={` ${type}`+"s"}
+            // pace={formatPace(count[2] / count[1])}
+            distance={(count[2] / 1000.0).toFixed(0)}
+          />
+        ))}
+        <Stat
+          value={`${streak} day`}
+          description=" Streak"
+          className="mb0 pb0"
+        />
         {hasHeartRate && (
           <Stat value={avgHeartRate} description=" Avg Heart Rate" />
         )}

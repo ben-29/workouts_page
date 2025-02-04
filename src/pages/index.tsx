@@ -80,31 +80,13 @@ const Index = () => {
   };
 
   const changeType = (type: string) => {
-    changeByItem(type, 'Type', filterTypeRuns);
+    changeByItem(type, 'Type', filterTypeRuns, false);
   };
 
-  const changeTypeInYear = (year:string, type: string) => {
-    scrollToMap();
-    // type in year, filter year first, then type
-    if(year != 'Total'){
-      setYear(year);
-      setActivity(filterAndSortRuns(activities, year, filterYearRuns, sortDateFunc, type, filterTypeRuns));
-    }
-    else {
-      setYear(thisYear);
-      setActivity(filterAndSortRuns(activities, type, filterTypeRuns, sortDateFunc));
-    }
-    setRunIndex(-1);
-    setTitle(`${year} ${type} Heatmap`);
-  };
+  const locateActivity = (runIds: [Number]) => {
+    const ids = new Set(runIds)
 
-
-  const locateActivity = (runIds: RunIds) => {
-    const ids = new Set(runIds);
-
-    const selectedRuns = !runIds.length
-      ? runs
-      : runs.filter((r: any) => ids.has(r.run_id));
+    const selectedRuns = runs.filter((r) => ids.has(r.run_id));
 
     if (!selectedRuns.length) {
       return;
@@ -169,19 +151,27 @@ const Index = () => {
           return;
         }
 
-        const titleEl = target.querySelector('title');
-        if (titleEl) {
-          // If the runDate exists in the <title> element, it means that a date square has been clicked.
-          const [runDate] = titleEl.innerHTML.match(
-            /\d{4}-\d{1,2}-\d{1,2}/
-          ) || [`${+thisYear + 1}`];
-          const runIDsOnDate = runs
-            .filter((r) => r.start_date_local.slice(0, 10) === runDate)
-            .map((r) => r.run_id);
+        // click the github-stat style svg
+        if (tagName === 'rect' &&
+          parseFloat(target.getAttribute('width') || '0.0') === 2.6 &&
+          parseFloat(target.getAttribute('height') || '0.0') === 2.6 &&
+          target.getAttribute('fill') !== '#444444') {
+
+          const [runDate] = target.innerHTML.match(/\d{4}-\d{1,2}-\d{1,2}/) || [`${+thisYear + 1}`];
+          const runIDsOnDate = runs.filter((r) => r.start_date_local.slice(0, 10) === runDate).map((r) => r.run_id)
           if (!runIDsOnDate.length) {
             return;
           }
-          locateActivity(runIDsOnDate);
+          locateActivity(runIDsOnDate)
+
+        } else if (tagName === 'polyline') { // click the route grid svg
+          const desc = target.getElementsByTagName('desc')[0]
+          if (!desc) { return }
+          const run_id = Number(desc.innerHTML)
+          if (!run_id) {
+            return
+          }
+          locateActivity([run_id])
         }
       }
     };

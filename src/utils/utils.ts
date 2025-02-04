@@ -1,10 +1,24 @@
 import * as mapboxPolyline from '@mapbox/polyline';
 import gcoord from 'gcoord';
 import { WebMercatorViewport } from 'viewport-mercator-project';
-import { chinaGeojson, RPGeometry } from '@/static/run_countries';
-import worldGeoJson from '@surbowl/world-geo-json-zh/world.zh.json';
+import { chinaGeojson } from '@/static/run_countries';
 import { chinaCities } from '@/static/city';
-import { MAIN_COLOR, MUNICIPALITY_CITIES_ARR, NEED_FIX_MAP, RUN_TITLES } from './const';
+import {
+  MUNICIPALITY_CITIES_ARR,
+  NEED_FIX_MAP,
+  RUN_TITLES,
+  MAIN_COLOR,
+  RIDE_COLOR,
+  VIRTUAL_RIDE_COLOR,
+  HIKE_COLOR,
+  SWIM_COLOR,
+  ROWING_COLOR,
+  ROAD_TRIP_COLOR,
+  FLIGHT_COLOR,
+  RUN_COLOR,
+  KAYAKING_COLOR,
+  SNOWBOARD_COLOR,
+} from './const';
 import { FeatureCollection, LineString } from 'geojson';
 
 export type Coordinate = [number, number];
@@ -42,7 +56,7 @@ const titleForShow = (run: Activity): string => {
 };
 
 const formatPace = (d: number): string => {
-  if (Number.isNaN(d)) return '0';
+  if (Number.isNaN(d) || d == 0) return '0';
   const pace = (1000.0 / 60.0) * (1.0 / d);
   const minutes = Math.floor(pace);
   const seconds = Math.floor((pace - minutes) * 60.0);
@@ -201,9 +215,6 @@ const geoJsonForRuns = (runs: Activity[]): FeatureCollection<LineString> => ({
 
     return {
       type: 'Feature',
-      properties: {
-        color: MAIN_COLOR,
-      },
       geometry: {
         type: 'LineString',
         coordinates: points,
@@ -217,14 +228,74 @@ const geoJsonForMap = (): FeatureCollection<RPGeometry> => ({
   features: worldGeoJson.features.concat(chinaGeojson.features),
 })
 
-const titleForRun = (run: Activity): string => {
-  const runDistance = run.distance / 1000;
-  const runHour = +run.start_date_local.slice(11, 13);
-  if (runDistance > 20 && runDistance < 40) {
-    return RUN_TITLES.HALF_MARATHON_RUN_TITLE;
+const titleForType = (type: string) => {
+  switch (type) {
+    case 'Run':
+      return RUN_TITLES.RUN_TITLE;
+    case 'Ride':
+      return RUN_TITLES.RIDE_TITLE;
+    case 'Indoor Ride':
+      return RUN_TITLES.INDOOR_RIDE_TITLE;
+    case 'VirtualRide':
+      return RUN_TITLES.VIRTUAL_RIDE_TITLE;
+    case 'Hike':
+      return RUN_TITLES.HIKE_TITLE;
+    case 'Rowing':
+      return RUN_TITLES.ROWING_TITLE;
+    case 'Swim':
+      return RUN_TITLES.SWIM_TITLE;
+    case 'RoadTrip':
+      return RUN_TITLES.ROAD_TRIP_TITLE;
+    case 'Flight':
+      return RUN_TITLES.FLIGHT_TITLE;
+    case 'Kayaking':
+      return RUN_TITLES.KAYAKING_TITLE;
+    case 'Snowboard':
+      return RUN_TITLES.SNOWBOARD_TITLE;
+    default:
+      return RUN_TITLES.RUN_TITLE;
   }
-  if (runDistance >= 40) {
-    return RUN_TITLES.FULL_MARATHON_RUN_TITLE;
+}
+
+const titleForRun = (run: Activity) => {
+  const type = run.type;
+  if (type == 'Run'){
+      const runDistance = run.distance / 1000;
+      if (runDistance >= 40) {
+        return RUN_TITLES.FULL_MARATHON_RUN_TITLE;
+      }
+      else if (runDistance > 20) {
+        return RUN_TITLES.HALF_MARATHON_RUN_TITLE;
+      }
+  }
+  return titleForType(type);
+};
+
+const colorFromType = (workoutType: string) => {
+  switch (workoutType) {
+    case 'Run':
+      return RUN_COLOR;
+    case 'Ride':
+    case 'Indoor Ride':
+      return RIDE_COLOR;
+    case 'VirtualRide':
+      return VIRTUAL_RIDE_COLOR;
+    case 'Hike':
+      return HIKE_COLOR;
+    case 'Rowing':
+      return ROWING_COLOR;
+    case 'Swim':
+      return SWIM_COLOR;
+    case 'RoadTrip':
+      return ROAD_TRIP_COLOR;
+    case 'Flight':
+      return FLIGHT_COLOR;
+    case 'Kayaking':
+      return KAYAKING_COLOR;
+    case 'Snowboard':
+      return SNOWBOARD_COLOR;
+    default:
+      return MAIN_COLOR;
   }
   if (runHour >= 0 && runHour <= 10) {
     return RUN_TITLES.MORNING_RUN_TITLE;
@@ -298,6 +369,8 @@ const filterCityRuns = (run: Activity, city: string) => {
 };
 const filterTitleRuns = (run: Activity, title: string) =>
   titleForRun(run) === title;
+
+const filterTypeRuns = (run: Activity, type: string) => run.type === type;
 
 const filterAndSortRuns = (
   activities: Activity[],
