@@ -24,24 +24,33 @@ from synced_data_file_logger import load_synced_file_list
 log = logging.getLogger(__name__)
 
 
-def load_gpx_file(file_name):
+def load_gpx_file(file_name, activity_title_dict={}):
     """Load an individual GPX file as a track by using Track.load_gpx()"""
     t = Track()
     t.load_gpx(file_name)
+    file_id = os.path.basename(file_name).split(".")[0]
+    if activity_title_dict:
+        t.track_name = activity_title_dict.get(file_id, t.track_name)
     return t
 
 
-def load_tcx_file(file_name):
+def load_tcx_file(file_name, activity_title_dict={}):
     """Load an individual TCX file as a track by using Track.load_tcx()"""
     t = Track()
     t.load_tcx(file_name)
+    file_id = os.path.basename(file_name).split(".")[0]
+    if activity_title_dict:
+        t.track_name = activity_title_dict.get(file_id, t.track_name)
     return t
 
 
-def load_fit_file(file_name):
+def load_fit_file(file_name, activity_title_dict={}):
     """Load an individual FIT file as a track by using Track.load_fit()"""
     t = Track()
     t.load_fit(file_name)
+    file_id = os.path.basename(file_name).split(".")[0]
+    if activity_title_dict:
+        t.track_name = activity_title_dict.get(file_id, t.track_name)
     return t
 
 
@@ -66,7 +75,7 @@ class TrackLoader:
             "fit": load_fit_file,
         }
 
-    def load_tracks(self, data_dir, file_suffix="gpx"):
+    def load_tracks(self, data_dir, file_suffix="gpx", activity_title_dict={}):
         """Load tracks data_dir and return as a List of tracks"""
         file_names = [x for x in self._list_data_files(data_dir, file_suffix)]
         print(f"{file_suffix.upper()} files: {len(file_names)}")
@@ -74,7 +83,9 @@ class TrackLoader:
         tracks = []
 
         loaded_tracks = self._load_data_tracks(
-            file_names, self.load_func_dict.get(file_suffix, load_gpx_file)
+            file_names,
+            self.load_func_dict.get(file_suffix, load_gpx_file),
+            activity_title_dict,
         )
 
         tracks.extend(loaded_tracks.values())
@@ -87,16 +98,27 @@ class TrackLoader:
         # filter out tracks with length < min_length
         return [t for t in tracks if t.length >= self.min_length]
 
-    def load_tracks_from_db(self, sql_file, is_grid=False):
+    def load_tracks_from_db(self, sql_file, is_grid=False, is_circular=False):
         session = init_db(sql_file)
         if is_grid:
             activities = (
                 session.query(Activity)
                 .filter(Activity.summary_polyline != "")
+                .filter(Activity.type.not_in(["Flight"]))
+                .order_by(Activity.start_date_local)
+            )
+        elif is_circular:
+            activities = (
+                session.query(Activity)
+                .filter(Activity.type.not_in(["RoadTrip", "Flight"]))
                 .order_by(Activity.start_date_local)
             )
         else:
-            activities = session.query(Activity).order_by(Activity.start_date_local)
+            activities = (
+                session.query(Activity)
+                .filter(Activity.type.not_in(["Flight"]))
+                .order_by(Activity.start_date_local)
+            )
         tracks = []
         for activity in activities:
             t = Track()
@@ -146,14 +168,14 @@ class TrackLoader:
         return merged_tracks
 
     @staticmethod
-    def _load_data_tracks(file_names, load_func=load_gpx_file):
+    def _load_data_tracks(file_names, load_func=load_gpx_file, activity_title_dict={}):
         """
         TODO refactor with _load_tcx_tracks
         """
         tracks = {}
         with concurrent.futures.ProcessPoolExecutor() as executor:
             future_to_file_name = {
-                executor.submit(load_func, file_name): file_name
+                executor.submit(load_func, file_name, activity_title_dict): file_name
                 for file_name in file_names
             }
         for future in concurrent.futures.as_completed(future_to_file_name):

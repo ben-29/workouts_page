@@ -19,7 +19,7 @@ def get_to_generate_files(last_time):
     for f in file_names:
         if f.endswith(".gpx"):
             file_path = os.path.join(GPX_FOLDER, f)
-            with open(file_path, "r", encoding="utf-8", errors="ignore") as r:
+            with open(file_path, "rb") as r:
                 try:
                     gpx = mod_gpxpy.parse(r)
                 except Exception as e:
@@ -64,13 +64,13 @@ if __name__ == "__main__":
     for i in to_upload_time_list:
         gpx_file = to_upload_dict.get(i)
         try:
-            upload_file_to_strava(client, gpx_file, "gpx")
+            upload_file_to_strava(client, gpx_file, "gpx", False)
         except RateLimitTimeout as e:
             timeout = e.timeout
             print(f"Strava API Rate Limit Timeout. Retry in {timeout} seconds\n")
             time.sleep(timeout)
             # try previous again
-            upload_file_to_strava(client, gpx_file, "gpx")
+            upload_file_to_strava(client, gpx_file, "gpx", False)
 
         except ActivityUploadFailed as e:
             print(f"Upload faild error {str(e)}")

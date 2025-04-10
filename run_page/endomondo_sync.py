@@ -54,6 +54,7 @@ def parse_run_endomondo_to_nametuple(en_dict):
         "id": en_dict.get("id"),
         "name": "run from endomondo",
         "type": "Run",  # TODO others
+        "subtype": "Run",  # TODO others
         "start_date": datetime.strftime(start_date, "%Y-%m-%d %H:%M:%S"),
         "end": datetime.strftime(end_date, "%Y-%m-%d %H:%M:%S"),
         "start_date_local": datetime.strftime(start_date_local, "%Y-%m-%d %H:%M:%S"),
@@ -68,6 +69,7 @@ def parse_run_endomondo_to_nametuple(en_dict):
         "average_speed": en_dict.get("distance_km", 0)
         / en_dict.get("duration_s", 1)
         * 1000,
+        "elevation_gain": None,
         "location_country": "",
     }
     return namedtuple("x", d.keys())(*d.values())
@@ -111,7 +113,7 @@ def run_enomondo_sync():
     generator.sync_from_app(tracks)
     activities_list = generator.load()
     with open(JSON_FILE, "w") as f:
-        json.dump(activities_list, f)
+        json.dump(activities_list, f, indent=0)
 
 
 if __name__ == "__main__":

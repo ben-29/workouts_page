@@ -180,6 +180,15 @@ def main():
         help="activities db file",
     )
 
+    args_parser.add_argument(
+        "--github-style",
+        dest="github_style",
+        metavar="GITHUB_STYLE",
+        type=str,
+        default="align-firstday",
+        help='github svg style; "align-firstday", "align-monday" (default: "align-firstday").',
+    )
+
     for _, drawer in drawers.items():
         drawer.create_args(args_parser)
 
@@ -206,7 +215,9 @@ def main():
     if args.from_db:
         # for svg from db here if you want gpx please do not use --from-db
         # args.type == "grid" means have polyline data or not
-        tracks = loader.load_tracks_from_db(SQL_FILE, args.type == "grid")
+        tracks = loader.load_tracks_from_db(
+            SQL_FILE, args.type == "grid", args.type == "circular"
+        )
     else:
         tracks = loader.load_tracks(args.gpx_dir)
     if not tracks:
@@ -243,7 +254,8 @@ def main():
     # circular not add footer and header
     p.drawer_type = "plain" if is_circular else "title"
     if args.type == "github":
-        p.height = 55 + p.years.count() * 43
+        p.height = 55 + p.years.real_year * 43
+    p.github_style = args.github_style
     # for special circular
     if is_circular:
         years = p.years.all()[:]

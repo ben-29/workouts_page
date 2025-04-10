@@ -27,3 +27,11 @@ garmin-fit-sdk
 haversine==2.8.0
 garth
 pycryptodome
+duckdb
+
+
+bs4
+html.parser
+aiofiles
+# if you need to import kml file
+#fastkml

@@ -5,7 +5,7 @@ import os
 import time
 import xml.etree.ElementTree as ET
 from collections import namedtuple
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from xml.dom import minidom
 
 import gpxpy
@@ -189,6 +189,7 @@ def parse_raw_data_to_name_tuple(sport_data, with_gpx, with_tcx):
     start_time = sport_data["startTime"]
     other_data = sport_data["otherSportData"]
     avg_heart_rate = None
+    elevation_gain = None
     if other_data:
         avg_heart_rate = other_data.get("avgHeartRate", None)
         # fix #66
@@ -206,9 +207,10 @@ def parse_raw_data_to_name_tuple(sport_data, with_gpx, with_tcx):
 
         point_dict = prepare_track_points(sport_data, with_gpx)
 
+        gpx_data = parse_points_to_gpx(sport_data, point_dict)
+        elevation_gain = gpx_data.get_uphill_downhill().uphill
         if with_gpx is True:
-            gpx_data = parse_points_to_gpx(sport_data, point_dict)
-            download_keep_gpx(gpx_data, str(oppo_id))
+            download_keep_gpx(gpx_data.to_xml(), str(oppo_id))
         if with_tcx is True:
             parse_points_to_tcx(sport_data, point_dict)
 
@@ -220,9 +222,9 @@ def parse_raw_data_to_name_tuple(sport_data, with_gpx, with_tcx):
     ]
     polyline_str = polyline.encode(gps_data) if gps_data else ""
     start_latlng = start_point(*gps_data[0]) if gps_data else None
-    start_date = datetime.utcfromtimestamp(start_time / 1000)
+    start_date = datetime.fromtimestamp(start_time / 1000, tz=timezone.utc)
     start_date_local = adjust_time(start_date, str(get_localzone()))
-    end = datetime.utcfromtimestamp(sport_data["endTime"] / 1000)
+    end = datetime.fromtimestamp(sport_data["endTime"] / 1000, tz=timezone.utc)
     end_local = adjust_time(end, str(get_localzone()))
     location_country = None
     if not other_data["totalTime"]:
@@ -233,6 +235,7 @@ def parse_raw_data_to_name_tuple(sport_data, with_gpx, with_tcx):
         "name": "activity from oppo",
         # future to support others workout now only for run
         "type": map_oppo_fit_type_to_strava_activity_type(sport_data["sportMode"]),
+        "subtype": map_oppo_fit_type_to_strava_activity_type(sport_data["sportMode"]),
         "start_date": datetime.strftime(start_date, "%Y-%m-%d %H:%M:%S"),
         "end": datetime.strftime(end, "%Y-%m-%d %H:%M:%S"),
         "start_date_local": datetime.strftime(start_date_local, "%Y-%m-%d %H:%M:%S"),
@@ -247,6 +250,7 @@ def parse_raw_data_to_name_tuple(sport_data, with_gpx, with_tcx):
             seconds=int((sport_data["endTime"] - sport_data["startTime"]) / 1000)
         ),
         "average_speed": other_data["totalDistance"] / other_data["totalTime"] * 1000,
+        "elevation_gain": elevation_gain,
         "location_country": location_country,
         "source": sport_data["deviceName"],
     }
@@ -372,7 +376,7 @@ def parse_points_to_gpx(sport_data, points_dict_list):
             )
             point.extensions.append(gpx_extension)
         gpx_segment.points.append(point)
-    return gpx.to_xml()
+    return gpx
 
 
 def download_keep_gpx(gpx_data, keep_id):
@@ -413,7 +417,7 @@ def prepare_track_points(sport_data, with_gpx):
             points_dict = {
                 "latitude": other_data.get("gpsPoint")[i]["latitude"],
                 "longitude": other_data.get("gpsPoint")[i]["longitude"],
-                "time": datetime.utcfromtimestamp(temp_timestamp / 1000),
+                "time": datetime.fromtimestamp(temp_timestamp / 1000, tz=timezone.utc),
                 "hr": other_data.get("heartRate")[j]["value"],
             }
             points_dict_list.append(get_value(j, points_dict, other_data))
@@ -422,7 +426,7 @@ def prepare_track_points(sport_data, with_gpx):
 
         for i in range(value_size):
             temp_timestamp = other_data.get("heartRate")[i]["timestamp"]
-            temp_date = datetime.utcfromtimestamp(temp_timestamp / 1000)
+            temp_date = datetime.fromtimestamp(temp_timestamp / 1000, tz=timezone.utc)
             points_dict = {
                 "time": temp_date,
                 "hr": other_data.get("heartRate")[i]["value"],
@@ -450,7 +454,7 @@ def parse_points_to_tcx(sport_data, points_dict_list):
     fit_id = str(sport_data["id"])
     # local time
     start_time = sport_data["startTime"]
-    start_date = datetime.utcfromtimestamp(start_time / 1000)
+    start_date = datetime.fromtimestamp(start_time / 1000, tz=timezone.utc)
     fit_start_time = datetime.strftime(
         adjust_time(start_date, UTC_TIMEZONE), "%Y-%m-%dT%H:%M:%SZ"
     )

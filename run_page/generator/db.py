@@ -4,8 +4,18 @@ import string
 import time
 
 import geopy
+from config import TYPE_DICT
 from geopy.geocoders import Nominatim
-from sqlalchemy import Column, Float, Integer, Interval, String, create_engine
+from sqlalchemy import (
+    Column,
+    Float,
+    Integer,
+    Interval,
+    String,
+    create_engine,
+    inspect,
+    text,
+)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
@@ -35,6 +45,8 @@ ACTIVITY_KEYS = [
     "summary_polyline",
     "average_heartrate",
     "average_speed",
+    "elevation_gain",
+    "source",
 ]
 
 
@@ -53,7 +65,9 @@ class Activity(Base):
     summary_polyline = Column(String)
     average_heartrate = Column(Float)
     average_speed = Column(Float)
+    elevation_gain = Column(Float)
     streak = None
+    source = Column(String)
 
     def to_dict(self):
         out = {}
@@ -76,6 +90,10 @@ def update_or_create_activity(session, run_activity):
         activity = (
             session.query(Activity).filter_by(run_id=int(run_activity.id)).first()
         )
+        type = run_activity.type
+        source = run_activity.source if hasattr(run_activity, "source") else "gpx"
+        if run_activity.type in TYPE_DICT:
+            type = TYPE_DICT[run_activity.type]
         if not activity:
             start_point = run_activity.start_latlng
             location_country = getattr(run_activity, "location_country", "")
@@ -105,15 +123,17 @@ def update_or_create_activity(session, run_activity):
                 distance=run_activity.distance,
                 moving_time=run_activity.moving_time,
                 elapsed_time=run_activity.elapsed_time,
-                type=run_activity.type,
+                type=type,
                 start_date=run_activity.start_date,
                 start_date_local=run_activity.start_date_local,
                 location_country=location_country,
                 average_heartrate=run_activity.average_heartrate,
                 average_speed=float(run_activity.average_speed),
+                elevation_gain=float(run_activity.elevation_gain),
                 summary_polyline=(
                     run_activity.map and run_activity.map.summary_polyline or ""
                 ),
+                source=source,
             )
             session.add(activity)
             created = True
@@ -122,12 +142,14 @@ def update_or_create_activity(session, run_activity):
             activity.distance = float(run_activity.distance)
             activity.moving_time = run_activity.moving_time
             activity.elapsed_time = run_activity.elapsed_time
-            activity.type = run_activity.type
+            activity.type = type
             activity.average_heartrate = run_activity.average_heartrate
             activity.average_speed = float(run_activity.average_speed)
+            activity.elevation_gain = float(run_activity.elevation_gain)
             activity.summary_polyline = (
                 run_activity.map and run_activity.map.summary_polyline or ""
             )
+            activity.source = source
     except Exception as e:
         print(f"something wrong with {run_activity.id}")
         print(str(e))
@@ -135,10 +157,37 @@ def update_or_create_activity(session, run_activity):
     return created
 
 
+def add_missing_columns(engine, model):
+    inspector = inspect(engine)
+    table_name = model.__tablename__
+    columns = {col["name"] for col in inspector.get_columns(table_name)}
+    missing_columns = []
+
+    for column in model.__table__.columns:
+        if column.name not in columns:
+            missing_columns.append(column)
+    if missing_columns:
+        with engine.connect() as conn:
+            for column in missing_columns:
+                column_type = str(column.type)
+                conn.execute(
+                    text(
+                        f"ALTER TABLE {table_name} ADD COLUMN {column.name} {column_type}"
+                    )
+                )
+
+
 def init_db(db_path):
     engine = create_engine(
         f"sqlite:///{db_path}", connect_args={"check_same_thread": False}
     )
     Base.metadata.create_all(engine)
-    session = sessionmaker(bind=engine)
-    return session()
+
+    # check missing columns
+    add_missing_columns(engine, Activity)
+
+    sm = sessionmaker(bind=engine)
+    session = sm()
+    # apply the changes
+    session.commit()
+    return session

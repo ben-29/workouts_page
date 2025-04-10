@@ -1,5 +1,5 @@
 import MapboxLanguage from '@mapbox/mapbox-gl-language';
-import React, {useRef, useCallback, useState} from 'react';
+import React, {useRef, useCallback, useState, useEffect} from 'react';
 import Map, {Layer, Source, FullscreenControl, NavigationControl, MapRef} from 'react-map-gl';
 import {MapInstance} from "react-map-gl/src/types/lib";
 import useActivities from '@/hooks/useActivities';
@@ -128,6 +128,18 @@ const RunMap = ({
     opacity: 0.3,
   };
 
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      if (mapRef.current) {
+        mapRef.current.getMap().resize();
+      }
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+
   return (
     <Map
       {...viewState}
@@ -144,6 +156,7 @@ const RunMap = ({
           type="fill"
           paint={{
             'fill-color': PROVINCE_FILL_COLOR,
+            'fill-opacity': 0.2,
           }}
           filter={filterProvinces}
         />
@@ -161,7 +174,7 @@ const RunMap = ({
           id="runs2"
           type="line"
           paint={{
-            'line-color':  ['get', 'color'],
+            'line-color': ['get', 'color'],
             'line-width': isBigMap && lights ? 1 : 2,
             'line-dasharray': dash,
             'line-opacity': isSingleRun || isBigMap || !lights ? 1 : LINE_OPACITY,
