@@ -4830,5 +4830,53 @@
 "elevation_gain": 0.0,
 "source": "strava",
 "streak": 3
+},
+{
+"run_id": 15328634145,
+"name": "Afternoon Run",
+"distance": 6402.3,
+"moving_time": "1:20:52",
+"type": "Run",
+"start_date": "2025-07-29 09:26:18+00:00",
+"start_date_local": "2025-07-29 17:26:18",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 133.6,
+"average_speed": 1.32,
+"elevation_gain": 0.0,
+"source": "strava",
+"streak": 4
+},
+{
+"run_id": 15328634124,
+"name": "Afternoon Run",
+"distance": 5330.3,
+"moving_time": "0:51:14",
+"type": "Run",
+"start_date": "2025-08-01 08:58:20+00:00",
+"start_date_local": "2025-08-01 16:58:20",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 138.8,
+"average_speed": 1.734,
+"elevation_gain": 0.0,
+"source": "strava",
+"streak": 1
+},
+{
+"run_id": 15329365231,
+"name": "Evening Run",
+"distance": 5275.5,
+"moving_time": "0:49:15",
+"type": "Run",
+"start_date": "2025-08-03 10:53:44+00:00",
+"start_date_local": "2025-08-03 18:53:44",
+"location_country": null,
+"summary_polyline": "",
+"average_heartrate": 142.8,
+"average_speed": 1.785,
+"elevation_gain": 0.0,
+"source": "strava",
+"streak": 1
 }
 ]
