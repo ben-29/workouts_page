@@ -30,6 +30,9 @@ const standardizeCountryName = (country: string): string => {
   }
   if (country.includes('奧地利')) {
     return '奥地利';
+  }
+  if (country.includes('阿拉伯联合酋长国')) {
+    return '阿联酋';
   } else {
     return country;
   }
