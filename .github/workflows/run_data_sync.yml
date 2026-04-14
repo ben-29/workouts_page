@@ -165,7 +165,7 @@ jobs:
           python run_page/tcx_sync.py
 
       - name: Run sync Strava to Garmin(Run with strava(or others upload to strava) data backup in Garmin)
-        # if: env.RUN_TYPE == 'strava_to_garmin'
+        if: env.RUN_TYPE == 'strava_to_garmin'
         run: |
           python run_page/strava_to_garmin_sync.py ${{ secrets.STRAVA_CLIENT_ID }} ${{ secrets.STRAVA_CLIENT_SECRET }} ${{ secrets.STRAVA_CLIENT_REFRESH_TOKEN }}  ${{ secrets.GARMIN_SECRET_STRING }} "" "" ${{ secrets.STRAVA_JWT }}
 
