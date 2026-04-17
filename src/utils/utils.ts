@@ -37,6 +37,13 @@ export type Coordinate = [number, number];
 
 export type RunIds = Array<number> | [];
 
+// Check for units environment variable
+const IS_IMPERIAL = import.meta.env.VITE_USE_IMPERIAL === 'true';
+export const M_TO_DIST = IS_IMPERIAL ? 1609.344 : 1000; // Meters to Mi or Km
+export const M_TO_ELEV = IS_IMPERIAL ? 3.28084 : 1; // Meters to Feet or Meters
+export const DIST_UNIT = IS_IMPERIAL ? 'mi' : 'km'; // Label
+export const ELEV_UNIT = IS_IMPERIAL ? 'ft' : 'm'; // Label
+
 export interface Activity {
   run_id: number;
   name: string;
@@ -56,19 +63,19 @@ export interface Activity {
 
 const titleForShow = (run: Activity): string => {
   const date = run.start_date_local.slice(0, 11);
-  const distance = (run.distance / 1000.0).toFixed(2);
+  const distance = (run.distance / M_TO_DIST).toFixed(2);
   let name = 'Run';
   if (run.name) {
     name = run.name;
   }
-  return `${name} ${date} ${distance} KM ${
+  return `${name} ${date} ${distance} ${DIST_UNIT} ${
     !run.summary_polyline ? '(No map data for this workout)' : ''
   }`;
 };
 
 const formatPace = (d: number): string => {
   if (Number.isNaN(d) || d == 0) return '0';
-  const pace = (1000.0 / 60.0) * (1.0 / d);
+  const pace = (M_TO_DIST / 60.0) * (1.0 / d);
   const minutes = Math.floor(pace);
   const seconds = Math.floor((pace - minutes) * 60.0);
   return `${minutes}'${seconds.toFixed(0).toString().padStart(2, '0')}"`;
@@ -299,6 +306,8 @@ const titleForType = (type: string): string => {
       return RUN_TITLES.KAYAKING_TITLE;
     case 'Snowboard':
       return RUN_TITLES.SNOWBOARD_TITLE;
+    case 'BackcountrySki':
+      return RUN_TITLES.BACKCOUNTRY_SKI_TITLE;
     case 'Ski':
       return RUN_TITLES.SKI_TITLE;
     default:
@@ -380,6 +389,7 @@ const colorFromType = (workoutType: string): string => {
       return getRuntimeSingleColor(KAYAKING_COLOR);
     case 'Snowboard':
     case 'Ski':
+    case 'BackcountrySki':
       return getRuntimeSingleColor(SNOWBOARD_COLOR);
     default:
       return getRuntimeSingleColor();

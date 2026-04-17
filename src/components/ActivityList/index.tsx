@@ -21,9 +21,10 @@ import { useNavigate } from 'react-router-dom';
 import activities from '@/static/activities.json';
 import styles from './style.module.css';
 import { ACTIVITY_TOTAL, LOADING_TEXT, TYPES_MAPPING } from '@/utils/const';
-import { totalStat } from '@assets/index';
+import { totalStat, yearSummaryStats } from '@assets/index';
 import { loadSvgComponent } from '@/utils/svgUtils';
 import { SHOW_ELEVATION_GAIN, HOME_PAGE_TITLE } from '@/utils/const';
+import { DIST_UNIT, M_TO_DIST } from '@/utils/utils';
 import RoutePreview from '@/components/RoutePreview';
 import { Activity } from '@/utils/utils';
 // Layout constants (avoid magic numbers)
@@ -54,6 +55,20 @@ const CyclingSvg = MonthOfLifeSvg('cycling');
 const SwimmingSvg = MonthOfLifeSvg('swimming');
 const SkiingSvg = MonthOfLifeSvg('skiing');
 const AllSvg = MonthOfLifeSvg('all');
+
+// Cache for year summary lazy components to prevent flickering
+const yearSummaryCache: Record<
+  string,
+  React.LazyExoticComponent<React.FC<React.SVGProps<SVGSVGElement>>>
+> = {};
+const getYearSummarySvg = (year: string) => {
+  if (!yearSummaryCache[year]) {
+    yearSummaryCache[year] = lazy(() =>
+      loadSvgComponent(yearSummaryStats, `./year_summary_${year}.svg`)
+    );
+  }
+  return yearSummaryCache[year];
+};
 
 interface ActivitySummary {
   totalDistance: number;
@@ -144,12 +159,12 @@ const ActivityCardInner: React.FC<ActivityCardProps> = ({
   };
 
   const formatPace = (speed: number): string => {
-    if (speed === 0) return '0:00 min/km';
-    const pace = 60 / speed; // min/km
-    const totalSeconds = Math.round(pace * 60); // Total seconds per km
+    if (speed === 0) return `0:00 min/${DIST_UNIT}`;
+    const pace = 60 / speed; // min/DIST_UNIT
+    const totalSeconds = Math.round(pace * 60); // Total seconds per DIST_UNIT
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
-    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds} min/km`;
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds} min/${DIST_UNIT}`;
   };
 
   const isFastType = (activityType: string): boolean => {
@@ -187,7 +202,7 @@ const ActivityCardInner: React.FC<ActivityCardProps> = ({
           <div className={styles.activityDetails}>
             <p>
               <strong>{ACTIVITY_TOTAL.TOTAL_DISTANCE_TITLE}:</strong>{' '}
-              {summary.totalDistance.toFixed(2)} km
+              {summary.totalDistance.toFixed(2)} {DIST_UNIT}
             </p>
             {SHOW_ELEVATION_GAIN &&
               summary.totalElevationGain !== undefined && (
@@ -199,7 +214,7 @@ const ActivityCardInner: React.FC<ActivityCardProps> = ({
             <p>
               <strong>{ACTIVITY_TOTAL.AVERAGE_SPEED_TITLE}:</strong>{' '}
               {isFastType(activityType)
-                ? `${summary.averageSpeed.toFixed(2)} km/h`
+                ? `${summary.averageSpeed.toFixed(2)} ${DIST_UNIT}/h`
                 : formatPace(summary.averageSpeed)}
             </p>
             <p>
@@ -220,17 +235,18 @@ const ActivityCardInner: React.FC<ActivityCardProps> = ({
                 </p>
                 <p>
                   <strong>{ACTIVITY_TOTAL.MAX_DISTANCE_TITLE}:</strong>{' '}
-                  {summary.maxDistance.toFixed(2)} km
+                  {summary.maxDistance.toFixed(2)} {DIST_UNIT}
                 </p>
                 <p>
                   <strong>{ACTIVITY_TOTAL.MAX_SPEED_TITLE}:</strong>{' '}
                   {isFastType(activityType)
-                    ? `${summary.maxSpeed.toFixed(2)} km/h`
+                    ? `${summary.maxSpeed.toFixed(2)} ${DIST_UNIT}/h`
                     : formatPace(summary.maxSpeed)}
                 </p>
                 <p>
                   <strong>{ACTIVITY_TOTAL.AVERAGE_DISTANCE_TITLE}:</strong>{' '}
-                  {(summary.totalDistance / summary.count).toFixed(2)} km
+                  {(summary.totalDistance / summary.count).toFixed(2)}{' '}
+                  {DIST_UNIT}
                 </p>
               </>
             )}
@@ -251,7 +267,7 @@ const ActivityCardInner: React.FC<ActivityCardProps> = ({
                     />
                     <YAxis
                       label={{
-                        value: 'km',
+                        value: DIST_UNIT,
                         angle: -90,
                         position: 'insideLeft',
                         fill: 'var(--color-run-table-thead)',
@@ -261,7 +277,7 @@ const ActivityCardInner: React.FC<ActivityCardProps> = ({
                       tick={{ fill: 'var(--color-run-table-thead)' }}
                     />
                     <Tooltip
-                      formatter={(value) => `${value} km`}
+                      formatter={(value) => `${value} ${DIST_UNIT}`}
                       contentStyle={{
                         backgroundColor:
                           'var(--color-run-row-hover-background)',
@@ -332,6 +348,63 @@ const ActivityList: React.FC = () => {
   const [activityType, setActivityType] = useState<string>('run');
   const [sportType, setSportType] = useState<string>('all');
   const [sportTypeOptions, setSportTypeOptions] = useState<string[]>([]);
+  const [selectedYear, setSelectedYear] = useState<string | null>(null);
+
+  // Get available years from activities
+  const availableYears = useMemo(() => {
+    const years = new Set<string>();
+    activities.forEach((activity) => {
+      const year = new Date(activity.start_date_local).getFullYear().toString();
+      years.add(year);
+    });
+    return Array.from(years).sort((a, b) => Number(b) - Number(a));
+  }, []);
+
+  // Keyboard navigation for year selection in Life view
+  useEffect(() => {
+    if (interval !== 'life') return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Only handle arrow keys
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+
+      // Prevent default scrolling behavior
+      e.preventDefault();
+
+      // Remove focus from current element to avoid visual confusion
+      if (document.activeElement instanceof HTMLElement) {
+        document.activeElement.blur();
+      }
+
+      const currentIndex = selectedYear
+        ? availableYears.indexOf(selectedYear)
+        : -1;
+
+      if (e.key === 'ArrowLeft') {
+        // Move to newer year (left in UI, lower index since sorted descending)
+        if (currentIndex === -1) {
+          // No year selected, select the last (oldest) year
+          setSelectedYear(availableYears[availableYears.length - 1]);
+        } else if (currentIndex > 0) {
+          setSelectedYear(availableYears[currentIndex - 1]);
+        } else if (currentIndex === 0) {
+          // At the most recent year, deselect to show Life view
+          setSelectedYear(null);
+        }
+      } else if (e.key === 'ArrowRight') {
+        // Move to older year (right in UI, higher index since sorted descending)
+        if (currentIndex === -1) {
+          // No year selected, select the first (most recent) year
+          setSelectedYear(availableYears[0]);
+        } else if (currentIndex < availableYears.length - 1) {
+          setSelectedYear(availableYears[currentIndex + 1]);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [interval, selectedYear, availableYears]);
 
   useEffect(() => {
     const playTypes = new Set(
@@ -429,12 +502,11 @@ const ActivityList: React.FC = () => {
             activities: [],
           };
 
-        const distanceKm = activity.distance / 1000;
+        const distance = activity.distance / M_TO_DIST;
         const timeInSeconds = convertTimeToSeconds(activity.moving_time);
-        const speedKmh =
-          timeInSeconds > 0 ? distanceKm / (timeInSeconds / 3600) : 0;
+        const speed = timeInSeconds > 0 ? distance / (timeInSeconds / 3600) : 0;
 
-        acc[key].totalDistance += distanceKm;
+        acc[key].totalDistance += distance;
         acc[key].totalTime += timeInSeconds;
 
         if (SHOW_ELEVATION_GAIN && activity.elevation_gain)
@@ -448,10 +520,9 @@ const ActivityList: React.FC = () => {
         acc[key].count += 1;
         if (intervalArg === 'day') acc[key].activities.push(activity);
         acc[key].dailyDistances[index] =
-          (acc[key].dailyDistances[index] || 0) + distanceKm;
-        if (distanceKm > acc[key].maxDistance)
-          acc[key].maxDistance = distanceKm;
-        if (speedKmh > acc[key].maxSpeed) acc[key].maxSpeed = speedKmh;
+          (acc[key].dailyDistances[index] || 0) + distance;
+        if (distance > acc[key].maxDistance) acc[key].maxDistance = distance;
+        if (speed > acc[key].maxSpeed) acc[key].maxSpeed = speed;
         if (intervalArg === 'day')
           acc[key].location = activity.location_country || '';
 
@@ -663,14 +734,39 @@ const ActivityList: React.FC = () => {
 
       {interval === 'life' && (
         <div className={styles.lifeContainer}>
+          {/* Year selector buttons */}
+          <div className={styles.yearSelector}>
+            {availableYears.map((year) => (
+              <button
+                key={year}
+                className={`${styles.yearButton} ${selectedYear === year ? styles.yearButtonActive : ''}`}
+                onClick={() =>
+                  setSelectedYear(selectedYear === year ? null : year)
+                }
+              >
+                {year}
+              </button>
+            ))}
+          </div>
           <Suspense fallback={<div>Loading SVG...</div>}>
-            {sportType === 'Run' && <RunningSvg />}
-            {sportType === 'Walk' && <WalkingSvg />}
-            {sportType === 'Hike' && <HikingSvg />}
-            {sportType === 'Ride' && <CyclingSvg />}
-            {sportType === 'Swim' && <SwimmingSvg />}
-            {sportType === 'Ski' && <SkiingSvg />}
-            {sportType === 'all' && <AllSvg />}
+            {selectedYear ? (
+              // Show Year Summary SVG when a year is selected
+              (() => {
+                const YearSvg = getYearSummarySvg(selectedYear);
+                return <YearSvg className={styles.yearSummarySvg} />;
+              })()
+            ) : (
+              // Show Life SVG when no year is selected
+              <>
+                {sportType === 'Run' && <RunningSvg />}
+                {sportType === 'Walk' && <WalkingSvg />}
+                {sportType === 'Hike' && <HikingSvg />}
+                {sportType === 'Ride' && <CyclingSvg />}
+                {sportType === 'Swim' && <SwimmingSvg />}
+                {sportType === 'Ski' && <SkiingSvg />}
+                {sportType === 'all' && <AllSvg />}
+              </>
+            )}
           </Suspense>
         </div>
       )}

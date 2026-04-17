@@ -7,6 +7,7 @@ import {
   RunIds,
 } from '@/utils/utils';
 import { SHOW_ELEVATION_GAIN } from '@/utils/const';
+import { DIST_UNIT } from '@/utils/utils';
 
 import RunRow from './RunRow';
 import styles from './style.module.css';
@@ -41,7 +42,9 @@ const RunTable = ({
           ? -1
           : 1;
     const sortKMFunc: SortFunc = (a, b) =>
-      sortFuncInfo === 'KM' ? a.distance - b.distance : b.distance - a.distance;
+      sortFuncInfo === DIST_UNIT
+        ? a.distance - b.distance
+        : b.distance - a.distance;
     const sortElevationGainFunc: SortFunc = (a, b) =>
       sortFuncInfo === 'Elev'
         ? (a.elevation_gain ?? 0) - (b.elevation_gain ?? 0)
@@ -67,7 +70,7 @@ const RunTable = ({
 
     const sortFuncMap = new Map([
       ['Type', sortTypeFunc],
-      ['KM', sortKMFunc],
+      [DIST_UNIT, sortKMFunc],
       ['Elev', sortElevationGainFunc],
       ['Pace', sortPaceFunc],
       ['BPM', sortBPMFunc],
