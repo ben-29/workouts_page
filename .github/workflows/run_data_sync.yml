@@ -128,24 +128,27 @@ jobs:
       - name: Run sync Garmin script
         # if: env.RUN_TYPE == 'garmin'
         run: |
-          python run_page/garmin_sync.py ${{ secrets.GARMIN_SECRET_STRING }}
-        # Set GARMIN_COM_USERNAME and GARMIN_COM_PASSWORD environment variables, or pass secret_string directly
+          python run_page/garmin_sync.py
+        # Uses GARMIN_COM_USERNAME and GARMIN_COM_PASSWORD environment variables
+        # Or pass secret_string directly: python run_page/garmin_sync.py ${{ secrets.GARMIN_SECRET_STRING }}
         # If you only want to sync 'type running' add args --only-run, default script is to sync all data (rides and runs).
         # python run_page/garmin_sync.py ${{ secrets.GARMIN_SECRET_STRING }} --only-run
 
       - name: Run sync Garmin CN script
         # if: env.RUN_TYPE == 'garmin_cn'
         run: |
-          python run_page/garmin_sync.py ${{ secrets.GARMIN_SECRET_STRING_CN }} --is-cn
-        # Set GARMIN_CN_USERNAME and GARMIN_CN_PASSWORD environment variables, or pass secret_string directly
+          python run_page/garmin_sync.py --is-cn
+        # Uses GARMIN_CN_USERNAME and GARMIN_CN_PASSWORD environment variables
+        # Or pass secret_string directly: python run_page/garmin_sync.py ${{ secrets.GARMIN_SECRET_STRING_CN }} --is-cn
         # If you only want to sync 'type running' add args --only-run, default script is to sync all data (rides and runs).
         # python run_page/garmin_sync.py ${{ secrets.GARMIN_SECRET_STRING_CN }}  --only-run --is-cn
 
       - name: Run sync Garmin CN to Garmin script
         if: env.RUN_TYPE == 'garmin_sync_cn_global'
         run: |
-          python run_page/garmin_sync_cn_global.py ${{ secrets.GARMIN_SECRET_STRING_CN }} ${{ secrets.GARMIN_SECRET_STRING }}
-        # Set GARMIN_CN_USERNAME, GARMIN_CN_PASSWORD, GARMIN_COM_USERNAME, GARMIN_COM_PASSWORD environment variables
+          python run_page/garmin_sync_cn_global.py
+        # Uses GARMIN_CN_USERNAME, GARMIN_CN_PASSWORD, GARMIN_COM_USERNAME, GARMIN_COM_PASSWORD environment variables
+        # Or pass arguments: python run_page/garmin_sync_cn_global.py --cn-username ${{ secrets.GARMIN_SECRET_STRING_CN }} --com-username ${{ secrets.GARMIN_SECRET_STRING }}
         # Or pass --cn-username/--cn-password/--com-username/--com-password arguments
         # If you only want to sync 'type running' add args --only-run, default script is to sync all data (rides and runs).
         # python run_page/garmin_sync_cn_global.py ${{ secrets.GARMIN_SECRET_STRING_CN }} ${{ secrets.GARMIN_SECRET_STRING }}  --only-run
