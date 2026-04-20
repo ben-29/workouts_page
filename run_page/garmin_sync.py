@@ -146,7 +146,7 @@ class Garmin:
         if self._use_garminconnect:
             # COM: use garminconnect
             # activity_id must be int for garminconnect
-            return self._client.get_activity_details(int(activity_id))
+            return self._client.get_activity(int(activity_id))
         else:
             # CN: use garth via httpx
             url = f"{self.modern_url}/activity-service/activity/{activity_id}"
@@ -357,7 +357,8 @@ def get_downloaded_ids(folder):
 def get_garmin_summary_infos(activity_summary, activity_id):
     garmin_summary_infos = {}
     try:
-        summary_dto = activity_summary.get("summaryDTO")
+        # garminconnect returns data at root level, garth wraps in summaryDTO
+        summary_dto = activity_summary.get("summaryDTO") or activity_summary
         garmin_summary_infos["distance"] = summary_dto.get("distance")
         garmin_summary_infos["average_hr"] = summary_dto.get("averageHR")
         garmin_summary_infos["average_speed"] = summary_dto.get("averageSpeed")
