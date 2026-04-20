@@ -108,7 +108,6 @@ def update_or_create_activity(session, run_activity):
             current_elevation_gain = float(run_activity.elevation_gain)
 
         if not activity:
-            start_point = run_activity.start_latlng
             location_country = getattr(run_activity, "location_country", "")
             # TODO: Temporarily disabled due to slow OpenStreetMap queries
             # # or China for #176 to fix
