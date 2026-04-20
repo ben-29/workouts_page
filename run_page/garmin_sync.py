@@ -145,7 +145,8 @@ class Garmin:
         """
         if self._use_garminconnect:
             # COM: use garminconnect
-            return self._client.get_activity_details(activity_id)
+            # activity_id must be int for garminconnect
+            return self._client.get_activity_details(int(activity_id))
         else:
             # CN: use garth via httpx
             url = f"{self.modern_url}/activity-service/activity/{activity_id}"
@@ -157,7 +158,8 @@ class Garmin:
         """
         if self._use_garminconnect:
             # COM: use garminconnect
-            return self._client.download_activity(activity_id, dl_fmt=file_type)
+            # activity_id must be int for garminconnect
+            return self._client.download_activity(int(activity_id), dl_fmt=file_type)
         else:
             # CN: use garth via httpx
             url = f"{self.modern_url}/download-service/export/{file_type}/activity/{activity_id}"
