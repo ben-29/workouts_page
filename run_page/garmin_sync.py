@@ -400,7 +400,9 @@ def restore_or_login(username, password, auth_domain):
         error_msg = str(e)
         # Check if it's a 429 error (rate limit) but token might be available
         if "429" in error_msg or "Too many requests" in error_msg:
-            print(f"Rate limit (429) during login for {auth_domain}, checking for saved token...")
+            print(
+                f"Rate limit (429) during login for {auth_domain}, checking for saved token..."
+            )
             # Try to use the token that might have been saved before the 429
             if os.path.exists(token_file):
                 try:
