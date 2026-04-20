@@ -247,33 +247,6 @@ class GarminConnectHttpError(Exception):
         self.status = status
 
 
-class GarminConnectConnectionError(Exception):
-    """Raised when communication ended in error."""
-
-    def __init__(self, status):
-        """Initialize."""
-        super(GarminConnectConnectionError, self).__init__(status)
-        self.status = status
-
-
-class GarminConnectTooManyRequestsError(Exception):
-    """Raised when rate limit is exceeded."""
-
-    def __init__(self, status):
-        """Initialize."""
-        super(GarminConnectTooManyRequestsError, self).__init__(status)
-        self.status = status
-
-
-class GarminConnectAuthenticationError(Exception):
-    """Raised when login returns wrong result."""
-
-    def __init__(self, status):
-        """Initialize."""
-        super(GarminConnectAuthenticationError, self).__init__(status)
-        self.status = status
-
-
 def get_info_text_value(summary_infos, key_name):
     if summary_infos.get(key_name) is None:
         return ""
