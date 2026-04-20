@@ -145,7 +145,7 @@ class Garmin:
         """
         if self._use_garminconnect:
             # COM: use garminconnect
-            return self._client.get_activity_summary(activity_id)
+            return self._client.get_activity_details(activity_id)
         else:
             # CN: use garth via httpx
             url = f"{self.modern_url}/activity-service/activity/{activity_id}"
