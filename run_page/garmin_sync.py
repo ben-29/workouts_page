@@ -353,7 +353,6 @@ def restore_or_login(username, password, auth_domain):
     Login to Garmin and return a secret_string that can be used to authenticate.
     The secret_string is saved to a token file for reuse.
     """
-    import json
     import pickle
 
     domain = "garmin.cn" if auth_domain == "CN" else "garmin.com"
