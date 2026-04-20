@@ -559,7 +559,9 @@ async def download_new_activities(
     )
     print(f"Download finished. Elapsed {time.time()-start_time} seconds")
 
-    await client.req.aclose()
+    # Only close req for CN region (uses httpx), COM uses garminconnect
+    if hasattr(client, "req"):
+        await client.req.aclose()
     return to_generate_garmin_ids, to_generate_garmin_id2title
 
 
