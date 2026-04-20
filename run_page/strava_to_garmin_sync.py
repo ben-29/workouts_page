@@ -1,8 +1,10 @@
 import argparse
 import asyncio
+import os
+import sys
 from datetime import datetime
 
-from garmin_sync import Garmin
+from garmin_sync import Garmin, restore_or_login
 from strava_sync import run_strava_sync
 from stravaweblib import DataFormat, WebClient
 from utils import make_strava_client
@@ -46,9 +48,8 @@ if __name__ == "__main__":
     parser.add_argument("strava_client_id", help="strava client id")
     parser.add_argument("strava_client_secret", help="strava client secret")
     parser.add_argument("strava_refresh_token", help="strava refresh token")
-    parser.add_argument(
-        "secret_string", nargs="?", help="secret_string fro get_garmin_secret.py"
-    )
+    parser.add_argument("--garmin-username", dest="garmin_username", help="Garmin username (email)")
+    parser.add_argument("--garmin-password", dest="garmin_password", help="Garmin password")
     parser.add_argument("strava_email", nargs="?", help="email of strava")
     parser.add_argument("strava_password", nargs="?", help="password of strava")
     parser.add_argument("strava_jwt", nargs="?", help="jwt token of strava")
@@ -97,14 +98,29 @@ if __name__ == "__main__":
             "Must provide either STRAVA_JWT or both STRAVA_EMAIL and STRAVA_PASSWORD"
         )
 
-    garmin_auth_domain = "CN" if options.is_cn else ""
+    garmin_auth_domain = "CN" if options.is_cn else "COM"
+
+    # Get Garmin credentials from args or environment variables
+    garmin_username = options.garmin_username or os.getenv("GARMIN_COM_USERNAME")
+    garmin_password = options.garmin_password or os.getenv("GARMIN_COM_PASSWORD")
+    
+    if options.is_cn:
+        garmin_username = options.garmin_username or os.getenv("GARMIN_CN_USERNAME")
+        garmin_password = options.garmin_password or os.getenv("GARMIN_CN_PASSWORD")
+
+    if not garmin_username or not garmin_password:
+        print("Missing Garmin credentials: please provide --garmin-username/--garmin-password")
+        print("Or set environment variables: GARMIN_COM_USERNAME/GARMIN_CN_USERNAME and GARMIN_COM_PASSWORD/GARMIN_CN_PASSWORD")
+        sys.exit(1)
 
     try:
-        garmin_client = Garmin(options.secret_string, garmin_auth_domain)
-        loop = asyncio.get_event_loop()
+        garmin_client = restore_or_login(garmin_username, garmin_password, garmin_auth_domain)
+        garmin_wrapper = Garmin(garmin_client, garmin_auth_domain, False)
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
         future = asyncio.ensure_future(
             upload_to_activities(
-                garmin_client,
+                garmin_wrapper,
                 strava_client,
                 strava_web_client,
                 DataFormat.ORIGINAL,
