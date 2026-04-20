@@ -352,40 +352,81 @@ def restore_or_login(username, password, auth_domain):
     """
     Login to Garmin and return a secret_string that can be used to authenticate.
     The secret_string is saved to a token file for reuse.
+    Handles 429 errors by trying to use existing token.
     """
     import pickle
+    import time
 
     domain = "garmin.cn" if auth_domain == "CN" else "garmin.com"
     token_file = f".token_{domain.replace('.', '_')}.pkl"
 
     garth.configure(domain=domain, ssl_verify=False)
 
-    # Try to load existing token
+    def load_and_validate_token():
+        """Try to load existing token and validate it."""
+        if os.path.exists(token_file):
+            try:
+                garth.client.loads(token_file)
+                if not garth.client.oauth2_token.expired:
+                    print(f"Loaded existing token for {auth_domain}")
+                    return pickle.load(f)
+            except Exception:
+                pass
+        return None
+
+    # Try to load existing token first
     if os.path.exists(token_file):
         try:
-            garth.client.loads(token_file)
-            if not garth.client.oauth2_token.expired:
-                print(f"Loaded existing token for {auth_domain}")
-                with open(token_file, "rb") as f:
-                    return pickle.load(f)
-            else:
-                print(f"Token expired, refreshing for {auth_domain}")
-                garth.client.refresh_oauth2()
-                with open(token_file, "wb") as f:
-                    pickle.dump(garth.client.dumps(), f)
-                return garth.client.dumps()
+            with open(token_file, "rb") as f:
+                token_data = f.read()
+            if token_data:
+                garth.client.loads(token_data)
+                if not garth.client.oauth2_token.expired:
+                    print(f"Loaded existing token for {auth_domain}")
+                    return token_data
         except Exception:
-            os.remove(token_file)
+            pass
 
     # Login with credentials
     print(f"Logging in to {auth_domain} with credentials...")
-    garth.client.login_oauth2(username, password)
-
-    secret_string = garth.client.dumps()
-    with open(token_file, "wb") as f:
-        pickle.dump(secret_string, f)
-    print(f"Saved token to {token_file}")
-    return secret_string
+    try:
+        garth.client.login_oauth2(username, password)
+        secret_string = garth.client.dumps()
+        with open(token_file, "wb") as f:
+            pickle.dump(secret_string, f)
+        print(f"Saved token to {token_file}")
+        return secret_string
+    except Exception as e:
+        error_msg = str(e)
+        # Check if it's a 429 error (rate limit) but token might be available
+        if "429" in error_msg or "Too many requests" in error_msg:
+            print(f"Rate limit (429) during login for {auth_domain}, checking for saved token...")
+            # Try to use the token that might have been saved before the 429
+            if os.path.exists(token_file):
+                try:
+                    with open(token_file, "rb") as f:
+                        token_data = f.read()
+                    if token_data:
+                        garth.client.loads(token_data)
+                        if not garth.client.oauth2_token.expired:
+                            print(f"Using saved token despite 429 for {auth_domain}")
+                            return token_data
+                except Exception:
+                    pass
+            # Wait and retry once
+            print(f"Waiting 10s before retry for {auth_domain}...")
+            time.sleep(10)
+            try:
+                garth.client.login_oauth2(username, password)
+                secret_string = garth.client.dumps()
+                with open(token_file, "wb") as f:
+                    pickle.dump(secret_string, f)
+                print(f"Saved token to {token_file} after retry")
+                return secret_string
+            except Exception as retry_err:
+                print(f"Retry also failed: {retry_err}")
+                raise retry_err
+        raise e
 
 
 async def download_new_activities(
