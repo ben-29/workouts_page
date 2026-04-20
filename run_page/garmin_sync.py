@@ -426,9 +426,21 @@ if __name__ == "__main__":
     auth_domain = "CN" if options.is_cn else "COM"  # Default to COM if not specified
     file_type = options.download_file_type
     is_only_running = options.only_run
+    
     if secret_string is None:
-        print("Missing argument nor valid configuration file")
-        sys.exit(1)
+        # Try to use environment variables for GitHub Actions
+        email_env = os.getenv("GARMIN_COM_USERNAME")
+        password_env = os.getenv("GARMIN_COM_PASSWORD")
+        if email_env and password_env:
+            print(f"Using credentials from environment variables for {auth_domain}...")
+            garmin_client = restore_or_login(email_env, password_env, auth_domain)
+        else:
+            print("Missing argument: please provide secret_string OR set GARMIN_COM_USERNAME/GARMIN_COM_PASSWORD environment variables")
+            print("Usage: python garmin_sync.py <secret_string> [--is-cn] [--only-run]")
+            print("  Or set environment variables: GARMIN_COM_USERNAME and GARMIN_COM_PASSWORD")
+            sys.exit(1)
+    else:
+        garmin_client = restore_or_login(secret_string, None, auth_domain)
     folder = FOLDER_DICT.get(file_type, "gpx")
     # make gpx or tcx dir
     if not os.path.exists(folder):
