@@ -126,7 +126,11 @@ class Garmin:
             activities = self._client.get_activities(start, limit)
             # Filter by activity type if needed
             if self.is_only_running:
-                activities = [a for a in activities if a.get("activityType", {}).get("typeKey") == "running"]
+                activities = [
+                    a
+                    for a in activities
+                    if a.get("activityType", {}).get("typeKey") == "running"
+                ]
             return activities
         else:
             # CN: use garth via httpx
@@ -452,7 +456,9 @@ def restore_or_login(username, password, auth_domain):
                             if token_data:
                                 garth.client.loads(token_data)
                                 if not garth.client.oauth2_token.expired:
-                                    print(f"Using saved token after 429 for {auth_domain}")
+                                    print(
+                                        f"Using saved token after 429 for {auth_domain}"
+                                    )
                                     return token_data
                         except Exception:
                             pass
@@ -476,7 +482,6 @@ def restore_or_login(username, password, auth_domain):
         # COM: use garminconnect
         tokenstore = os.path.expanduser(f"~/.garminconnect/{domain}")
         os.makedirs(tokenstore, exist_ok=True)
-
 
         # Try to restore saved tokens
         try:
