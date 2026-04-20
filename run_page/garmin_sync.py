@@ -159,7 +159,14 @@ class Garmin:
         if self._use_garminconnect:
             # COM: use garminconnect
             # activity_id must be int for garminconnect
-            return self._client.download_activity(int(activity_id), dl_fmt=file_type)
+            # Convert file_type string to garminconnect enum
+            fmt_map = {
+                "gpx": GarminConnectLib.ActivityDownloadFormat.GPX,
+                "tcx": GarminConnectLib.ActivityDownloadFormat.TCX,
+                "fit": GarminConnectLib.ActivityDownloadFormat.ORIGINAL,
+            }
+            dl_fmt = fmt_map.get(file_type, GarminConnectLib.ActivityDownloadFormat.GPX)
+            return self._client.download_activity(int(activity_id), dl_fmt=dl_fmt)
         else:
             # CN: use garth via httpx
             url = f"{self.modern_url}/download-service/export/{file_type}/activity/{activity_id}"
