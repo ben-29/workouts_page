@@ -418,7 +418,7 @@ def restore_or_login(username, password, auth_domain):
                         pass
 
                 if attempt < max_retries - 1:
-                    wait_time = base_wait_time * (2 ** attempt)  # 30s, 60s, 120s, 240s
+                    wait_time = base_wait_time * (2**attempt)  # 30s, 60s, 120s, 240s
                     print(
                         f"Rate limit (429) during login for {auth_domain}, "
                         f"attempt {attempt + 1}/{max_retries}. "
