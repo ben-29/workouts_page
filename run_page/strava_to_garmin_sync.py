@@ -104,13 +104,13 @@ if __name__ == "__main__":
 
     garmin_auth_domain = "CN" if options.is_cn else "COM"
 
-    # Get Garmin credentials from args or environment variables
-    garmin_username = options.garmin_username or os.getenv("GARMIN_COM_USERNAME")
-    garmin_password = options.garmin_password or os.getenv("GARMIN_COM_PASSWORD")
-
-    if options.is_cn:
-        garmin_username = options.garmin_username or os.getenv("GARMIN_CN_USERNAME")
-        garmin_password = options.garmin_password or os.getenv("GARMIN_CN_PASSWORD")
+    # Priority: environment variables > command line args
+    if garmin_auth_domain == "CN":
+        garmin_username = os.getenv("GARMIN_CN_USERNAME") or options.garmin_username
+        garmin_password = os.getenv("GARMIN_CN_PASSWORD") or options.garmin_password
+    else:
+        garmin_username = os.getenv("GARMIN_COM_USERNAME") or options.garmin_username
+        garmin_password = os.getenv("GARMIN_COM_PASSWORD") or options.garmin_password
 
     if not garmin_username or not garmin_password:
         print(

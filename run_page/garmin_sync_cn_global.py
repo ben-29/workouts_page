@@ -33,31 +33,21 @@ if __name__ == "__main__":
 
     options = parser.parse_args()
     is_only_running = options.only_run
-    if (
-        not options.cn_username
-        or not options.cn_password
-        or not options.com_username
-        or not options.com_password
-    ):
-        # Try environment variables
-        cn_username = options.cn_username or os.getenv("GARMIN_CN_USERNAME")
-        cn_password = options.cn_password or os.getenv("GARMIN_CN_PASSWORD")
-        com_username = options.com_username or os.getenv("GARMIN_COM_USERNAME")
-        com_password = options.com_password or os.getenv("GARMIN_COM_PASSWORD")
 
-        if not cn_username or not cn_password or not com_username or not com_password:
-            print(
-                "Missing arguments: please provide --cn-username/--cn-password and --com-username/--com-password"
-            )
-            print(
-                "Or set environment variables: GARMIN_CN_USERNAME, GARMIN_CN_PASSWORD, GARMIN_COM_USERNAME, GARMIN_COM_PASSWORD"
-            )
-            sys.exit(1)
-    else:
-        cn_username = options.cn_username
-        cn_password = options.cn_password
-        com_username = options.com_username
-        com_password = options.com_password
+    # Priority: environment variables > command line args
+    cn_username = os.getenv("GARMIN_CN_USERNAME") or options.cn_username
+    cn_password = os.getenv("GARMIN_CN_PASSWORD") or options.cn_password
+    com_username = os.getenv("GARMIN_COM_USERNAME") or options.com_username
+    com_password = os.getenv("GARMIN_COM_PASSWORD") or options.com_password
+
+    if not cn_username or not cn_password or not com_username or not com_password:
+        print(
+            "Missing arguments: please provide --cn-username/--cn-password and --com-username/--com-password"
+        )
+        print(
+            "Or set environment variables: GARMIN_CN_USERNAME, GARMIN_CN_PASSWORD, GARMIN_COM_USERNAME, GARMIN_COM_PASSWORD"
+        )
+        sys.exit(1)
 
     # Step 1:
     # Sync all activities from Garmin CN to Garmin Global in FIT format
