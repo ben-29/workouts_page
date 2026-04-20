@@ -389,46 +389,49 @@ def restore_or_login(username, password, auth_domain):
 
     # Login with credentials
     print(f"Logging in to {auth_domain} with credentials...")
-    try:
-        garth.client.login(username, password)
-        secret_string = garth.client.dumps()
-        with open(token_file, "wb") as f:
-            pickle.dump(secret_string, f)
-        print(f"Saved token to {token_file}")
-        return secret_string
-    except Exception as e:
-        error_msg = str(e)
-        # Check if it's a 429 error (rate limit) but token might be available
-        if "429" in error_msg or "Too many requests" in error_msg:
-            print(
-                f"Rate limit (429) during login for {auth_domain}, checking for saved token..."
-            )
-            # Try to use the token that might have been saved before the 429
-            if os.path.exists(token_file):
-                try:
-                    with open(token_file, "rb") as f:
-                        token_data = f.read()
-                    if token_data:
-                        garth.client.loads(token_data)
-                        if not garth.client.oauth2_token.expired:
-                            print(f"Using saved token despite 429 for {auth_domain}")
-                            return token_data
-                except Exception:
-                    pass
-            # Wait and retry once
-            print(f"Waiting 10s before retry for {auth_domain}...")
-            time.sleep(10)
-            try:
-                garth.client.login(username, password)
-                secret_string = garth.client.dumps()
-                with open(token_file, "wb") as f:
-                    pickle.dump(secret_string, f)
-                print(f"Saved token to {token_file} after retry")
-                return secret_string
-            except Exception as retry_err:
-                print(f"Retry also failed: {retry_err}")
-                raise retry_err
-        raise e
+    max_retries = 5
+    base_wait_time = 30  # seconds
+
+    for attempt in range(max_retries):
+        try:
+            garth.client.login(username, password)
+            secret_string = garth.client.dumps()
+            with open(token_file, "wb") as f:
+                pickle.dump(secret_string, f)
+            print(f"Saved token to {token_file}")
+            return secret_string
+        except Exception as e:
+            error_msg = str(e)
+            # Check if it's a 429 error (rate limit)
+            if "429" in error_msg or "Too many requests" in error_msg:
+                # Try to use any saved token first
+                if os.path.exists(token_file):
+                    try:
+                        with open(token_file, "rb") as f:
+                            token_data = f.read()
+                        if token_data:
+                            garth.client.loads(token_data)
+                            if not garth.client.oauth2_token.expired:
+                                print(f"Using saved token after 429 for {auth_domain}")
+                                return token_data
+                    except Exception:
+                        pass
+
+                if attempt < max_retries - 1:
+                    wait_time = base_wait_time * (2 ** attempt)  # 30s, 60s, 120s, 240s
+                    print(
+                        f"Rate limit (429) during login for {auth_domain}, "
+                        f"attempt {attempt + 1}/{max_retries}. "
+                        f"Waiting {wait_time}s before retry..."
+                    )
+                    time.sleep(wait_time)
+                else:
+                    print(
+                        f"Rate limit (429) persisted after {max_retries} attempts for {auth_domain}"
+                    )
+                    raise e
+            else:
+                raise e
 
 
 async def download_new_activities(
