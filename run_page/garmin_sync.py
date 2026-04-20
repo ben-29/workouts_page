@@ -348,6 +348,47 @@ def get_garmin_summary_infos(activity_summary, activity_id):
     return garmin_summary_infos
 
 
+def restore_or_login(username, password, auth_domain):
+    """
+    Login to Garmin and return a secret_string that can be used to authenticate.
+    The secret_string is saved to a token file for reuse.
+    """
+    import json
+    import pickle
+
+    domain = "garmin.cn" if auth_domain == "CN" else "garmin.com"
+    token_file = f".token_{domain.replace('.', '_')}.pkl"
+
+    garth.configure(domain=domain, ssl_verify=False)
+
+    # Try to load existing token
+    if os.path.exists(token_file):
+        try:
+            garth.client.loads(token_file)
+            if not garth.client.oauth2_token.expired:
+                print(f"Loaded existing token for {auth_domain}")
+                with open(token_file, "rb") as f:
+                    return pickle.load(f)
+            else:
+                print(f"Token expired, refreshing for {auth_domain}")
+                garth.client.refresh_oauth2()
+                with open(token_file, "wb") as f:
+                    pickle.dump(garth.client.dumps(), f)
+                return garth.client.dumps()
+        except Exception:
+            os.remove(token_file)
+
+    # Login with credentials
+    print(f"Logging in to {auth_domain} with credentials...")
+    garth.client.login_oauth2(username, password)
+
+    secret_string = garth.client.dumps()
+    with open(token_file, "wb") as f:
+        pickle.dump(secret_string, f)
+    print(f"Saved token to {token_file}")
+    return secret_string
+
+
 async def download_new_activities(
     secret_string, auth_domain, downloaded_ids, is_only_running, folder, file_type
 ):
