@@ -16,12 +16,8 @@ from utils import make_activities_file
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--cn-username", dest="cn_username", help="Garmin CN username"
-    )
-    parser.add_argument(
-        "--cn-password", dest="cn_password", help="Garmin CN password"
-    )
+    parser.add_argument("--cn-username", dest="cn_username", help="Garmin CN username")
+    parser.add_argument("--cn-password", dest="cn_password", help="Garmin CN password")
     parser.add_argument(
         "--com-username", dest="com_username", help="Garmin COM username"
     )
@@ -37,16 +33,25 @@ if __name__ == "__main__":
 
     options = parser.parse_args()
     is_only_running = options.only_run
-    if not options.cn_username or not options.cn_password or not options.com_username or not options.com_password:
+    if (
+        not options.cn_username
+        or not options.cn_password
+        or not options.com_username
+        or not options.com_password
+    ):
         # Try environment variables
         cn_username = options.cn_username or os.getenv("GARMIN_CN_USERNAME")
         cn_password = options.cn_password or os.getenv("GARMIN_CN_PASSWORD")
         com_username = options.com_username or os.getenv("GARMIN_COM_USERNAME")
         com_password = options.com_password or os.getenv("GARMIN_COM_PASSWORD")
-        
+
         if not cn_username or not cn_password or not com_username or not com_password:
-            print("Missing arguments: please provide --cn-username/--cn-password and --com-username/--com-password")
-            print("Or set environment variables: GARMIN_CN_USERNAME, GARMIN_CN_PASSWORD, GARMIN_COM_USERNAME, GARMIN_COM_PASSWORD")
+            print(
+                "Missing arguments: please provide --cn-username/--cn-password and --com-username/--com-password"
+            )
+            print(
+                "Or set environment variables: GARMIN_CN_USERNAME, GARMIN_CN_PASSWORD, GARMIN_COM_USERNAME, GARMIN_COM_PASSWORD"
+            )
             sys.exit(1)
     else:
         cn_username = options.cn_username
@@ -71,7 +76,7 @@ if __name__ == "__main__":
     # Login to Garmin CN
     print("Logging into Garmin CN...")
     garmin_cn_client = restore_or_login(cn_username, cn_password, "CN")
-    
+
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     future = asyncio.ensure_future(
@@ -97,12 +102,12 @@ if __name__ == "__main__":
             to_upload_files.append(os.path.join(GPX_FOLDER, f"{i}.gpx"))
 
     print("Files to sync:" + " ".join(to_upload_files))
-    
+
     # Login to Garmin Global
     print("Logging into Garmin Global...")
     garmin_global_client = restore_or_login(com_username, com_password, "COM")
     garmin_global_wrapper = Garmin(garmin_global_client, "COM", is_only_running)
-    
+
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     future = asyncio.ensure_future(
