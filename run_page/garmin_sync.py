@@ -441,6 +441,7 @@ if __name__ == "__main__":
             sys.exit(1)
     else:
         garmin_client = restore_or_login(secret_string, None, auth_domain)
+    
     folder = FOLDER_DICT.get(file_type, "gpx")
     # make gpx or tcx dir
     if not os.path.exists(folder):
@@ -455,10 +456,11 @@ if __name__ == "__main__":
         # merge downloaded_ids:list
         downloaded_ids = list(set(downloaded_ids + downloaded_gpx_ids))
 
-    loop = asyncio.get_event_loop()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
     future = asyncio.ensure_future(
         download_new_activities(
-            secret_string,
+            garmin_client,
             auth_domain,
             downloaded_ids,
             is_only_running,
