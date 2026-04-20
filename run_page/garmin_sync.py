@@ -390,7 +390,7 @@ def restore_or_login(username, password, auth_domain):
     # Login with credentials
     print(f"Logging in to {auth_domain} with credentials...")
     try:
-        garth.client.login_oauth2(username, password)
+        garth.client.login(username, password)
         secret_string = garth.client.dumps()
         with open(token_file, "wb") as f:
             pickle.dump(secret_string, f)
@@ -419,7 +419,7 @@ def restore_or_login(username, password, auth_domain):
             print(f"Waiting 10s before retry for {auth_domain}...")
             time.sleep(10)
             try:
-                garth.client.login_oauth2(username, password)
+                garth.client.login(username, password)
                 secret_string = garth.client.dumps()
                 with open(token_file, "wb") as f:
                     pickle.dump(secret_string, f)
