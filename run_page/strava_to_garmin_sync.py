@@ -114,6 +114,9 @@ if __name__ == "__main__":
                 pass  # __init__ not called - we'll set everything manually
             
             strava_web_client = _SessionClient.__new__(_SessionClient)
+            # Set required stravalib.Client attributes that would be set in __init__
+            strava_web_client.protocol = "https"
+            strava_web_client.host = "www.strava.com"
             strava_web_client._session = _req.Session()
             strava_web_client._session.headers.update({
                 "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
