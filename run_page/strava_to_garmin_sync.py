@@ -7,7 +7,6 @@ from datetime import datetime
 from garmin_sync import Garmin, restore_or_login
 from strava_sync import run_strava_sync
 from stravaweblib import DataFormat, WebClient
-from stravaweblib import stravalib
 from utils import make_strava_client
 
 # Direct access to stravaweblib internals for cookie-based session
