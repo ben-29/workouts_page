@@ -23,10 +23,10 @@ const YearStat = ({
   // for hover
   const [hovered, eventHandlers] = useHover();
   // SVG Components
-  const YearSVG = loadSvgComponent(yearStats, `./year_${year}.svg`);
+  const YearSVG = loadSvgComponent(yearStats, `./assets/year_${year}.svg`);
   const GithubYearSVG = loadSvgComponent(
     githubYearStats,
-    `./github_${year}.svg`
+    `./assets/github_${year}.svg`
   );
 
   if (years.includes(year)) {
