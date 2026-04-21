@@ -7,7 +7,13 @@ from datetime import datetime
 from garmin_sync import Garmin, restore_or_login
 from strava_sync import run_strava_sync
 from stravaweblib import DataFormat, WebClient
+from stravaweblib import stravalib
 from utils import make_strava_client
+
+# Direct access to stravaweblib internals for cookie-based session
+from stravaweblib.webclient import BASE_URL
+from bs4 import BeautifulSoup
+import requests as _req
 
 
 async def upload_to_activities(
@@ -102,39 +108,40 @@ if __name__ == "__main__":
                 jwt=jwt,
             )
         else:
-            # Treat as _strava4_session cookie
+            # Treat as _strava4_session cookie - directly create session without WebClient __init__
             print("Using _strava4_session cookie for Strava web login (JWT secret contains session cookie)")
-            import requests as _req
-            from stravaweblib.webclient import BASE_URL, BeautifulSoup
-            # Create a WebClient with dummy auth (required by library),
-            # then replace cookies with the real _strava4_session session cookie
-            strava_web_client = WebClient(
-                access_token=strava_client.access_token,
-                email="dummy@example.com",
-                password="dummy_password_for_session_replacement",
-            )
-            # Replace the session with _strava4_session cookie
+            # Create a minimal web client by subclassing to bypass __init__
+            class _SessionClient(WebClient):
+                pass  # __init__ not called - we'll set everything manually
+            
+            strava_web_client = _SessionClient.__new__(_SessionClient)
             strava_web_client._session = _req.Session()
             strava_web_client._session.headers.update({
                 "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
             })
+            # Set the _strava4_session cookie
             strava_web_client._session.cookies.set(
                 '_strava4_session', jwt, domain='.strava.com', secure=True
             )
             # Verify by fetching athlete page to get athlete ID
-            resp = strava_web_client._session.get(f"{BASE_URL}/athlete", allow_redirects=False)
-            if resp.status_code == 200:
-                soup = BeautifulSoup(resp.text, 'html.parser')
-                athlete_link = soup.find('a', href=lambda h: h and '/athletes/' in h)
-                if athlete_link:
-                    href = athlete_link.get('href', '')
-                    athlete_id = href.split('/athletes/')[-1].split('?')[0]
-                    strava_web_client._session.cookies.set(
-                        'strava_remember_id', athlete_id, domain='.strava.com', secure=True
-                    )
-            strava_web_client._session.cookies.set(
-                'strava_remember_token', jwt, domain='.strava.com', secure=True
-            )
+            try:
+                resp = strava_web_client._session.get(f"{BASE_URL}/athlete", allow_redirects=False)
+                if resp.status_code == 200:
+                    soup = BeautifulSoup(resp.text, 'html.parser')
+                    athlete_link = soup.find('a', href=lambda h: h and '/athletes/' in h)
+                    if athlete_link:
+                        href = athlete_link.get('href', '')
+                        athlete_id = href.split('/athletes/')[-1].split('?')[0]
+                        strava_web_client._session.cookies.set(
+                            'strava_remember_id', athlete_id, domain='.strava.com', secure=True
+                        )
+                strava_web_client._session.cookies.set(
+                    'strava_remember_token', jwt, domain='.strava.com', secure=True
+                )
+            except Exception as e:
+                print(f"Warning: couldn't verify session cookie: {e}")
+            # Set a dummy access_token for the parent class (required but not used for session auth)
+            strava_web_client.access_token = strava_client.access_token
     elif email and password:
         print("Using email + password for Strava web login")
         strava_web_client = WebClient(
