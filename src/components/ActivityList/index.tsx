@@ -44,9 +44,7 @@ const VIRTUAL_LIST_STYLES = {
 };
 const MonthOfLifeSvg = (sportType: string) => {
   const path =
-    sportType === 'all'
-      ? './assets/mol.svg'
-      : `./assets/mol_${sportType}.svg`;
+    sportType === 'all' ? './assets/mol.svg' : `./assets/mol_${sportType}.svg`;
   return loadSvgComponent(totalStat, path);
 };
 
@@ -65,7 +63,7 @@ const yearSummaryCache: Record<
 > = {};
 const getYearSummarySvg = (year: string) => {
   if (!yearSummaryCache[year]) {
-      yearSummaryCache[year] = loadSvgComponent(
+    yearSummaryCache[year] = loadSvgComponent(
       yearSummaryStats,
       `./assets/year_summary_${year}.svg`
     );
