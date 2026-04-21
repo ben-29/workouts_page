@@ -219,14 +219,24 @@ class Garmin:
             with open(data.filename, "rb") as f:
                 file_body = process_garmin_data(f, use_fake_garmin_device)
 
+            # Determine file extension from original filename
+            ext = os.path.splitext(data.filename)[-1].lower().lstrip(".")
+
             if self._use_garminconnect:
-                # COM: use garminconnect
+                # COM: use garminconnect (requires file path, not raw data)
+                import tempfile
+
+                with tempfile.NamedTemporaryFile(suffix=f".{ext}", delete=False) as tmp:
+                    tmp.write(file_body.getvalue())
+                    tmp_path = tmp.name
                 try:
-                    result = self._client.upload_activity(file_body.getvalue(), "gpx")
+                    result = self._client.upload_activity(tmp_path)
                     print("garmin upload success: ", result)
-                    os.remove(data.filename)
                 except Exception as e:
                     print("garmin upload failed: ", e)
+                finally:
+                    os.remove(tmp_path)
+                os.remove(data.filename)
             else:
                 # CN: use httpx
                 files = {"file": (data.filename, file_body)}
@@ -252,12 +262,20 @@ class Garmin:
             file_body = BytesIO(f.read())
 
         if self._use_garminconnect:
-            # COM: use garminconnect
+            # COM: use garminconnect (requires file path, not raw data)
+            import tempfile
+
+            ext = os.path.splitext(file)[-1].lower().lstrip(".")
+            with tempfile.NamedTemporaryFile(suffix=f".{ext}", delete=False) as tmp:
+                tmp.write(file_body.getvalue())
+                tmp_path = tmp.name
             try:
-                result = self._client.upload_activity(file_body.getvalue(), "gpx")
+                result = self._client.upload_activity(tmp_path)
                 print("garmin upload success: ", result)
             except Exception as e:
                 print("garmin upload failed: ", e)
+            finally:
+                os.remove(tmp_path)
         else:
             # CN: use httpx
             files = {"file": (file, file_body)}
