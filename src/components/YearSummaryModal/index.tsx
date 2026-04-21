@@ -11,8 +11,7 @@ interface YearSummaryModalProps {
 const YearSummaryModal = ({ year, onClose }: YearSummaryModalProps) => {
   // Memoize the SVG component to prevent re-creation on each render
   const YearSummarySVG = useMemo(
-    () =>
-      loadSvgComponent(yearSummaryStats, `./assets/year_summary_${year}.svg`),
+    () => loadSvgComponent(yearSummaryStats, `./year_summary_${year}.svg`),
     [year]
   );
 

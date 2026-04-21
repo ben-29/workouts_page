@@ -4,9 +4,9 @@ import { loadSvgComponent } from '@/utils/svgUtils';
 import { initSvgColorAdjustments } from '@/utils/colorUtils';
 
 // SVG Components
-const GithubSvg = loadSvgComponent(totalStat, './assets/github.svg');
+const GithubSvg = loadSvgComponent(totalStat, './github.svg');
 
-const GridSvg = loadSvgComponent(totalStat, './assets/grid.svg');
+const GridSvg = loadSvgComponent(totalStat, './grid.svg');
 
 const SVGStat = () => {
   useEffect(() => {
