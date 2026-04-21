@@ -88,10 +88,13 @@ def update_or_create_activity(session, run_activity):
         activity = (
             session.query(Activity).filter_by(run_id=int(run_activity.id)).first()
         )
-        type = run_activity.type
+        # In stravalib 2.x, activity.type is a pydantic model object (RelaxedActivityType).
+        # Convert it to string for dict key lookup and comparison.
+        activity_type_value = str(run_activity.type) if run_activity.type else ""
+        type = activity_type_value
         source = "strava"
-        if run_activity.type in TYPE_DICT:
-            type = TYPE_DICT[run_activity.type]
+        if activity_type_value in TYPE_DICT:
+            type = TYPE_DICT[activity_type_value]
 
         current_elevation_gain = 0.0  # default value
 
