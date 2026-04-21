@@ -23,7 +23,9 @@ const YearStat = ({
   // for hover
   const [hovered, eventHandlers] = useHover();
   // lazy Component
-  const YearSVG = lazy(() => Promise.resolve(loadSvgComponent(yearStats, `./year_${year}.svg`)));
+  const YearSVG = lazy(() =>
+    Promise.resolve(loadSvgComponent(yearStats, `./year_${year}.svg`))
+  );
   const GithubYearSVG = lazy(() =>
     Promise.resolve(loadSvgComponent(githubYearStats, `./github_${year}.svg`))
   );
@@ -70,7 +72,9 @@ const YearStat = ({
   sumDistance = parseFloat((sumDistance / M_TO_DIST).toFixed(0));
   const sumElevationGainStr = (sumElevationGain * M_TO_ELEV).toFixed(0);
   const hasHeartRate = !(heartRate === 0);
-  const avgHeartRate = (heartRate / (runs.length - heartRateNullCount)).toFixed(0);
+  const avgHeartRate = (heartRate / (runs.length - heartRateNullCount)).toFixed(
+    0
+  );
 
   const workoutsArr = Object.entries(workoutsCounts);
   workoutsArr.sort((a, b) => {
