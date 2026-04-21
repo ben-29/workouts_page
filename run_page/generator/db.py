@@ -110,6 +110,11 @@ def update_or_create_activity(session, run_activity):
         ):
             current_elevation_gain = float(run_activity.elevation_gain)
 
+        # In stravalib 2.x, moving_time and elapsed_time are Duration (int subclass).
+        # Convert to datetime.timedelta using .timedelta() method.
+        moving_time = run_activity.moving_time.timedelta() if hasattr(run_activity.moving_time, 'timedelta') else run_activity.moving_time
+        elapsed_time = run_activity.elapsed_time.timedelta() if hasattr(run_activity.elapsed_time, 'timedelta') else run_activity.elapsed_time
+
         if not activity:
             location_country = getattr(run_activity, "location_country", "")
             # TODO: Temporarily disabled due to slow OpenStreetMap queries
@@ -137,8 +142,8 @@ def update_or_create_activity(session, run_activity):
                 run_id=run_activity.id,
                 name=run_activity.name,
                 distance=run_activity.distance,
-                moving_time=run_activity.moving_time,
-                elapsed_time=run_activity.elapsed_time,
+                moving_time=moving_time,
+                elapsed_time=elapsed_time,
                 type=type,
                 start_date=run_activity.start_date,
                 start_date_local=run_activity.start_date_local,
@@ -156,8 +161,8 @@ def update_or_create_activity(session, run_activity):
         else:
             activity.name = run_activity.name
             activity.distance = float(run_activity.distance)
-            activity.moving_time = run_activity.moving_time
-            activity.elapsed_time = run_activity.elapsed_time
+            activity.moving_time = moving_time
+            activity.elapsed_time = elapsed_time
             activity.type = type
             activity.average_heartrate = run_activity.average_heartrate
             activity.average_speed = float(run_activity.average_speed)
