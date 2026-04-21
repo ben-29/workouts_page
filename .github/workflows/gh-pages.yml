@@ -87,7 +87,21 @@ jobs:
           REPO_NAME: ${{ github.event.repository.name }}
         run: |
           rm -rf .vite
-          PATH_PREFIX=/$REPO_NAME pnpm build
+          echo "=== Node version ==="
+          node --version
+          echo "=== npm version ==="
+          npm --version
+          echo "=== pnpm version ==="
+          pnpm --version
+          echo "=== vite version ==="
+          pnpm exec vite --version
+          echo "=== Starting build ==="
+          PATH_PREFIX=/$REPO_NAME pnpm build || {
+            echo "=== Build failed, checking dist directory ==="
+            ls -la dist/ 2>/dev/null || echo "dist/ does not exist"
+            exit 1
+          }
+          echo "=== Build completed successfully ==="
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
