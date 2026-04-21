@@ -1,13 +1,10 @@
-import { Suspense } from 'react';
+import React, { Suspense } from 'react';
 import Stat from '@/components/Stat';
 import WorkoutStat from '@/components/WorkoutStat';
 import useActivities from '@/hooks/useActivities';
-
-import { formatPace, colorFromType } from '@/utils/utils';
 import useHover from '@/hooks/useHover';
 import { yearStats } from '@assets/index';
 import { SHOW_ELEVATION_GAIN } from '@/utils/const';
-import { DIST_UNIT, M_TO_DIST, M_TO_ELEV, ELEV_UNIT } from '@/utils/utils';
 import { loadSvgComponent } from '@/utils/svgUtils';
 
 // Directly import github year SVG components
