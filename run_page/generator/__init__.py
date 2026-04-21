@@ -72,10 +72,8 @@ class Generator:
                     activity.map.summary_polyline = filter_out(
                         activity.map.summary_polyline
                     )
-            activity.source = "strava"
-            #  strava use total_elevation_gain as elevation_gain
-            activity.elevation_gain = activity.total_elevation_gain
-            activity.subtype = activity.type
+            # Note: source is now hardcoded in update_or_create_activity for stravalib 2.x compatibility
+            # strava uses total_elevation_gain as elevation_gain
             created = update_or_create_activity(self.session, activity)
             if created:
                 sys.stdout.write("+")

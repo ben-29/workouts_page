@@ -89,7 +89,7 @@ def update_or_create_activity(session, run_activity):
             session.query(Activity).filter_by(run_id=int(run_activity.id)).first()
         )
         type = run_activity.type
-        source = run_activity.source if hasattr(run_activity, "source") else "gpx"
+        source = "strava"
         if run_activity.type in TYPE_DICT:
             type = TYPE_DICT[run_activity.type]
 
