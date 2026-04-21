@@ -112,8 +112,16 @@ def update_or_create_activity(session, run_activity):
 
         # In stravalib 2.x, moving_time and elapsed_time are Duration (int subclass).
         # Convert to datetime.timedelta using .timedelta() method.
-        moving_time = run_activity.moving_time.timedelta() if hasattr(run_activity.moving_time, 'timedelta') else run_activity.moving_time
-        elapsed_time = run_activity.elapsed_time.timedelta() if hasattr(run_activity.elapsed_time, 'timedelta') else run_activity.elapsed_time
+        moving_time = (
+            run_activity.moving_time.timedelta()
+            if hasattr(run_activity.moving_time, "timedelta")
+            else run_activity.moving_time
+        )
+        elapsed_time = (
+            run_activity.elapsed_time.timedelta()
+            if hasattr(run_activity.elapsed_time, "timedelta")
+            else run_activity.elapsed_time
+        )
 
         if not activity:
             location_country = getattr(run_activity, "location_country", "")

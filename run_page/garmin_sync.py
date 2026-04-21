@@ -203,7 +203,9 @@ class Garmin:
         self, datas, use_fake_garmin_device=False
     ):
         if self._client is None:
-            print("[Garmin.upload_activities_original_from_strava] No garmin client, skipping upload")
+            print(
+                "[Garmin.upload_activities_original_from_strava] No garmin client, skipping upload"
+            )
             return
         print(
             "start upload activities to garmin!, use_fake_garmin_device:",

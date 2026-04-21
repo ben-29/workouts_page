@@ -181,9 +181,11 @@ class Generator:
         for activity in activities:
             # Determine running streak.
             # if activity.type == "Run" or activity.type == "Walk":
-            date = datetime.datetime.fromisoformat(
-                activity.start_date_local
-            ).astimezone().date()
+            date = (
+                datetime.datetime.fromisoformat(activity.start_date_local)
+                .astimezone()
+                .date()
+            )
             if last_date is None:
                 streak = 1
             elif date == last_date:
