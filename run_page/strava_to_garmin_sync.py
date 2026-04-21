@@ -104,10 +104,36 @@ if __name__ == "__main__":
         else:
             # Treat as _strava4_session cookie
             print("Using _strava4_session cookie for Strava web login (JWT secret contains session cookie)")
-            from stravaweblib.webclient import WebClient as BaseWebClient
-            strava_web_client = BaseWebClient(
+            import requests as _req
+            from stravaweblib.webclient import BASE_URL, BeautifulSoup
+            # Create a WebClient with dummy auth (required by library),
+            # then replace cookies with the real _strava4_session session cookie
+            strava_web_client = WebClient(
                 access_token=strava_client.access_token,
-                _strava4_session=jwt,
+                email="dummy@example.com",
+                password="dummy_password_for_session_replacement",
+            )
+            # Replace the session with _strava4_session cookie
+            strava_web_client._session = _req.Session()
+            strava_web_client._session.headers.update({
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+            })
+            strava_web_client._session.cookies.set(
+                '_strava4_session', jwt, domain='.strava.com', secure=True
+            )
+            # Verify by fetching athlete page to get athlete ID
+            resp = strava_web_client._session.get(f"{BASE_URL}/athlete", allow_redirects=False)
+            if resp.status_code == 200:
+                soup = BeautifulSoup(resp.text, 'html.parser')
+                athlete_link = soup.find('a', href=lambda h: h and '/athletes/' in h)
+                if athlete_link:
+                    href = athlete_link.get('href', '')
+                    athlete_id = href.split('/athletes/')[-1].split('?')[0]
+                    strava_web_client._session.cookies.set(
+                        'strava_remember_id', athlete_id, domain='.strava.com', secure=True
+                    )
+            strava_web_client._session.cookies.set(
+                'strava_remember_token', jwt, domain='.strava.com', secure=True
             )
     elif email and password:
         print("Using email + password for Strava web login")
@@ -118,7 +144,7 @@ if __name__ == "__main__":
         )
     else:
         raise ValueError(
-            "Must provide either STRAVA_JWT/STRAVA_SESSION_COOKIE or both STRAVA_EMAIL and STRAVA_PASSWORD"
+            "Must provide either STRAVA_JWT or both STRAVA_EMAIL and STRAVA_PASSWORD"
         )
 
     garmin_auth_domain = "CN" if options.is_cn else "COM"
