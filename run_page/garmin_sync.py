@@ -84,6 +84,7 @@ class Garmin:
             }
             self.upload_url = self.URL_DICT.get("UPLOAD_URL")
             self.activity_url = self.URL_DICT.get("ACTIVITY_URL")
+            self.modern_url = self.URL_DICT.get("MODERN_URL")
         else:
             # COM uses garminconnect
             self._use_garminconnect = True
