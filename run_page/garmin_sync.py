@@ -215,32 +215,41 @@ class Garmin:
             with open(data.filename, "wb") as f:
                 for chunk in data.content:
                     f.write(chunk)
-            f = open(data.filename, "rb")
-            file_body = process_garmin_data(f, use_fake_garmin_device)
-            files = {"file": (data.filename, file_body)}
 
-            try:
-                res = await self.req.post(
-                    self.upload_url, files=files, headers=self.headers
-                )
-                os.remove(data.filename)
-                f.close()
-            except Exception as e:
-                print(str(e))
-                # just pass for now
-                continue
-            try:
-                resp = res.json()["detailedImportResult"]
-                print("garmin upload success: ", resp)
-            except Exception as e:
-                print("garmin upload failed: ", e)
-        await self.req.aclose()
+            with open(data.filename, "rb") as f:
+                file_body = process_garmin_data(f, use_fake_garmin_device)
+
+            if self._use_garminconnect:
+                # COM: use garminconnect
+                try:
+                    result = self._client.upload_activity(file_body.getvalue(), "gpx")
+                    print("garmin upload success: ", result)
+                    os.remove(data.filename)
+                except Exception as e:
+                    print("garmin upload failed: ", e)
+            else:
+                # CN: use httpx
+                files = {"file": (data.filename, file_body)}
+                try:
+                    res = await self.req.post(
+                        self.upload_url, files=files, headers=self.headers
+                    )
+                    os.remove(data.filename)
+                except Exception as e:
+                    print("garmin upload failed: ", e)
+                    continue
+                try:
+                    resp = res.json()["detailedImportResult"]
+                    print("garmin upload success: ", resp)
+                except Exception as e:
+                    print("garmin upload failed: ", e)
+        if not self._use_garminconnect:
+            await self.req.aclose()
 
     async def upload_activity_from_file(self, file):
         print("Uploading " + str(file))
-        f = open(file, "rb")
-        file_body = BytesIO(f.read())
-        f.close()
+        with open(file, "rb") as f:
+            file_body = BytesIO(f.read())
 
         if self._use_garminconnect:
             # COM: use garminconnect
