@@ -41,7 +41,9 @@ async def upload_to_activities(
     for i in sorted(strava_activities, key=lambda i: int(i.id)):
         print(f"[download] Getting activity data for activity ID: {i.id}")
         try:
-            data = strava_web_client.get_activity_data(i.id, fmt=format)
+            data = strava_web_client.get_activity_data(
+                i.id, fmt=format, json_fmt=DataFormat.TCX
+            )
             print(f"[download] Got activity data: {data.filename}")
             files_list.append(data)
         except Exception as ex:
