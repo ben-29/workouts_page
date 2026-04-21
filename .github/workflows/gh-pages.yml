@@ -78,8 +78,7 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: '20'
-          cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
+          cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install
