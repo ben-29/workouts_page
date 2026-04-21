@@ -25,6 +25,12 @@ jobs:
 
       - name: Install dependencies
         run: |
+          # Install stravalib>=2.0.0 first (skip stravaweblib's conflicting dependency)
+          pip install stravalib>=2.0.0
+          # Install stravaweblib without deps to bypass stravalib<1.0.0 constraint
+          pip install stravaweblib --no-deps
+          # Install remaining dependencies
+          grep -v '^stravalib' requirements.txt | grep -v '^stravaweblib' | pip install -r /dev/stdin
           pip install -r requirements-dev.txt
 
       - name: Run GPX sync test
