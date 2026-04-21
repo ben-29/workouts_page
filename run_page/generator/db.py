@@ -89,8 +89,8 @@ def update_or_create_activity(session, run_activity):
             session.query(Activity).filter_by(run_id=int(run_activity.id)).first()
         )
         # In stravalib 2.x, activity.type is a pydantic model object (RelaxedActivityType).
-        # Convert it to string for dict key lookup and comparison.
-        activity_type_value = str(run_activity.type) if run_activity.type else ""
+        # Use .root attribute to get the actual string value for dict key lookup.
+        activity_type_value = run_activity.type.root if run_activity.type else ""
         type = activity_type_value
         source = "strava"
         if activity_type_value in TYPE_DICT:
