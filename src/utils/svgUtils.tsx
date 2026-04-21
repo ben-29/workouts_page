@@ -1,9 +1,5 @@
 import { ComponentType } from 'react';
 
-type SvgComponent = {
-  default: ComponentType<any>;
-};
-
 type SvgModule = Record<string, ComponentType<any>>;
 
 const FailedLoadSvg = () => {
@@ -14,10 +10,6 @@ const FailedLoadSvg = () => {
 export const loadSvgComponent = (
   stats: SvgModule,
   path: string
-): SvgComponent => {
-  const component = stats[path];
-  if (!component) {
-    return { default: FailedLoadSvg };
-  }
-  return { default: component };
+): ComponentType<any> => {
+  return stats[path] || FailedLoadSvg;
 };

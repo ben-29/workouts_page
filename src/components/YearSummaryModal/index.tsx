@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo } from 'react';
+import { Suspense, useEffect, useMemo } from 'react';
 import { yearSummaryStats } from '@assets/index';
 import { loadSvgComponent } from '@/utils/svgUtils';
 import styles from './style.module.css';
@@ -9,12 +9,9 @@ interface YearSummaryModalProps {
 }
 
 const YearSummaryModal = ({ year, onClose }: YearSummaryModalProps) => {
-  // Memoize the lazy component to prevent re-creation on each render
+  // Memoize the SVG component to prevent re-creation on each render
   const YearSummarySVG = useMemo(
-    () =>
-      lazy(() =>
-        loadSvgComponent(yearSummaryStats, `./year_summary_${year}.svg`)
-      ),
+    () => loadSvgComponent(yearSummaryStats, `./year_summary_${year}.svg`),
     [year]
   );
 

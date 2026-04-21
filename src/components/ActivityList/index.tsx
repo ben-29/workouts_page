@@ -1,5 +1,4 @@
 import React, {
-  lazy,
   useState,
   Suspense,
   useEffect,
@@ -45,7 +44,7 @@ const VIRTUAL_LIST_STYLES = {
 };
 const MonthOfLifeSvg = (sportType: string) => {
   const path = sportType === 'all' ? './mol.svg' : `./mol_${sportType}.svg`;
-  return lazy(() => loadSvgComponent(totalStat, path));
+  return loadSvgComponent(totalStat, path);
 };
 
 const RunningSvg = MonthOfLifeSvg('running');
@@ -56,15 +55,16 @@ const SwimmingSvg = MonthOfLifeSvg('swimming');
 const SkiingSvg = MonthOfLifeSvg('skiing');
 const AllSvg = MonthOfLifeSvg('all');
 
-// Cache for year summary lazy components to prevent flickering
+// Cache for year summary SVG components to prevent flickering
 const yearSummaryCache: Record<
   string,
-  React.LazyExoticComponent<React.FC<React.SVGProps<SVGSVGElement>>>
+  React.FC<React.SVGProps<SVGSVGElement>>
 > = {};
 const getYearSummarySvg = (year: string) => {
   if (!yearSummaryCache[year]) {
-    yearSummaryCache[year] = lazy(() =>
-      loadSvgComponent(yearSummaryStats, `./year_summary_${year}.svg`)
+    yearSummaryCache[year] = loadSvgComponent(
+      yearSummaryStats,
+      `./year_summary_${year}.svg`
     );
   }
   return yearSummaryCache[year];

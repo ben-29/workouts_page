@@ -1,12 +1,12 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { totalStat } from '@assets/index';
 import { loadSvgComponent } from '@/utils/svgUtils';
 import { initSvgColorAdjustments } from '@/utils/colorUtils';
 
-// Lazy load both github.svg and grid.svg
-const GithubSvg = lazy(() => loadSvgComponent(totalStat, './github.svg'));
+// SVG Components
+const GithubSvg = loadSvgComponent(totalStat, './github.svg');
 
-const GridSvg = lazy(() => loadSvgComponent(totalStat, './grid.svg'));
+const GridSvg = loadSvgComponent(totalStat, './grid.svg');
 
 const SVGStat = () => {
   useEffect(() => {

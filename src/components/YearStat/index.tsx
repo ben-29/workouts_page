@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { Suspense } from 'react';
 import Stat from '@/components/Stat';
 import WorkoutStat from '@/components/WorkoutStat';
 import useActivities from '@/hooks/useActivities';
@@ -22,12 +22,11 @@ const YearStat = ({
   let { activities: runs, years } = useActivities();
   // for hover
   const [hovered, eventHandlers] = useHover();
-  // lazy Component
-  const YearSVG = lazy(() =>
-    Promise.resolve(loadSvgComponent(yearStats, `./year_${year}.svg`))
-  );
-  const GithubYearSVG = lazy(() =>
-    Promise.resolve(loadSvgComponent(githubYearStats, `./github_${year}.svg`))
+  // SVG Components
+  const YearSVG = loadSvgComponent(yearStats, `./year_${year}.svg`);
+  const GithubYearSVG = loadSvgComponent(
+    githubYearStats,
+    `./github_${year}.svg`
   );
 
   if (years.includes(year)) {

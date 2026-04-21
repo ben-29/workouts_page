@@ -1,16 +1,16 @@
 export const yearStats = import.meta.glob('./year_*.svg', {
-  import: 'default',
+  import: 'ReactComponent',
   eager: true,
 });
 export const yearSummaryStats = import.meta.glob('./year_summary_*.svg', {
-  import: 'default',
+  import: 'ReactComponent',
   eager: true,
 });
 export const githubYearStats = import.meta.glob('./github_*.svg', {
-  import: 'default',
+  import: 'ReactComponent',
   eager: true,
 });
 export const totalStat = import.meta.glob(
   ['./github.svg', './grid.svg', './mol.svg'],
-  { import: 'default', eager: true }
+  { import: 'ReactComponent', eager: true }
 );
