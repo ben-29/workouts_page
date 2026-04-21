@@ -226,8 +226,12 @@ class Garmin:
                 # COM: use garminconnect (requires file path, not raw data)
                 import tempfile
 
+                # process_garmin_data may return bytes or BytesIO
+                data_bytes = (
+                    file_body if isinstance(file_body, bytes) else file_body.getvalue()
+                )
                 with tempfile.NamedTemporaryFile(suffix=f".{ext}", delete=False) as tmp:
-                    tmp.write(file_body.getvalue())
+                    tmp.write(data_bytes)
                     tmp_path = tmp.name
                 try:
                     result = self._client.upload_activity(tmp_path)
@@ -259,7 +263,7 @@ class Garmin:
     async def upload_activity_from_file(self, file):
         print("Uploading " + str(file))
         with open(file, "rb") as f:
-            file_body = BytesIO(f.read())
+            file_body = f.read()
 
         if self._use_garminconnect:
             # COM: use garminconnect (requires file path, not raw data)
@@ -267,7 +271,7 @@ class Garmin:
 
             ext = os.path.splitext(file)[-1].lower().lstrip(".")
             with tempfile.NamedTemporaryFile(suffix=f".{ext}", delete=False) as tmp:
-                tmp.write(file_body.getvalue())
+                tmp.write(file_body)
                 tmp_path = tmp.name
             try:
                 result = self._client.upload_activity(tmp_path)
