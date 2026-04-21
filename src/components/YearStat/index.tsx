@@ -23,9 +23,9 @@ const YearStat = ({
   // for hover
   const [hovered, eventHandlers] = useHover();
   // lazy Component
-  const YearSVG = lazy(() => loadSvgComponent(yearStats, `./year_${year}.svg`));
+  const YearSVG = lazy(() => Promise.resolve(loadSvgComponent(yearStats, `./year_${year}.svg`)));
   const GithubYearSVG = lazy(() =>
-    loadSvgComponent(githubYearStats, `./github_${year}.svg`)
+    Promise.resolve(loadSvgComponent(githubYearStats, `./github_${year}.svg`))
   );
 
   if (years.includes(year)) {

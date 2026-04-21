@@ -1,18 +1,16 @@
-import { globSync } from 'vite';
-
-export const yearStats = globSync('./year_*.svg', {
-  cwd: __dirname,
-  import: 'ReactComponent',
+export const yearStats = import.meta.glob('./year_*.svg', {
+  import: 'default',
+  eager: true,
 });
-export const yearSummaryStats = globSync('./year_summary_*.svg', {
-  cwd: __dirname,
-  import: 'ReactComponent',
+export const yearSummaryStats = import.meta.glob('./year_summary_*.svg', {
+  import: 'default',
+  eager: true,
 });
-export const githubYearStats = globSync('./github_*.svg', {
-  cwd: __dirname,
-  import: 'ReactComponent',
+export const githubYearStats = import.meta.glob('./github_*.svg', {
+  import: 'default',
+  eager: true,
 });
-export const totalStat = globSync(
+export const totalStat = import.meta.glob(
   ['./github.svg', './grid.svg', './mol.svg'],
-  { cwd: __dirname, import: 'ReactComponent' }
+  { import: 'default', eager: true }
 );
