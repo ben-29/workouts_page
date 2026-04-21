@@ -58,6 +58,11 @@ if __name__ == "__main__":
     parser.add_argument("strava_password", nargs="?", help="password of strava")
     parser.add_argument("strava_jwt", nargs="?", help="jwt token of strava")
     parser.add_argument(
+        "--session-cookie",
+        dest="session_cookie",
+        help="_strava4_session cookie value for strava web login",
+    )
+    parser.add_argument(
         "--is-cn",
         dest="is_cn",
         action="store_true",
@@ -81,10 +86,25 @@ if __name__ == "__main__":
         if hasattr(options, "strava_jwt") and options.strava_jwt
         else ""
     )
+    session_cookie = (
+        options.session_cookie
+        if hasattr(options, "session_cookie") and options.session_cookie
+        else ""
+    )
     email = options.strava_email if hasattr(options, "strava_email") else ""
     password = options.strava_password if hasattr(options, "strava_password") else ""
 
-    if jwt:
+    strava_web_client = None
+    
+    if session_cookie:
+        # New method: use _strava4_session cookie directly
+        print("Using _strava4_session cookie for Strava web login")
+        from stravaweblib.webclient import WebClient as BaseWebClient
+        strava_web_client = BaseWebClient(
+            access_token=strava_client.access_token,
+            _strava4_session=session_cookie,
+        )
+    elif jwt:
         print("Using JWT for Strava web login (passwordless mode)")
         # Debug: check JWT format
         parts = jwt.split('.')
@@ -104,7 +124,7 @@ if __name__ == "__main__":
         )
     else:
         raise ValueError(
-            "Must provide either STRAVA_JWT or both STRAVA_EMAIL and STRAVA_PASSWORD"
+            "Must provide either STRAVA_JWT/STRAVA_SESSION_COOKIE or both STRAVA_EMAIL and STRAVA_PASSWORD"
         )
 
     garmin_auth_domain = "CN" if options.is_cn else "COM"

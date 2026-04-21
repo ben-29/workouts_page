@@ -180,12 +180,12 @@ jobs:
 
       - name: Run sync Strava to Garmin(Run with strava(or others upload to strava) data backup in Garmin)
         run: |
-          python run_page/strava_to_garmin_sync.py ${{ secrets.STRAVA_CLIENT_ID }} ${{ secrets.STRAVA_CLIENT_SECRET }} ${{ secrets.STRAVA_CLIENT_REFRESH_TOKEN }} "" "" ${{ secrets.STRAVA_JWT }}
+          python run_page/strava_to_garmin_sync.py ${{ secrets.STRAVA_CLIENT_ID }} ${{ secrets.STRAVA_CLIENT_SECRET }} ${{ secrets.STRAVA_CLIENT_REFRESH_TOKEN }} "" "" "" --session-cookie "${{ secrets.STRAVA_SESSION_COOKIE }}"
 
       - name: Run sync Strava to Garmin-cn(Run with strava(or others upload to strava) data backup in Garmin-cn)
         if: env.RUN_TYPE == 'strava_to_garmin_cn'
         run: |
-          python run_page/strava_to_garmin_sync.py ${{ secrets.STRAVA_CLIENT_ID }} ${{ secrets.STRAVA_CLIENT_SECRET }} ${{ secrets.STRAVA_CLIENT_REFRESH_TOKEN }} --garmin-username "${{ secrets.GARMIN_CN_USERNAME }}" --garmin-password "${{ secrets.GARMIN_CN_PASSWORD }}" "" "" ${{ secrets.STRAVA_JWT }} --is-cn
+          python run_page/strava_to_garmin_sync.py ${{ secrets.STRAVA_CLIENT_ID }} ${{ secrets.STRAVA_CLIENT_SECRET }} ${{ secrets.STRAVA_CLIENT_REFRESH_TOKEN }} --garmin-username "${{ secrets.GARMIN_CN_USERNAME }}" --garmin-password "${{ secrets.GARMIN_CN_PASSWORD }}" "" "" "" --session-cookie "${{ secrets.STRAVA_SESSION_COOKIE }}" --is-cn
 
       - name: Run sync Garmin-cn to Strava(Run with Garmin data backup in Strava)
         if: env.RUN_TYPE == 'garmin_to_strava_cn'
