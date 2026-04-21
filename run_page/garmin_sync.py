@@ -13,7 +13,7 @@ import sys
 import time
 import traceback
 import zipfile
-from io import BytesIO
+
 from lxml import etree
 
 import aiofiles
