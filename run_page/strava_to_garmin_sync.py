@@ -80,6 +80,15 @@ if __name__ == "__main__":
         options.strava_client_secret,
         options.strava_refresh_token,
     )
+    # Get auth credentials from command line args
+    jwt = (
+        options.strava_jwt
+        if hasattr(options, "strava_jwt") and options.strava_jwt
+        else ""
+    )
+    email = options.strava_email if hasattr(options, "strava_email") else ""
+    password = options.strava_password if hasattr(options, "strava_password") else ""
+
     # STRAVA_JWT secret may contain either:
     # 1. A real JWT token (3 dot-separated parts)
     # 2. A _strava4_session cookie value (Strava's new session mechanism)
