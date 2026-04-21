@@ -27,7 +27,9 @@ async def upload_to_activities(
     else:
         # is this startTimeGMT must have ?
         after_datetime_str = last_activity[0]["startTimeGMT"]
-        after_datetime = datetime.strptime(after_datetime_str, "%Y-%m-%d %H:%M:%S")
+        after_datetime = datetime.fromisoformat(after_datetime_str)
+        if after_datetime.tzinfo is not None:
+            after_datetime = after_datetime.astimezone().replace(tzinfo=None)
         print("garmin last activity date: ", after_datetime)
         filters = {"after": after_datetime}
     strava_activities = list(strava_client.get_activities(**filters))

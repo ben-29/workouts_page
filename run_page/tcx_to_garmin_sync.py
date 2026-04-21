@@ -48,7 +48,9 @@ async def upload_tcx_files_to_garmin(options):
             print("no garmin activity")
         else:
             after_datetime_str = last_activity[0]["startTimeGMT"]
-            after_datetime = datetime.strptime(after_datetime_str, "%Y-%m-%d %H:%M:%S")
+            after_datetime = datetime.fromisoformat(after_datetime_str)
+            if after_datetime.tzinfo is not None:
+                after_datetime = after_datetime.astimezone().replace(tzinfo=None)
             last_time = datetime.timestamp(after_datetime)
     else:
         print("Need to load all tcx files maybe take some time")

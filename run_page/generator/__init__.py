@@ -148,9 +148,11 @@ class Generator:
         last_date = None
         for activity in activities:
             # Determine running streak.
-            date = datetime.datetime.strptime(
-                activity.start_date_local, "%Y-%m-%d %H:%M:%S"  # type: ignore
-            ).date()
+            date = (
+                datetime.datetime.fromisoformat(activity.start_date_local)
+                .astimezone()
+                .date()
+            )
             if last_date is None:
                 streak = 1
             elif date == last_date:
