@@ -125,18 +125,18 @@ if __name__ == "__main__":
             strava_web_client._session.cookies.set(
                 '_strava4_session', jwt, domain='.strava.com', secure=True
             )
-            # Verify by fetching athlete page to get athlete ID
+            # Verify by fetching /me to get athlete ID
             try:
-                resp = strava_web_client._session.get(f"{BASE_URL}/athlete", allow_redirects=False)
-                if resp.status_code == 200:
-                    soup = BeautifulSoup(resp.text, 'html.parser')
-                    athlete_link = soup.find('a', href=lambda h: h and '/athletes/' in h)
-                    if athlete_link:
-                        href = athlete_link.get('href', '')
-                        athlete_id = href.split('/athletes/')[-1].split('?')[0]
+                resp = strava_web_client._session.get(f"{BASE_URL}/me", allow_redirects=False)
+                if resp.status_code == 302:
+                    redirect_url = resp.headers.get('Location', '')
+                    # Extract athlete ID from redirect URL like https://www.strava.com/athletes/140877474
+                    if '/athletes/' in redirect_url:
+                        athlete_id = redirect_url.split('/athletes/')[-1].split('?')[0]
                         strava_web_client._session.cookies.set(
                             'strava_remember_id', athlete_id, domain='.strava.com', secure=True
                         )
+                        print(f"Verified session cookie, athlete ID: {athlete_id}")
                 strava_web_client._session.cookies.set(
                     'strava_remember_token', jwt, domain='.strava.com', secure=True
                 )
