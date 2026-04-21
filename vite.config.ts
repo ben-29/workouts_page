@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react';
 import viteTsconfigPaths from 'vite-tsconfig-paths';
 import svgr from 'vite-plugin-svgr';
 import tailwindcss from '@tailwindcss/vite';
+import path from 'node:path';
 
 // The following are known larger packages or packages that can be loaded asynchronously.
 const individuallyPackages = [
@@ -86,6 +87,11 @@ export default defineConfig({
     }),
   ],
   base: process.env.PATH_PREFIX || '/',
+  resolve: {
+    alias: {
+      '@assets': path.resolve(__dirname, 'assets'),
+    },
+  },
   define: {
     'import.meta.env.VERCEL': JSON.stringify(process.env.VERCEL),
   },
