@@ -66,6 +66,22 @@ class Garmin:
         """
         self.auth_domain = auth_domain.upper() if auth_domain else "COM"
         self.is_only_running = is_only_running
+        self._client = client  # may be None if login failed
+
+        if client is None:
+            # Login failed or not attempted
+            if self.auth_domain == "CN":
+                self._use_garminconnect = False
+                self.URL_DICT = GARMIN_CN_URL_DICT
+                self.modern_url = self.URL_DICT.get("MODERN_URL")
+                self.upload_url = self.URL_DICT.get("UPLOAD_URL")
+                self.activity_url = self.URL_DICT.get("ACTIVITY_URL")
+            else:
+                # COM uses garminconnect
+                self._use_garminconnect = True
+                self.modern_url = GARMIN_COM_URL_DICT.get("MODERN_URL")
+                self.upload_url = GARMIN_COM_URL_DICT.get("UPLOAD_URL")
+            return
 
         if self.auth_domain == "CN":
             # CN uses garth
@@ -88,7 +104,6 @@ class Garmin:
         else:
             # COM uses garminconnect
             self._use_garminconnect = True
-            self._client = client  # client is GarminConnectClient for garminconnect
             self.modern_url = GARMIN_COM_URL_DICT.get("MODERN_URL")
             self.upload_url = GARMIN_COM_URL_DICT.get("UPLOAD_URL")
 
@@ -122,6 +137,9 @@ class Garmin:
         """
         Fetch available activities
         """
+        if self._client is None:
+            print("[Garmin.get_activities] No garmin client, returning empty list")
+            return []
         if self._use_garminconnect:
             # COM: use garminconnect
             activities = self._client.get_activities(start, limit)
@@ -144,6 +162,9 @@ class Garmin:
         """
         Fetch activity summary
         """
+        if self._client is None:
+            print("[Garmin.get_activity_summary] No garmin client, returning empty")
+            return {}
         if self._use_garminconnect:
             # COM: use garminconnect
             # activity_id must be int for garminconnect
@@ -181,6 +202,9 @@ class Garmin:
     async def upload_activities_original_from_strava(
         self, datas, use_fake_garmin_device=False
     ):
+        if self._client is None:
+            print("[Garmin.upload_activities_original_from_strava] No garmin client, skipping upload")
+            return
         print(
             "start upload activities to garmin!, use_fake_garmin_device:",
             use_fake_garmin_device,

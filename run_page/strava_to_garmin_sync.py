@@ -11,13 +11,13 @@ from utils import make_strava_client
 
 # Direct access to stravaweblib internals for cookie-based session
 from stravaweblib.webclient import BASE_URL
-from bs4 import BeautifulSoup
 import requests as _req
 
 
 async def upload_to_activities(
     garmin_client, strava_client, strava_web_client, format, use_fake_garmin_device
 ):
+    print(f"[upload_to_activities] Starting upload to Garmin, auth domain: {garmin_client.auth_domain}")
     last_activity = await garmin_client.get_activities(0, 1)
     if not last_activity:
         print("no garmin activity")
@@ -32,19 +32,23 @@ async def upload_to_activities(
     files_list = []
     print("strava activities size: ", len(strava_activities))
     if not strava_activities:
-        print("no strava activity")
+        print("no strava activity to upload")
         return files_list
 
     # strava rate limit
     for i in sorted(strava_activities, key=lambda i: int(i.id)):
+        print(f"[download] Getting activity data for activity ID: {i.id}")
         try:
             data = strava_web_client.get_activity_data(i.id, fmt=format)
+            print(f"[download] Got activity data: {data.filename}")
             files_list.append(data)
         except Exception as ex:
             print("get strava data error: ", ex)
+    print(f"[download] Downloaded {len(files_list)} files, starting upload...")
     await garmin_client.upload_activities_original_from_strava(
         files_list, use_fake_garmin_device
     )
+    print("[upload_to_activities] Done")
     return files_list
 
 
@@ -80,6 +84,9 @@ if __name__ == "__main__":
         help="whether to use a faked Garmin device",
     )
     options = parser.parse_args()
+    
+    print(f"[main] STRAVA_TO_GARMIN_SYNC START, is_cn={options.is_cn}")
+    
     strava_client = make_strava_client(
         options.strava_client_id,
         options.strava_client_secret,
@@ -109,6 +116,7 @@ if __name__ == "__main__":
         else:
             # Treat as _strava4_session cookie - directly create session without WebClient __init__
             print("Using _strava4_session cookie for Strava web login (JWT secret contains session cookie)")
+            print(f"[main] Session cookie value length: {len(jwt)}")
             # Create a minimal web client by subclassing to bypass __init__
             class _SessionClient(WebClient):
                 pass  # __init__ not called - we'll set everything manually
@@ -127,7 +135,9 @@ if __name__ == "__main__":
             )
             # Verify by fetching /me to get athlete ID
             try:
+                print(f"[main] Verifying session cookie via {BASE_URL}/me...")
                 resp = strava_web_client._session.get(f"{BASE_URL}/me", allow_redirects=False)
+                print(f"[main] /me response status: {resp.status_code}, location: {resp.headers.get('Location', 'none')}")
                 if resp.status_code == 302:
                     redirect_url = resp.headers.get('Location', '')
                     # Extract athlete ID from redirect URL like https://www.strava.com/athletes/140877474
@@ -136,14 +146,18 @@ if __name__ == "__main__":
                         strava_web_client._session.cookies.set(
                             'strava_remember_id', athlete_id, domain='.strava.com', secure=True
                         )
-                        print(f"Verified session cookie, athlete ID: {athlete_id}")
+                        print(f"[main] Session cookie verified, athlete ID: {athlete_id}")
+                    else:
+                        print(f"[main] WARNING: /me redirected to unexpected URL: {redirect_url}")
+                elif resp.status_code == 200:
+                    print(f"[main] WARNING: /me returned 200 (not authenticated), body snippet: {resp.text[:200]}")
+                else:
+                    print(f"[main] WARNING: /me returned unexpected status {resp.status_code}")
                 strava_web_client._session.cookies.set(
                     'strava_remember_token', jwt, domain='.strava.com', secure=True
                 )
             except Exception as e:
                 print(f"Warning: couldn't verify session cookie: {e}")
-            # Set a dummy access_token for the parent class (required but not used for session auth)
-            strava_web_client.access_token = strava_client.access_token
     elif email and password:
         print("Using email + password for Strava web login")
         strava_web_client = WebClient(
@@ -166,6 +180,8 @@ if __name__ == "__main__":
         garmin_username = os.getenv("GARMIN_COM_USERNAME") or options.garmin_username
         garmin_password = os.getenv("GARMIN_COM_PASSWORD") or options.garmin_password
 
+    print(f"[main] Garmin auth domain: {garmin_auth_domain}, username set: {bool(garmin_username)}, password set: {bool(garmin_password)}")
+
     if not garmin_username or not garmin_password:
         print(
             "Missing Garmin credentials: please provide --garmin-username/--garmin-password"
@@ -175,29 +191,43 @@ if __name__ == "__main__":
         )
         sys.exit(1)
 
+    garmin_client = None
     try:
+        print(f"[main] Logging in to Garmin {garmin_auth_domain}...")
         garmin_client = restore_or_login(
             garmin_username, garmin_password, garmin_auth_domain
         )
+        print(f"[main] Garmin login successful, client type: {type(garmin_client).__name__}")
+    except Exception as err:
+        print(f"[main] Garmin login failed: {err}")
+        garmin_client = None
+
+    if garmin_client is None:
+        print("[main] Skipping upload_to_activities (no garmin client)")
+    else:
         garmin_wrapper = Garmin(garmin_client, garmin_auth_domain, False)
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        future = asyncio.ensure_future(
-            upload_to_activities(
-                garmin_wrapper,
-                strava_client,
-                strava_web_client,
-                DataFormat.ORIGINAL,
-                options.use_fake_garmin_device,
+        try:
+            future = asyncio.ensure_future(
+                upload_to_activities(
+                    garmin_wrapper,
+                    strava_client,
+                    strava_web_client,
+                    DataFormat.ORIGINAL,
+                    options.use_fake_garmin_device,
+                )
             )
-        )
-        loop.run_until_complete(future)
-    except Exception as err:
-        print(err)
+            loop.run_until_complete(future)
+        except Exception as err:
+            print(f"[main] Upload to activities failed: {err}")
+        finally:
+            loop.close()
 
-    # Run the strava sync
+    print("[main] Running strava sync...")
     run_strava_sync(
         options.strava_client_id,
         options.strava_client_secret,
         options.strava_refresh_token,
     )
+    print("[main] STRAVA_TO_GARMIN_SYNC COMPLETE")
