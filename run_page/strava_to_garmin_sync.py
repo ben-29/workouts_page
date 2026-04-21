@@ -86,6 +86,11 @@ if __name__ == "__main__":
 
     if jwt:
         print("Using JWT for Strava web login (passwordless mode)")
+        # Debug: check JWT format
+        parts = jwt.split('.')
+        print(f"DEBUG: JWT has {len(parts)} parts (expected 3)")
+        if len(parts) != 3:
+            print(f"DEBUG: JWT parts lengths: {[len(p) for p in parts]}")
         strava_web_client = WebClient(
             access_token=strava_client.access_token,
             jwt=jwt,
