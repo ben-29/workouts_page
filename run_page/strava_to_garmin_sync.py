@@ -80,41 +80,26 @@ if __name__ == "__main__":
         options.strava_client_secret,
         options.strava_refresh_token,
     )
-    # 替换原来的 WebClient 初始化代码
-    jwt = (
-        options.strava_jwt
-        if hasattr(options, "strava_jwt") and options.strava_jwt
-        else ""
-    )
-    session_cookie = (
-        options.session_cookie
-        if hasattr(options, "session_cookie") and options.session_cookie
-        else ""
-    )
-    email = options.strava_email if hasattr(options, "strava_email") else ""
-    password = options.strava_password if hasattr(options, "strava_password") else ""
-
-    strava_web_client = None
-    
-    if session_cookie:
-        # New method: use _strava4_session cookie directly
-        print("Using _strava4_session cookie for Strava web login")
-        from stravaweblib.webclient import WebClient as BaseWebClient
-        strava_web_client = BaseWebClient(
-            access_token=strava_client.access_token,
-            _strava4_session=session_cookie,
-        )
-    elif jwt:
-        print("Using JWT for Strava web login (passwordless mode)")
-        # Debug: check JWT format
+    # STRAVA_JWT secret may contain either:
+    # 1. A real JWT token (3 dot-separated parts)
+    # 2. A _strava4_session cookie value (Strava's new session mechanism)
+    # Detect by format and use appropriate login method.
+    if jwt:
         parts = jwt.split('.')
-        print(f"DEBUG: JWT has {len(parts)} parts (expected 3)")
-        if len(parts) != 3:
-            print(f"DEBUG: JWT parts lengths: {[len(p) for p in parts]}")
-        strava_web_client = WebClient(
-            access_token=strava_client.access_token,
-            jwt=jwt,
-        )
+        if len(parts) == 3:
+            print("Using JWT for Strava web login (passwordless mode)")
+            strava_web_client = WebClient(
+                access_token=strava_client.access_token,
+                jwt=jwt,
+            )
+        else:
+            # Treat as _strava4_session cookie
+            print("Using _strava4_session cookie for Strava web login (JWT secret contains session cookie)")
+            from stravaweblib.webclient import WebClient as BaseWebClient
+            strava_web_client = BaseWebClient(
+                access_token=strava_client.access_token,
+                _strava4_session=jwt,
+            )
     elif email and password:
         print("Using email + password for Strava web login")
         strava_web_client = WebClient(
