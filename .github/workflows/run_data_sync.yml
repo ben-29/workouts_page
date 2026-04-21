@@ -74,11 +74,11 @@ jobs:
 
       - name: Install dependencies
         run: |
-          # Install stravalib>=2.0.0 first (skip stravaweblib's conflicting dependency)
-          pip install stravalib>=2.0.0
-          # Install stravaweblib without deps to bypass stravalib<1.0.0 constraint
+          # Step 1: Install stravalib>=2.0.0 (upgrade from old version)
+          pip install 'stravalib>=2.0.0'
+          # Step 2: Install stravaweblib without deps (bypass conflicting stravalib<1.0.0 constraint)
           pip install stravaweblib --no-deps
-          # Install remaining dependencies
+          # Step 3: Install remaining requirements (skip stravalib and stravaweblib)
           grep -v '^stravalib' requirements.txt | grep -v '^stravaweblib' | pip install -r /dev/stdin
 
       - name: Cache Data Files
