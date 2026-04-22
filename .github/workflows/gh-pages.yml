@@ -89,11 +89,8 @@ jobs:
           set -o pipefail
           rm -rf .vite
           echo "Node: $(node --version), pnpm: $(pnpm --version)"
-          PATH_PREFIX=/$REPO_NAME pnpm build 2>&1 | tee build.log
-          EXIT_CODE=${PIPESTATUS[0]}
-          echo "Exit code: $EXIT_CODE"
-          ls -la dist/ 2>/dev/null || echo "dist/ not found"
-          exit $EXIT_CODE
+          PATH_PREFIX=/$REPO_NAME pnpm build
+          echo "Build exit: $?"
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
