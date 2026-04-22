@@ -81,16 +81,14 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install
+        run: npm install
       - name: Build
         env:
           REPO_NAME: ${{ github.event.repository.name }}
         run: |
-          set -o pipefail
           rm -rf .vite
-          echo "Node: $(node --version), pnpm: $(pnpm --version)"
-          PATH_PREFIX=/$REPO_NAME pnpm build
-          echo "Build exit: $?"
+          echo "Node: $(node --version), npm: $(npm --version)"
+          PATH_PREFIX=/$REPO_NAME npm run build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
