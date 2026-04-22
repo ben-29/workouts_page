@@ -1,0 +1,78 @@
+name: Test Data Sync
+
+on:
+  workflow_dispatch:
+
+env:
+  RUN_TYPE: strava
+  ATHLETE: XIAO Q
+  TITLE: XIAO Q's Workouts
+
+jobs:
+  sync:
+    name: Sync
+    runs-on: ubuntu-latest
+    env:
+      GARMIN_COM_USERNAME: ${{ secrets.GARMIN_COM_USERNAME }}
+      GARMIN_COM_PASSWORD: ${{ secrets.GARMIN_COM_PASSWORD }}
+      GARMIN_CN_USERNAME: ${{ secrets.GARMIN_CN_USERNAME }}
+      GARMIN_CN_PASSWORD: ${{ secrets.GARMIN_CN_PASSWORD }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: 'requirements.txt'
+
+      - name: Install dependencies
+        run: |
+          pip install 'stravalib>=2.0.0'
+          pip install stravaweblib --no-deps
+          grep -v '^stravalib' requirements.txt | grep -v '^stravaweblib' | pip install -r /dev/stdin
+
+      - name: Run sync Strava script
+        run: |
+          python run_page/strava_sync.py ${{ secrets.STRAVA_CLIENT_ID }} ${{ secrets.STRAVA_CLIENT_SECRET }} ${{ secrets.STRAVA_CLIENT_REFRESH_TOKEN }}
+
+      - name: Run sync Strava to Garmin
+        run: |
+          python run_page/strava_to_garmin_sync.py ${{ secrets.STRAVA_CLIENT_ID }} ${{ secrets.STRAVA_CLIENT_SECRET }} ${{ secrets.STRAVA_CLIENT_REFRESH_TOKEN }} "" "" ${{ secrets.STRAVA_JWT }}
+
+      - name: Make svg
+        env:
+          TITLE: ${{ env.TITLE }}
+          ATHLETE: ${{ env.ATHLETE }}
+        run: |
+          python run_page/gen_svg.py --from-db --title "$TITLE" --type github --github-style "align-firstday" --athlete "$ATHLETE" --special-distance 10 --special-distance2 20 --special-color yellow --special-color2 red --output assets/github.svg --use-localtime --min-distance 0.5
+          python run_page/gen_svg.py --from-db --type grid --athlete "$ATHLETE" --output assets/grid.svg --special-color yellow --special-color2 red --special-distance 20 --special-distance2 40 --use-localtime --min-distance 10
+          python run_page/gen_svg.py --from-db --type circular --use-localtime
+          python run_page/gen_svg.py --from-db --year $(date +"%Y") --title "$(date +"%Y") Workouts" --type github --github-style "align-firstday" --athlete "$ATHLETE" --special-distance 10 --special-distance2 20 --special-color yellow --special-color2 red --output assets/github_$(date +"%Y").svg --use-localtime --min-distance 0.5
+
+      - name: Check for local modifications
+        id: git_status_check
+        run: |
+          CHANGES=$(git status --porcelain)
+          echo "Git Status Output:"
+          echo "$CHANGES"
+          if [ -n "$CHANGES" ]; then
+            echo "modified=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "modified=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Push new runs
+        if: steps.git_status_check.outputs.modified == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m 'Add new workouts'
+          git push
