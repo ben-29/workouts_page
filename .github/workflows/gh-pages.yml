@@ -88,16 +88,11 @@ jobs:
         run: |
           set -o pipefail
           rm -rf .vite
-          echo "=== Node version ===" && node --version
-          echo "=== pnpm version ===" && pnpm --version
-          echo "=== vite version ===" && pnpm exec vite --version
-          echo "=== Starting build ==="
+          echo "Node: $(node --version), pnpm: $(pnpm --version)"
           PATH_PREFIX=/$REPO_NAME pnpm build 2>&1 | tee build.log
           EXIT_CODE=${PIPESTATUS[0]}
-          echo "=== Build exit code: $EXIT_CODE ==="
-          echo "=== dist contents ==="
+          echo "Exit code: $EXIT_CODE"
           ls -la dist/ 2>/dev/null || echo "dist/ not found"
-          echo "=== End of build step ==="
           exit $EXIT_CODE
 
       - name: Upload artifact
