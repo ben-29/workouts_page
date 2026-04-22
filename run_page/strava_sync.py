@@ -22,9 +22,11 @@ def run_strava_sync(
     generator.only_run = only_run
     generator.sync(False)
 
+    # 生成 activities.json
     activities_list = generator.loadForMapping()
     with open(JSON_FILE, "w") as f:
         json.dump(activities_list, f, indent=0)
+    print(f"Saved {len(activities_list)} activities to {JSON_FILE}")
 
 
 if __name__ == "__main__":
