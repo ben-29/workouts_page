@@ -85,9 +85,8 @@ jobs:
         env:
           REPO_NAME: ${{ github.event.repository.name }}
         run: |
-          rm -rf .vite
-          echo "Node: $(node --version), pnpm: $(pnpm --version)"
-          PATH_PREFIX=/$REPO_NAME pnpm build
+          rm -rf .vite node_modules/.vite
+          PATH_PREFIX=/$REPO_NAME pnpm run build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
