@@ -6,7 +6,7 @@ This repository is prepared for a Strava-powered Vercel deployment based on `ben
 
 Use WSL for development and Git operations. The project lives at:
 
-`/home/cleopas_fang/GitHub/strava`
+`/home/cleopas_fang/github/strava`
 
 This is under the WSL filesystem, so `pnpm install`, Vite builds, and Python scripts should be much faster than running from `/mnt/c/...`.
 
