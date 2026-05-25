@@ -16,10 +16,10 @@ const getBasePath = () => {
 };
 
 const data: ISiteMetadataResult = {
-  siteTitle: 'Workouts Map',
-  siteUrl: 'https://ben29.xyz',
-  logo: 'https://avatars3.githubusercontent.com/u/6956444?s=460&u=97e1062227c4088db3c987146455245c6fa78441',
-  description: 'Personal site and blog',
+  siteTitle: 'Cleopas Workouts',
+  siteUrl: 'https://workouts.shuncleopasfang.com',
+  logo: 'https://avatars.githubusercontent.com/u/52828963',
+  description: 'Cleopas Fang workout map powered by Strava',
   keywords: 'workouts, running, cycling, riding, roadtrip, hiking, swimming',
   navLinks: [
     {
@@ -27,12 +27,12 @@ const data: ISiteMetadataResult = {
       url: `${getBasePath()}/summary`,
     },
     {
-      name: 'Blog',
-      url: 'https://ben29.xyz',
+      name: 'Strava',
+      url: 'https://www.strava.com/athletes/125003460',
     },
     {
       name: 'About',
-      url: 'https://github.com/ben-29/workouts_page/blob/master/README-CN.md',
+      url: 'https://github.com/shuncleopasfang/workouts_page',
     },
   ],
 };
