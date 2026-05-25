@@ -32,7 +32,7 @@ const data: ISiteMetadataResult = {
     },
     {
       name: 'About',
-      url: 'https://github.com/shuncleopasfang/workouts_page',
+      url: 'https://github.com/shuncleopasfang/strava',
     },
   ],
 };

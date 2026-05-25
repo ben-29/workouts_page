@@ -1,5 +1,5 @@
 {
-  "name": "workouts_page",
+  "name": "strava",
   "description": "Cleopas Fang workouts page",
   "version": "1.0.0",
   "author": "Cleopas Fang",
@@ -48,7 +48,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/shuncleopasfang/workouts_page"
+    "url": "https://github.com/shuncleopasfang/strava"
   },
   "devDependencies": {
     "@eslint-react/eslint-plugin": "^5.7.0",

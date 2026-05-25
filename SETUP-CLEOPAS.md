@@ -12,9 +12,9 @@ This is under the WSL filesystem, so `pnpm install`, Vite builds, and Python scr
 
 ## GitHub
 
-Create or fork a repository under `shuncleopasfang`, preferably:
+Create or fork a repository under `shuncleopasfang`:
 
-`https://github.com/shuncleopasfang/workouts_page`
+`https://github.com/shuncleopasfang/strava`
 
 Then set this local repo's `origin` to that URL and push `master`.
 
