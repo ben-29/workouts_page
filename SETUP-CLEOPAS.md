@@ -4,11 +4,11 @@ This repository is prepared for a Strava-powered Vercel deployment based on `ben
 
 ## Local Workspace
 
-Use WSL for development and Git operations. The project currently lives at:
+Use WSL for development and Git operations. The project lives at:
 
-`/mnt/c/Users/Shun Cleopas Fang/Documents/Codex/2026-05-25/ben-29-workouts-page-https-github`
+`/home/cleopas_fang/GitHub/strava`
 
-This is fine for now. For long-term work, cloning under the WSL filesystem, such as `~/code/workouts_page`, will be faster for `pnpm install`, Vite builds, and Python scripts.
+This is under the WSL filesystem, so `pnpm install`, Vite builds, and Python scripts should be much faster than running from `/mnt/c/...`.
 
 ## GitHub
 
