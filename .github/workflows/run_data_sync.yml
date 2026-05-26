@@ -8,6 +8,7 @@ on:
     branches:
       - master
     paths:
+      - .github/workflows/run_data_sync.yml
       - run_page/nike_sync.py
       - run_page/nike_to_strava_sync.py
       - run_page/strava_sync.py
@@ -23,6 +24,9 @@ on:
       - run_page/oppo_sync.py
       - run_page/intervals_icu_sync.py
       - requirements.txt
+
+permissions:
+  contents: write
 
 env:
   # please change to your own config.
