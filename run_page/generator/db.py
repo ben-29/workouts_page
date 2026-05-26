@@ -1,4 +1,5 @@
 import datetime
+import os
 import random
 import string
 
@@ -18,6 +19,11 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 Base = declarative_base()
+ENABLE_REVERSE_GEOCODE = os.getenv("ENABLE_REVERSE_GEOCODE", "").lower() in {
+    "1",
+    "true",
+    "yes",
+}
 
 
 # random user name 8 letters
@@ -111,7 +117,9 @@ def update_or_create_activity(session, run_activity):
             start_point = run_activity.start_latlng
             location_country = getattr(run_activity, "location_country", "")
             # or China for #176 to fix
-            if not location_country and start_point or location_country == "China":
+            if ENABLE_REVERSE_GEOCODE and (
+                (not location_country and start_point) or location_country == "China"
+            ):
                 try:
                     location_country = str(
                         g.reverse(
