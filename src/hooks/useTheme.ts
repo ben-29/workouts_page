@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useSyncExternalStore } from 'react';
 import { MAP_TILE_STYLE_LIGHT, MAP_TILE_STYLE_DARK } from '@/utils/const';
 
 export type Theme = 'light' | 'dark';
@@ -7,12 +7,7 @@ export type Theme = 'light' | 'dark';
 export const THEME_CHANGE_EVENT = 'theme-change';
 
 const getCurrentThemeSnapshot = () => {
-  if (typeof window === 'undefined') return 'dark';
-  return (
-    document.documentElement.getAttribute('data-theme') ||
-    localStorage.getItem('theme') ||
-    'dark'
-  );
+  return 'light';
 };
 
 const subscribeToThemeChanges = (onStoreChange: () => void) => {
@@ -67,15 +62,13 @@ export const getMapThemeFromCurrentTheme = (theme: Theme): string => {
  * @returns The current map theme style
  */
 export const useMapTheme = () => {
-  const themeSnapshot = useSyncExternalStore(
+  useSyncExternalStore(
     subscribeToThemeChanges,
     getCurrentThemeSnapshot,
-    () => 'dark'
+    () => 'light'
   );
 
-  return getMapThemeFromCurrentTheme(
-    themeSnapshot === 'light' ? 'light' : 'dark'
-  );
+  return MAP_TILE_STYLE_LIGHT;
 };
 
 /**
@@ -83,36 +76,23 @@ export const useMapTheme = () => {
  * @returns Object with current theme and function to change theme
  */
 export const useTheme = () => {
-  // Initialize theme from localStorage or default to dark
-  const [themeState, setThemeState] = useState<Theme>(() => {
-    if (typeof window === 'undefined') return 'dark';
-    return (localStorage.getItem('theme') as Theme) || 'dark';
-  });
-
-  /**
-   * Set theme and dispatch event to notify other components
-   */
-  const setTheme = useCallback((newTheme: Theme) => {
-    setThemeState(newTheme);
-
-    // Dispatch custom event for theme change
-    const event = new CustomEvent(THEME_CHANGE_EVENT, {
-      detail: { theme: newTheme },
-    });
-    window.dispatchEvent(event);
+  const setTheme = useCallback((_newTheme: Theme) => {
+    if (typeof window === 'undefined') return;
+    window.dispatchEvent(
+      new CustomEvent(THEME_CHANGE_EVENT, {
+        detail: { theme: 'light' },
+      })
+    );
   }, []);
 
-  // Apply theme changes to DOM and localStorage
   useEffect(() => {
     const root = window.document.documentElement;
-
-    // Set attribute and save to localStorage for both themes
-    root.setAttribute('data-theme', themeState);
-    localStorage.setItem('theme', themeState);
-  }, [themeState]);
+    root.setAttribute('data-theme', 'light');
+    localStorage.removeItem('theme');
+  }, []);
 
   return {
-    theme: themeState,
+    theme: 'light' as Theme,
     setTheme,
   };
 };
@@ -125,6 +105,6 @@ export const useThemeChangeCounter = () => {
   return useSyncExternalStore(
     subscribeToThemeChanges,
     getCurrentThemeSnapshot,
-    () => 'dark'
+    () => 'light'
   );
 };

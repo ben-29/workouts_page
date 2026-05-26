@@ -48,61 +48,55 @@ const SHOW_ELEVATION_GAIN = true;
 const RICH_TITLE = true;
 
 // IF you are outside China please make sure IS_CHINESE = false
-const IS_CHINESE = true;
+const IS_CHINESE = false;
 const USE_ANIMATION_FOR_GRID = false;
-const CHINESE_INFO_MESSAGE = (yearLength: number, year: string): string =>
-  `户外运动 ${yearLength} 年 ` +
-  (year === 'Total' ? '' : `，地图展示的是 ${year} 年的轨迹`);
-
 const ENGLISH_INFO_MESSAGE = (yearLength: number, year: string): string =>
   `Logged ${yearLength} Years of Outdoor Journey` +
-  (year === 'Total' ? '' : `, the map show routes in ${year}`);
+  (year === 'Total' ? '' : `; the map shows routes from ${year}.`);
 
 // English is not supported for location info messages yet
 const CHINESE_LOCATION_INFO_MESSAGE_FIRST =
-  '我去过了一些地方，希望随着时间推移，地图点亮的地方越来越多';
-const CHINESE_LOCATION_INFO_MESSAGE_SECOND = '不要停下来，不要停下探索的脚步';
+  'This archive records places reached through outdoor activity';
+const CHINESE_LOCATION_INFO_MESSAGE_SECOND = 'Keep moving and keep exploring';
 
-const INFO_MESSAGE = IS_CHINESE ? CHINESE_INFO_MESSAGE : ENGLISH_INFO_MESSAGE;
-const FULL_MARATHON_RUN_TITLE = IS_CHINESE ? '全程马拉松' : 'Full Marathon';
-const HALF_MARATHON_RUN_TITLE = IS_CHINESE ? '半程马拉松' : 'Half Marathon';
-const RUN_TITLE = IS_CHINESE ? '跑步' : 'Run';
-const TRAIL_RUN_TITLE = IS_CHINESE ? '越野跑' : 'Trail Run';
-const SWIM_TITLE = IS_CHINESE ? '游泳' : 'Swim';
-const RIDE_TITLE = IS_CHINESE ? '骑行' : 'Ride';
-const INDOOR_RIDE_TITLE = IS_CHINESE ? '室内骑行' : 'Indoor Ride';
-const VIRTUAL_RIDE_TITLE = IS_CHINESE ? '虚拟骑行' : 'Virtual Ride';
-const HIKE_TITLE = IS_CHINESE ? '徒步' : 'Hike';
-const ROWING_TITLE = IS_CHINESE ? '划船' : 'Rowing';
-const KAYAKING_TITLE = IS_CHINESE ? '皮划艇' : 'Kayaking';
-const SNOWBOARD_TITLE = IS_CHINESE ? '单板滑雪' : 'Snowboard';
-const SKI_TITLE = IS_CHINESE ? '双板滑雪' : 'Ski';
-const BACKCOUNTRY_SKI_TITLE = IS_CHINESE ? '野外滑雪' : 'BackcountrySki';
-const ROAD_TRIP_TITLE = IS_CHINESE ? '自驾' : 'RoadTrip';
-const FLIGHT_TITLE = IS_CHINESE ? '飞行' : 'Flight';
-const RUN_TREADMILL_TITLE = IS_CHINESE ? '跑步机' : 'Treadmill Run';
-const ALL_TITLE = IS_CHINESE ? '所有' : 'All';
-const ACTIVITY_COUNT_TITLE = IS_CHINESE ? '活动次数' : 'Activity Count';
-const MAX_DISTANCE_TITLE = IS_CHINESE ? '最远距离' : 'Max Distance';
-const MAX_SPEED_TITLE = IS_CHINESE ? '最快速度' : 'Max Speed';
-const TOTAL_TIME_TITLE = IS_CHINESE ? '总时间' : 'Total Time';
-const AVERAGE_SPEED_TITLE = IS_CHINESE ? '平均速度' : 'Average Speed';
-const TOTAL_DISTANCE_TITLE = IS_CHINESE ? '总距离' : 'Total Distance';
-const AVERAGE_DISTANCE_TITLE = IS_CHINESE ? '平均距离' : 'Average Distance';
-const TOTAL_ELEVATION_GAIN_TITLE = IS_CHINESE
-  ? '总海拔爬升'
-  : 'Total Elevation Gain';
-const AVERAGE_HEART_RATE_TITLE = IS_CHINESE ? '平均心率' : 'Average Heart Rate';
-const YEARLY_TITLE = IS_CHINESE ? 'Year' : 'Yearly';
-const MONTHLY_TITLE = IS_CHINESE ? 'Month' : 'Monthly';
-const WEEKLY_TITLE = IS_CHINESE ? 'Week' : 'Weekly';
-const DAILY_TITLE = IS_CHINESE ? 'Day' : 'Daily';
-const LOCATION_TITLE = IS_CHINESE ? 'Location' : 'Location';
-const HOME_PAGE_TITLE = IS_CHINESE ? '首页' : 'Home';
+const INFO_MESSAGE = ENGLISH_INFO_MESSAGE;
+const FULL_MARATHON_RUN_TITLE = 'Full Marathon';
+const HALF_MARATHON_RUN_TITLE = 'Half Marathon';
+const RUN_TITLE = 'Run';
+const TRAIL_RUN_TITLE = 'Trail Run';
+const SWIM_TITLE = 'Swim';
+const RIDE_TITLE = 'Ride';
+const INDOOR_RIDE_TITLE = 'Indoor Ride';
+const VIRTUAL_RIDE_TITLE = 'Virtual Ride';
+const HIKE_TITLE = 'Hike';
+const ROWING_TITLE = 'Rowing';
+const KAYAKING_TITLE = 'Kayaking';
+const SNOWBOARD_TITLE = 'Snowboard';
+const SKI_TITLE = 'Ski';
+const BACKCOUNTRY_SKI_TITLE = 'BackcountrySki';
+const ROAD_TRIP_TITLE = 'RoadTrip';
+const FLIGHT_TITLE = 'Flight';
+const RUN_TREADMILL_TITLE = 'Treadmill Run';
+const ALL_TITLE = 'All';
+const ACTIVITY_COUNT_TITLE = 'Activity Count';
+const MAX_DISTANCE_TITLE = 'Max Distance';
+const MAX_SPEED_TITLE = 'Max Speed';
+const TOTAL_TIME_TITLE = 'Total Time';
+const AVERAGE_SPEED_TITLE = 'Average Speed';
+const TOTAL_DISTANCE_TITLE = 'Total Distance';
+const AVERAGE_DISTANCE_TITLE = 'Average Distance';
+const TOTAL_ELEVATION_GAIN_TITLE = 'Total Elevation Gain';
+const AVERAGE_HEART_RATE_TITLE = 'Average Heart Rate';
+const YEARLY_TITLE = 'Yearly';
+const MONTHLY_TITLE = 'Monthly';
+const WEEKLY_TITLE = 'Weekly';
+const DAILY_TITLE = 'Daily';
+const LOCATION_TITLE = 'Location';
+const HOME_PAGE_TITLE = 'Home';
 
-const LOADING_TEXT = IS_CHINESE ? '加载中...' : 'Loading...';
-const NO_ROUTE_DATA = IS_CHINESE ? '暂无路线数据' : 'No route data';
-const INVALID_ROUTE_DATA = IS_CHINESE ? '路线数据无效' : 'Invalid route data';
+const LOADING_TEXT = 'Loading...';
+const NO_ROUTE_DATA = 'No route data';
+const INVALID_ROUTE_DATA = 'Invalid route data';
 
 const RUN_TITLES = {
   FULL_MARATHON_RUN_TITLE,
@@ -204,15 +198,15 @@ const red = 'rgb(255,0,0)'; //大红色
 // If your map has an offset please change this line
 // issues #92 and #198
 export const NEED_FIX_MAP = false;
-export const MAIN_COLOR = green;
-export const MAIN_COLOR_LIGHT = purple2;
+export const MAIN_COLOR = '#111827';
+export const MAIN_COLOR_LIGHT = '#111827';
 
 // Static color constants
-export const RUN_COLOR_LIGHT = '#47b8e0';
+export const RUN_COLOR_LIGHT = '#2563eb';
 export const RUN_COLOR_DARK = MAIN_COLOR;
 
 // Single run animation colors
-export const SINGLE_RUN_COLOR_LIGHT = '#52c41a'; // Green for light theme
+export const SINGLE_RUN_COLOR_LIGHT = '#dc2626'; // Red for light theme
 export const SINGLE_RUN_COLOR_DARK = '#ff4d4f'; // Red for dark theme
 
 // Helper function to get theme-aware SINGLE_RUN_COLOR
@@ -224,29 +218,25 @@ export const getRuntimeSingleColor = (
   const dataTheme = document.documentElement.getAttribute('data-theme');
   const savedTheme = localStorage.getItem('theme');
 
-  // Determine current theme (default to dark)
-  const isDark =
-    dataTheme === 'dark' ||
-    (!dataTheme && savedTheme === 'dark') ||
-    (!dataTheme && !savedTheme);
+  const isDark = dataTheme === 'dark' || (!dataTheme && savedTheme === 'dark');
 
   return isDark ? typeColor[0] : typeColor[1];
 };
 
 // Legacy export for backwards compatibility
-export const RUN_COLOR = [yellow, yellow_compl];
-export const RIDE_COLOR = [green, green];
+export const RUN_COLOR = ['#2563eb', '#2563eb'];
+export const RIDE_COLOR = ['#15803d', '#15803d'];
 export const VIRTUAL_RIDE_COLOR = [veryPeri, veryPeri];
-export const HIKE_COLOR = [pink, pink];
-export const SWIM_COLOR = [gold, gold];
-export const ROWING_COLOR = [cyan, cyan];
-export const ROAD_TRIP_COLOR = [purple, purple];
+export const HIKE_COLOR = ['#7c2d12', '#7c2d12'];
+export const SWIM_COLOR = ['#0369a1', '#0369a1'];
+export const ROWING_COLOR = ['#0f766e', '#0f766e'];
+export const ROAD_TRIP_COLOR = ['#6d28d9', '#6d28d9'];
 export const FLIGHT_COLOR = [dark_vanilla, dark_vanilla];
 export const KAYAKING_COLOR = [red, red];
-export const SNOWBOARD_COLOR = [dark_vanilla, dark_vanilla];
-export const TRAIL_RUN_COLOR = [IKB, IKB];
-export const PROVINCE_FILL_COLOR = '#47b8e0';
-export const COUNTRY_FILL_COLOR = dark_vanilla;
+export const SNOWBOARD_COLOR = ['#475569', '#475569'];
+export const TRAIL_RUN_COLOR = ['#1d4ed8', '#1d4ed8'];
+export const PROVINCE_FILL_COLOR = '#94a3b8';
+export const COUNTRY_FILL_COLOR = '#cbd5e1';
 export const INDOOR_COLOR = '#8899aa';
 
 // map tiles vendor, maptiler or mapbox or stadiamaps
@@ -255,7 +245,7 @@ export const MAP_TILE_VENDOR = 'mapcn';
 
 // map tiles style name, see MAP_TILE_STYLES for more details
 export const MAP_TILE_STYLE_LIGHT = 'osm-bright';
-export const MAP_TILE_STYLE_DARK = 'dark-matter';
+export const MAP_TILE_STYLE_DARK = 'osm-bright';
 
 // access token. you can apply a new one, it's free.
 // maptiler: Gt5R0jT8tuIYxW6sNrAg | sign up at https://cloud.maptiler.com/auth/widget

@@ -1,6 +1,6 @@
 {
-  "name": "strava",
-  "description": "Cleopas Fang workouts page",
+  "name": "strava_page",
+  "description": "Cleopas Strava activity archive and visualization",
   "version": "1.0.0",
   "author": "Cleopas Fang",
   "packageManager": "pnpm@8.9.0+sha256.8f5264ad1d100da11a6add6bb8a94c6f1e913f9e9261b2a551fabefad2ec0fec",
@@ -48,7 +48,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/shuncleopasfang/strava"
+    "url": "https://github.com/shuncleopasfang/strava_page"
   },
   "devDependencies": {
     "@eslint-react/eslint-plugin": "^5.7.0",

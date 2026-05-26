@@ -29,17 +29,17 @@
 /* 1. System Theme (Base) */
 @media (prefers-color-scheme: light) {
   :root {
-    --color-brand: var(--color-violet-600);
-    --color-secondary: var(--color-violet-600);
-    --color-bg: var(--color-neutral-100);
-    --color-tx: var(--color-violet-500);
+    --color-brand: var(--color-neutral-950);
+    --color-secondary: var(--color-neutral-800);
+    --color-bg: var(--color-neutral-50);
+    --color-tx: var(--color-neutral-950);
     --color-hr: var(--color-neutral-300);
-    --color-selected: var(--color-violet-500);
-    --color-run-date: var(--color-neutral-800);
-    --color-run-table-thead: var(--color-neutral-800);
-    --color-run-row-hover-background: var(--color-neutral-200);
-    --color-activity-card: var(--color-neutral-300);
-    --svg-color-active-cell: var(--color-neutral-400);
+    --color-selected: var(--color-neutral-950);
+    --color-run-date: var(--color-neutral-700);
+    --color-run-table-thead: var(--color-neutral-950);
+    --color-run-row-hover-background: var(--color-neutral-100);
+    --color-activity-card: var(--color-neutral-200);
+    --svg-color-active-cell: var(--color-neutral-600);
     --svg-special-color: #d4a574;
     --svg-special-color2: #c5756b;
     --font-sans: 'IBM Plex Sans', sans-serif;
@@ -70,18 +70,18 @@
 
 /* 2. Manual Override (Higher Priority) */
 [data-theme='light'] {
-  --color-brand: var(--color-violet-600);
-  --color-secondary: var(--color-violet-500);
-  --color-bg: var(--color-neutral-100);
-  --color-tx: var(--color-violet-500);
+  --color-brand: var(--color-neutral-950);
+  --color-secondary: var(--color-neutral-800);
+  --color-bg: var(--color-neutral-50);
+  --color-tx: var(--color-neutral-950);
   --color-hr: var(--color-neutral-300);
-  --color-selected: var(--color-violet-500);
-  --color-run-date: var(--color-neutral-800);
-  --color-run-table-thead: var(--color-neutral-800);
-  --color-run-row-hover-background: var(--color-neutral-200);
-  --color-activity-card: var(--color-neutral-300);
-  --svg-color-inactive-cell: var(--color-neutral-600);
-  --svg-color-active-cell: var(--color-neutral-400);
+  --color-selected: var(--color-neutral-950);
+  --color-run-date: var(--color-neutral-700);
+  --color-run-table-thead: var(--color-neutral-950);
+  --color-run-row-hover-background: var(--color-neutral-100);
+  --color-activity-card: var(--color-neutral-200);
+  --svg-color-inactive-cell: var(--color-neutral-300);
+  --svg-color-active-cell: var(--color-neutral-600);
   --svg-special-color: #d4a574;
   --svg-special-color2: #c5756b;
   --font-sans: 'IBM Plex Sans', sans-serif;
@@ -111,7 +111,7 @@
   html,
   body {
     background-color: var(--color-background);
-    color: var(--color-brand);
+    color: var(--color-text-primary);
     transition:
       background-color 0.1s ease,
       color 0.1s ease;

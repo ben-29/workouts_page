@@ -105,11 +105,9 @@ export const getBoundsForGeoData = (
 ): IViewState => {
   const { features } = geoData;
   let points: Coordinate[] = [];
-  // find first have data
   for (const f of features) {
     if (f.geometry.coordinates.length) {
-      points = f.geometry.coordinates as Coordinate[];
-      break;
+      points = points.concat(f.geometry.coordinates as Coordinate[]);
     }
   }
   if (points.length === 0) {
@@ -125,14 +123,23 @@ export const getBoundsForGeoData = (
     [Math.min(...pointsLong), Math.min(...pointsLat)],
     [Math.max(...pointsLong), Math.max(...pointsLat)],
   ];
+  const viewportWidth =
+    typeof window === 'undefined'
+      ? 800
+      : Math.max(window.innerWidth * 0.7, 360);
+  const viewportHeight =
+    typeof window === 'undefined'
+      ? 600
+      : Math.max(Math.min(window.innerHeight * 0.68, 680), 280);
+  const padding =
+    typeof window !== 'undefined' && window.innerWidth <= 768 ? 48 : 96;
   const viewState = new WebMercatorViewport({
-    width: 800,
-    height: 600,
-  }).fitBounds(cornersLongLat, { padding: 200 });
+    width: viewportWidth,
+    height: viewportHeight,
+  }).fitBounds(cornersLongLat, { padding });
   let { longitude, latitude, zoom } = viewState;
-  if (features.length > 1) {
-    zoom = 11.5;
-  }
+  const maxZoom = features.length <= 1 ? 14 : 10.8;
+  zoom = Math.max(1.5, Math.min(zoom, maxZoom));
   return { longitude, latitude, zoom };
 };
 

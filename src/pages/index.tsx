@@ -6,6 +6,7 @@ import {
   useRef,
   useSyncExternalStore,
 } from 'react';
+import { Link } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
 import { Helmet } from 'react-helmet-async';
 import Layout from '@/components/Layout';
@@ -84,7 +85,7 @@ const useRunHashId = () =>
   useSyncExternalStore(subscribeToRunHash, getRunIdFromHash, () => null);
 
 const Index = () => {
-  const { siteTitle, siteUrl } = getSiteMetadata();
+  const { siteTitle } = getSiteMetadata();
   const { activities, thisYear } = useActivities();
   const themeChangeCounter = useThemeChangeCounter();
   const [year, setYear] = useState(thisYear);
@@ -462,7 +463,7 @@ const Index = () => {
       </Helmet>
       <div className="w-full lg:w-1/4">
         <h1 className="my-12 mt-6 text-5xl font-extrabold italic">
-          <a href={siteUrl}>{siteTitle}</a>
+          <Link to="/">{siteTitle}</Link>
         </h1>
         {(viewState.zoom ?? 0) <= 3 && IS_CHINESE ? (
           <LocationStat

@@ -24,8 +24,6 @@ import {
   USE_DASH_LINE,
   LINE_OPACITY,
   MAP_HEIGHT,
-  PRIVACY_MODE,
-  LIGHTS_ON,
   MAP_TILE_VENDOR,
   MAP_TILE_ACCESS_TOKEN,
   getRuntimeSingleColor,
@@ -44,7 +42,6 @@ import styles from './style.module.css';
 import type { FeatureCollection } from 'geojson';
 import type { RPGeometry } from '@/static/run_countries';
 import './mapbox.css';
-import LightsControl from '@/components/RunMap/LightsControl';
 import { useMapTheme, useThemeChangeCounter } from '@/hooks/useTheme';
 
 const KEEP_WHEN_LIGHTS_OFF = ['runs2', 'runs2-indoor', 'animated-run'];
@@ -76,7 +73,7 @@ const RunMap = ({
 }: IRunMapProps) => {
   const { countries, provinces } = useActivities();
   const mapRef = useRef<MapRef>(null);
-  const [lights, setLights] = useState(PRIVACY_MODE ? false : LIGHTS_ON);
+  const lights = true;
   const [mapGeoData, setMapGeoData] =
     useState<FeatureCollection<RPGeometry> | null>(null);
   const isLoadingMapDataRef = useRef(false);
@@ -568,7 +565,6 @@ const RunMap = ({
       )}
       <span className={styles.runTitle}>{title}</span>
       <FullscreenControl style={fullscreenButton} />
-      {!PRIVACY_MODE && <LightsControl setLights={setLights} lights={lights} />}
       <NavigationControl
         showCompass={false}
         position={'bottom-right'}

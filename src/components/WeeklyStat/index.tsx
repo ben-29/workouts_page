@@ -149,7 +149,7 @@ const WeeklyStat = ({ runs }: WeeklyStatProps) => {
             {weekStr}
           </p>
           <p className="mb-1">
-            {IS_CHINESE ? '总距离' : 'Total Distance'}:{' '}
+            Total Distance:{' '}
             <span
               className="font-semibold"
               style={{ color: 'var(--color-run-table-thead)' }}

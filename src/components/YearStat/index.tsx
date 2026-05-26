@@ -92,10 +92,37 @@ const addRunToAccumulator = (
   } else {
     accumulator.heartRateNullCount += 1;
   }
+};
 
-  if (run.streak) {
-    accumulator.streak = Math.max(accumulator.streak, run.streak);
-  }
+const maxConsecutiveActivityDays = (runs: Activity[]) => {
+  const timestamps = Array.from(
+    new Set(
+      runs
+        .map((run) => run.start_date_local?.slice(0, 10))
+        .filter(Boolean)
+        .map((date) => new Date(`${date}T00:00:00`).getTime())
+    )
+  ).sort((a, b) => a - b);
+
+  let maxStreak = 0;
+  let currentStreak = 0;
+  let previousTimestamp: number | null = null;
+  const oneDay = 24 * 60 * 60 * 1000;
+
+  timestamps.forEach((timestamp) => {
+    if (
+      previousTimestamp === null ||
+      timestamp !== previousTimestamp + oneDay
+    ) {
+      currentStreak = 1;
+    } else {
+      currentStreak += 1;
+    }
+    maxStreak = Math.max(maxStreak, currentStreak);
+    previousTimestamp = timestamp;
+  });
+
+  return maxStreak;
 };
 
 const finalizeYearStat = (
@@ -136,22 +163,27 @@ const getYearStatSummaries = (activityData: Activity[]) => {
   if (cachedSummaries) return cachedSummaries;
 
   const accumulators = new Map<string, YearStatAccumulator>();
+  const runsByYear = new Map<string, Activity[]>();
   accumulators.set('Total', createAccumulator());
+  runsByYear.set('Total', []);
 
   activityData.forEach((run) => {
     const year = run.start_date_local.slice(0, 4);
     if (!accumulators.has(year)) {
       accumulators.set(year, createAccumulator());
+      runsByYear.set(year, []);
     }
     addRunToAccumulator(accumulators.get('Total')!, run);
     addRunToAccumulator(accumulators.get(year)!, run);
+    runsByYear.get('Total')!.push(run);
+    runsByYear.get(year)!.push(run);
   });
 
   const summaries = new Map(
-    Array.from(accumulators, ([year, accumulator]) => [
-      year,
-      finalizeYearStat(accumulator),
-    ])
+    Array.from(accumulators, ([year, accumulator]) => {
+      accumulator.streak = maxConsecutiveActivityDays(runsByYear.get(year)!);
+      return [year, finalizeYearStat(accumulator)];
+    })
   );
   yearStatCache.set(activityData, summaries);
   return summaries;
@@ -183,7 +215,7 @@ const YearStat = ({
         {summary.totalDistance > 0 && (
           <WorkoutStat
             key="total"
-            value={runs.length}
+            value={summary.runCount}
             description={' Total'}
             distance={summary.totalDistance}
           />
