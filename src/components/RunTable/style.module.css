@@ -67,7 +67,7 @@
   }
 
   :is(th, td):first-child {
-    width: 34%;
+    width: 31%;
     min-width: 220px;
     overflow-wrap: anywhere;
     text-align: left;
@@ -75,8 +75,26 @@
     word-break: normal;
   }
 
+  :is(th, td):nth-child(2) {
+    width: 9%;
+  }
+
+  :is(th, td):nth-child(3),
+  :is(th, td):nth-child(4),
+  :is(th, td):nth-child(6) {
+    width: 8%;
+  }
+
+  :is(th, td):nth-child(5),
+  :is(th, td):nth-child(7) {
+    width: 10%;
+  }
+
   :is(th, td):last-child {
+    width: 16%;
+    overflow-wrap: anywhere;
     text-align: right;
+    white-space: normal;
   }
 }
 
