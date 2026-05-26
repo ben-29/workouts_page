@@ -30,7 +30,7 @@ const MAP_LAYER_LIST = [
 // styling: set to `true` if you want dash-line route
 const USE_DASH_LINE = false;
 // styling: route line opacity: [0, 1]
-const LINE_OPACITY = 0.6;
+const LINE_OPACITY = 0.72;
 // styling: map height - responsive design
 // Use smaller height on mobile devices for better user experience
 const MAP_HEIGHT = window.innerWidth <= 768 ? 320 : 'min(56vh, 520px)';
@@ -191,16 +191,16 @@ const red = 'rgb(255,0,0)'; //大红色
 // If your map has an offset please change this line
 // issues #92 and #198
 export const NEED_FIX_MAP = false;
-export const MAIN_COLOR = '#e879f9';
-export const MAIN_COLOR_LIGHT = '#e879f9';
+export const MAIN_COLOR = 'rgb(224,237,94)';
+export const MAIN_COLOR_LIGHT = 'rgb(224,237,94)';
 
 // Static color constants
-export const RUN_COLOR_LIGHT = '#e5ff3d';
+export const RUN_COLOR_LIGHT = 'rgb(224,237,94)';
 export const RUN_COLOR_DARK = MAIN_COLOR;
 
 // Single run animation colors
-export const SINGLE_RUN_COLOR_LIGHT = '#ff4fd8';
-export const SINGLE_RUN_COLOR_DARK = '#ff4fd8';
+export const SINGLE_RUN_COLOR_LIGHT = 'rgb(224,237,94)';
+export const SINGLE_RUN_COLOR_DARK = 'rgb(224,237,94)';
 
 // Helper function to get theme-aware SINGLE_RUN_COLOR
 export const getRuntimeSingleColor = (
@@ -217,17 +217,17 @@ export const getRuntimeSingleColor = (
 };
 
 // Legacy export for backwards compatibility
-export const RUN_COLOR = ['#e5ff3d', '#e5ff3d'];
-export const RIDE_COLOR = ['#00ed5e', '#00ed5e'];
-export const VIRTUAL_RIDE_COLOR = ['#79ff68', '#79ff68'];
-export const HIKE_COLOR = ['#4dd2ff', '#4dd2ff'];
-export const SWIM_COLOR = ['#38f8ff', '#38f8ff'];
-export const ROWING_COLOR = ['#00ffc8', '#00ffc8'];
-export const ROAD_TRIP_COLOR = ['#ff4fd8', '#ff4fd8'];
-export const FLIGHT_COLOR = ['#d8b4fe', '#d8b4fe'];
-export const KAYAKING_COLOR = ['#ff7a45', '#ff7a45'];
-export const SNOWBOARD_COLOR = ['#a7f3d0', '#a7f3d0'];
-export const TRAIL_RUN_COLOR = ['#fff04d', '#fff04d'];
+export const RUN_COLOR = ['rgb(224,237,94)', 'rgb(224,237,94)'];
+export const RIDE_COLOR = ['rgb(205,240,82)', 'rgb(205,240,82)'];
+export const VIRTUAL_RIDE_COLOR = ['rgb(184,232,92)', 'rgb(184,232,92)'];
+export const HIKE_COLOR = ['rgb(178,238,124)', 'rgb(178,238,124)'];
+export const SWIM_COLOR = ['rgb(190,244,150)', 'rgb(190,244,150)'];
+export const ROWING_COLOR = ['rgb(196,236,118)', 'rgb(196,236,118)'];
+export const ROAD_TRIP_COLOR = ['rgb(238,244,130)', 'rgb(238,244,130)'];
+export const FLIGHT_COLOR = ['rgb(228,212,220)', 'rgb(228,212,220)'];
+export const KAYAKING_COLOR = ['rgb(236,225,104)', 'rgb(236,225,104)'];
+export const SNOWBOARD_COLOR = ['rgb(210,236,128)', 'rgb(210,236,128)'];
+export const TRAIL_RUN_COLOR = ['rgb(238,244,80)', 'rgb(238,244,80)'];
 export const PROVINCE_FILL_COLOR = '#334155';
 export const COUNTRY_FILL_COLOR = '#475569';
 export const INDOOR_COLOR = '#8899aa';

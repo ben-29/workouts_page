@@ -104,41 +104,102 @@ export const getBoundsForGeoData = (
   geoData: FeatureCollection<LineString>
 ): IViewState => {
   const { features } = geoData;
-  let points: Coordinate[] = [];
-  for (const f of features) {
-    if (f.geometry.coordinates.length) {
-      points = points.concat(f.geometry.coordinates as Coordinate[]);
-    }
-  }
-  if (points.length === 0) {
+  const routeBounds = features
+    .map((feature) => {
+      let minLon = Infinity;
+      let minLat = Infinity;
+      let maxLon = -Infinity;
+      let maxLat = -Infinity;
+      let pointCount = 0;
+
+      for (const point of feature.geometry.coordinates as Coordinate[]) {
+        const [lon, lat] = point;
+        if (!Number.isFinite(lon) || !Number.isFinite(lat)) continue;
+        minLon = Math.min(minLon, lon);
+        minLat = Math.min(minLat, lat);
+        maxLon = Math.max(maxLon, lon);
+        maxLat = Math.max(maxLat, lat);
+        pointCount += 1;
+      }
+
+      if (pointCount === 0) return null;
+      return {
+        minLon,
+        minLat,
+        maxLon,
+        maxLat,
+        centerLon: (minLon + maxLon) / 2,
+        centerLat: (minLat + maxLat) / 2,
+        pointCount,
+      };
+    })
+    .filter((bounds): bounds is NonNullable<typeof bounds> => Boolean(bounds));
+
+  if (routeBounds.length === 0) {
     return { longitude: 20, latitude: 20, zoom: 3 };
   }
-  if (points.length === 2 && String(points[0]) === String(points[1])) {
-    return { longitude: points[0][0], latitude: points[0][1], zoom: 9 };
+
+  const selectedBounds =
+    routeBounds.length > 1 && routeBounds.length <= 700
+      ? (() => {
+          const sorted = routeBounds
+            .slice()
+            .sort((a, b) => b.pointCount - a.pointCount);
+          const seed = sorted[0];
+          const neighborCount = Math.min(160, sorted.length);
+          const nearest = sorted
+            .map((bounds) => ({
+              bounds,
+              distance:
+                Math.abs(bounds.centerLon - seed.centerLon) +
+                Math.abs(bounds.centerLat - seed.centerLat),
+            }))
+            .sort((a, b) => a.distance - b.distance)
+            .slice(0, neighborCount)
+            .map(({ bounds }) => bounds);
+          return nearest;
+        })()
+      : routeBounds;
+
+  let minLon = Infinity;
+  let minLat = Infinity;
+  let maxLon = -Infinity;
+  let maxLat = -Infinity;
+  let totalPoints = 0;
+
+  for (const bounds of selectedBounds) {
+    minLon = Math.min(minLon, bounds.minLon);
+    minLat = Math.min(minLat, bounds.minLat);
+    maxLon = Math.max(maxLon, bounds.maxLon);
+    maxLat = Math.max(maxLat, bounds.maxLat);
+    totalPoints += bounds.pointCount;
   }
-  // Calculate corner values of bounds
-  const pointsLong = points.map((point) => point[0]) as number[];
-  const pointsLat = points.map((point) => point[1]) as number[];
+
+  if (totalPoints <= 2 && minLon === maxLon && minLat === maxLat) {
+    return { longitude: minLon, latitude: minLat, zoom: 9 };
+  }
+
   const cornersLongLat: [Coordinate, Coordinate] = [
-    [Math.min(...pointsLong), Math.min(...pointsLat)],
-    [Math.max(...pointsLong), Math.max(...pointsLat)],
+    [minLon, minLat],
+    [maxLon, maxLat],
   ];
   const viewportWidth =
     typeof window === 'undefined'
       ? 800
-      : Math.max(window.innerWidth * 0.7, 360);
+      : Math.max(window.innerWidth - 520, 360);
   const viewportHeight =
     typeof window === 'undefined'
-      ? 600
-      : Math.max(Math.min(window.innerHeight * 0.68, 680), 280);
+      ? 520
+      : Math.max(Math.min(window.innerHeight * 0.56, 520), 320);
   const padding =
-    typeof window !== 'undefined' && window.innerWidth <= 768 ? 48 : 96;
+    typeof window !== 'undefined' && window.innerWidth <= 768 ? 36 : 48;
   const viewState = new WebMercatorViewport({
     width: viewportWidth,
     height: viewportHeight,
   }).fitBounds(cornersLongLat, { padding });
   let { longitude, latitude, zoom } = viewState;
-  const maxZoom = features.length <= 1 ? 14 : 10.8;
+  const maxZoom =
+    features.length <= 1 ? 14 : selectedBounds === routeBounds ? 11.2 : 13.2;
   zoom = Math.max(1.5, Math.min(zoom, maxZoom));
   return { longitude, latitude, zoom };
 };

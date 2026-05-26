@@ -3,7 +3,7 @@ import Stat from '@/components/Stat';
 import WorkoutStat from '@/components/WorkoutStat';
 import useActivities from '@/hooks/useActivities';
 import type { Activity } from '@/utils/utils';
-import { formatPace, colorFromType } from '@/utils/utils';
+import { formatPace } from '@/utils/utils';
 import useHover from '@/hooks/useHover';
 import { yearStats, githubYearStats } from '@assets/index';
 import { loadSvgComponent } from '@/utils/svgUtils';
@@ -26,9 +26,9 @@ const githubYearSvgs = Object.fromEntries(
 
 interface YearStatAccumulator {
   averageHeartRateTotal: number;
+  activeDates: Set<string>;
   heartRateNullCount: number;
   runCount: number;
-  streak: number;
   totalDistance: number;
   totalElevationGain: number;
   totalMetersForPace: number;
@@ -39,9 +39,9 @@ interface YearStatAccumulator {
 interface YearStatSummary {
   averageHeartRate: string;
   averagePace: string;
+  activeDays: number;
   hasHeartRate: boolean;
   runCount: number;
-  streak: number;
   totalDistance: number;
   totalElevationGain: string;
   workoutsStat: Map<string, string[]>; // type -> [count, seconds, meters]
@@ -49,9 +49,9 @@ interface YearStatSummary {
 
 const createAccumulator = (): YearStatAccumulator => ({
   averageHeartRateTotal: 0,
+  activeDates: new Set<string>(),
   heartRateNullCount: 0,
   runCount: 0,
-  streak: 0,
   totalDistance: 0,
   totalElevationGain: 0,
   totalMetersForPace: 0,
@@ -64,6 +64,9 @@ const addRunToAccumulator = (
   run: Activity
 ) => {
   accumulator.runCount += 1;
+  if (run.start_date_local) {
+    accumulator.activeDates.add(run.start_date_local.slice(0, 10));
+  }
   accumulator.totalDistance += run.distance || 0;
   accumulator.totalElevationGain += run.elevation_gain || 0;
 
@@ -94,37 +97,6 @@ const addRunToAccumulator = (
   }
 };
 
-const maxConsecutiveActivityDays = (runs: Activity[]) => {
-  const timestamps = Array.from(
-    new Set(
-      runs
-        .map((run) => run.start_date_local?.slice(0, 10))
-        .filter(Boolean)
-        .map((date) => new Date(`${date}T00:00:00`).getTime())
-    )
-  ).sort((a, b) => a - b);
-
-  let maxStreak = 0;
-  let currentStreak = 0;
-  let previousTimestamp: number | null = null;
-  const oneDay = 24 * 60 * 60 * 1000;
-
-  timestamps.forEach((timestamp) => {
-    if (
-      previousTimestamp === null ||
-      timestamp !== previousTimestamp + oneDay
-    ) {
-      currentStreak = 1;
-    } else {
-      currentStreak += 1;
-    }
-    maxStreak = Math.max(maxStreak, currentStreak);
-    previousTimestamp = timestamp;
-  });
-
-  return maxStreak;
-};
-
 const finalizeYearStat = (
   accumulator: YearStatAccumulator
 ): YearStatSummary => {
@@ -145,9 +117,9 @@ const finalizeYearStat = (
     averagePace: formatPace(
       accumulator.totalMetersForPace / accumulator.totalSecondsForPace
     ),
+    activeDays: accumulator.activeDates.size,
     hasHeartRate: accumulator.averageHeartRateTotal !== 0,
     runCount: accumulator.runCount,
-    streak: accumulator.streak,
     totalDistance: parseFloat(
       (accumulator.totalDistance / M_TO_DIST).toFixed(1)
     ),
@@ -163,27 +135,22 @@ const getYearStatSummaries = (activityData: Activity[]) => {
   if (cachedSummaries) return cachedSummaries;
 
   const accumulators = new Map<string, YearStatAccumulator>();
-  const runsByYear = new Map<string, Activity[]>();
   accumulators.set('Total', createAccumulator());
-  runsByYear.set('Total', []);
 
   activityData.forEach((run) => {
     const year = run.start_date_local.slice(0, 4);
     if (!accumulators.has(year)) {
       accumulators.set(year, createAccumulator());
-      runsByYear.set(year, []);
     }
     addRunToAccumulator(accumulators.get('Total')!, run);
     addRunToAccumulator(accumulators.get(year)!, run);
-    runsByYear.get('Total')!.push(run);
-    runsByYear.get(year)!.push(run);
   });
 
   const summaries = new Map(
-    Array.from(accumulators, ([year, accumulator]) => {
-      accumulator.streak = maxConsecutiveActivityDays(runsByYear.get(year)!);
-      return [year, finalizeYearStat(accumulator)];
-    })
+    Array.from(accumulators, ([year, accumulator]) => [
+      year,
+      finalizeYearStat(accumulator),
+    ])
   );
   yearStatCache.set(activityData, summaries);
   return summaries;
@@ -227,7 +194,6 @@ const YearStat = ({
             description={` ${type}` + 's'}
             // pace={formatPace(count[2] / count[1])}
             distance={count[2]}
-            // color={colorFromType(type)}
             onClick={(e: Event) => {
               onClickTypeInYear(year, type);
               e.stopPropagation();
@@ -242,8 +208,8 @@ const YearStat = ({
           />
         )}
         <Stat
-          value={`${summary.streak} day`}
-          description=" Streak"
+          value={summary.activeDays}
+          description=" Active Days"
           className="pb-2"
         />
         {summary.hasHeartRate && (

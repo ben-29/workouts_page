@@ -30,7 +30,7 @@
   margin-top: 0.1rem;
   font-size: 1rem;
   text-align: center;
-  color: var(--color-run-date);
+  color: #8b8b8b;
 }
 
 @media only screen and (max-width: 768px) {
@@ -41,7 +41,7 @@
 }
 
 .selected {
-  color: #ff4fd8;
+  color: #ffffff;
   font-weight: 700;
 }
 

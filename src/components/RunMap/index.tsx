@@ -491,7 +491,7 @@ const RunMap = ({
           type="line"
           paint={{
             'line-color': ['get', 'color'],
-            'line-width': isBigMap && lights ? 1 : 2,
+            'line-width': isBigMap && lights ? 1.5 : 2.5,
             'line-dasharray': dash,
             'line-opacity':
               isSingleRun || isBigMap || !lights ? 1 : LINE_OPACITY,
@@ -508,7 +508,7 @@ const RunMap = ({
           type="line"
           paint={{
             'line-color': ['get', 'color'],
-            'line-width': isBigMap && lights ? 1 : 2,
+            'line-width': isBigMap && lights ? 1.5 : 2.5,
             'line-dasharray': [4, 3],
             'line-opacity':
               isSingleRun || isBigMap || !lights ? 0.6 : LINE_OPACITY * 0.6,

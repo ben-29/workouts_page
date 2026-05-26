@@ -1,5 +1,4 @@
 import { intComma } from '@/utils/utils';
-import { MAIN_COLOR } from '@/utils/const';
 
 const WorkoutStat = ({
   value,
@@ -8,7 +7,6 @@ const WorkoutStat = ({
   className,
   distance,
   onClick,
-  color = MAIN_COLOR,
 }: {
   value: string;
   description: string;
@@ -16,13 +14,8 @@ const WorkoutStat = ({
   className: string;
   distance: string;
   onClick: (_year: string) => void;
-  color: string;
 }) => (
-  <div
-    className={`${className || ' '} pb-2`}
-    onClick={onClick}
-    // style={{ color: color }}
-  >
+  <div className={`${className || ' '} pb-1`} onClick={onClick}>
     <span className={`text-5xl font-bold italic`}>{intComma(value)}</span>
     <span className="text-2xl font-semibold italic">{description}</span>
     {pace && <span className="text-5xl font-bold italic">{' ' + pace}</span>}

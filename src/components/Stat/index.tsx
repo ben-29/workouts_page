@@ -11,7 +11,7 @@ interface IStatProperties {
 const Stat = ({
   value,
   description,
-  className = 'pb-2 w-full',
+  className = 'pb-1 w-full',
   citySize,
   onClick,
 }: IStatProperties) => (
@@ -19,7 +19,9 @@ const Stat = ({
     <span className={`text-${citySize || 5}xl font-bold italic`}>
       {intComma(value.toString())}
     </span>
-    <span className="text-2xl font-semibold italic">{description}</span>
+    <span className="text-2xl leading-none font-semibold italic">
+      {description}
+    </span>
   </div>
 );
 

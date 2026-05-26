@@ -461,17 +461,18 @@ const Index = () => {
       <Helmet>
         <html lang="en" data-theme={theme} />
       </Helmet>
-      <div className="w-full lg:h-[min(56vh,520px)] lg:w-[420px] lg:shrink-0 lg:overflow-y-auto lg:pr-2">
-        <h1 className="mt-2 mb-8 text-5xl font-extrabold italic lg:mt-0">
+      <div className="w-full lg:w-[420px] lg:shrink-0 lg:pr-2">
+        <h1 className="mt-2 mb-6 text-5xl font-extrabold italic lg:mt-0">
           <Link to="/">{siteTitle}</Link>
         </h1>
-        <nav className="mb-10 font-mono text-xl">
+        <nav className="font-mono text-xl">
           {navLinks.map((n) => (
             <Link key={n.url} to={n.url}>
               {n.name}
             </Link>
           ))}
         </nav>
+        <hr className="my-8" />
         {(viewState.zoom ?? 0) <= 3 && IS_CHINESE ? (
           <LocationStat
             changeYear={changeYear}
