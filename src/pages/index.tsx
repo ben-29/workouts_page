@@ -85,7 +85,7 @@ const useRunHashId = () =>
   useSyncExternalStore(subscribeToRunHash, getRunIdFromHash, () => null);
 
 const Index = () => {
-  const { siteTitle } = getSiteMetadata();
+  const { siteTitle, navLinks } = getSiteMetadata();
   const { activities, thisYear } = useActivities();
   const themeChangeCounter = useThemeChangeCounter();
   const [year, setYear] = useState(thisYear);
@@ -461,10 +461,17 @@ const Index = () => {
       <Helmet>
         <html lang="en" data-theme={theme} />
       </Helmet>
-      <div className="w-full lg:w-1/4">
-        <h1 className="my-12 mt-6 text-5xl font-extrabold italic">
+      <div className="w-full lg:h-[min(56vh,520px)] lg:w-[420px] lg:shrink-0 lg:overflow-y-auto lg:pr-2">
+        <h1 className="mt-2 mb-8 text-5xl font-extrabold italic lg:mt-0">
           <Link to="/">{siteTitle}</Link>
         </h1>
+        <nav className="mb-10 font-mono text-xl">
+          {navLinks.map((n) => (
+            <Link key={n.url} to={n.url}>
+              {n.name}
+            </Link>
+          ))}
+        </nav>
         {(viewState.zoom ?? 0) <= 3 && IS_CHINESE ? (
           <LocationStat
             changeYear={changeYear}
@@ -480,7 +487,7 @@ const Index = () => {
           />
         )}
       </div>
-      <div className="w-full lg:w-3/4" id="map-container">
+      <div className="w-full lg:flex-1" id="map-container">
         <RunMap
           title={title}
           viewState={viewState}

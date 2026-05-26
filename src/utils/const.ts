@@ -33,7 +33,7 @@ const USE_DASH_LINE = false;
 const LINE_OPACITY = 0.6;
 // styling: map height - responsive design
 // Use smaller height on mobile devices for better user experience
-const MAP_HEIGHT = window.innerWidth <= 768 ? 250 : 600;
+const MAP_HEIGHT = window.innerWidth <= 768 ? 320 : 'min(56vh, 520px)';
 //set to `false` if you want to hide the road label characters
 const ROAD_LABEL_DISPLAY = true;
 // updated on 2024/11/17: privacy mode is set to true by default
@@ -50,16 +50,10 @@ const RICH_TITLE = true;
 // IF you are outside China please make sure IS_CHINESE = false
 const IS_CHINESE = false;
 const USE_ANIMATION_FOR_GRID = false;
-const ENGLISH_INFO_MESSAGE = (yearLength: number, year: string): string =>
-  `Logged ${yearLength} Years of Outdoor Journey` +
-  (year === 'Total' ? '' : `; the map shows routes from ${year}.`);
-
 // English is not supported for location info messages yet
 const CHINESE_LOCATION_INFO_MESSAGE_FIRST =
   'This archive records places reached through outdoor activity';
 const CHINESE_LOCATION_INFO_MESSAGE_SECOND = 'Keep moving and keep exploring';
-
-const INFO_MESSAGE = ENGLISH_INFO_MESSAGE;
 const FULL_MARATHON_RUN_TITLE = 'Full Marathon';
 const HALF_MARATHON_RUN_TITLE = 'Half Marathon';
 const RUN_TITLE = 'Run';
@@ -163,7 +157,6 @@ export {
   MAP_LAYER_LIST,
   IS_CHINESE,
   ROAD_LABEL_DISPLAY,
-  INFO_MESSAGE,
   RUN_TITLES,
   USE_ANIMATION_FOR_GRID,
   USE_DASH_LINE,
@@ -198,16 +191,16 @@ const red = 'rgb(255,0,0)'; //大红色
 // If your map has an offset please change this line
 // issues #92 and #198
 export const NEED_FIX_MAP = false;
-export const MAIN_COLOR = '#111827';
-export const MAIN_COLOR_LIGHT = '#111827';
+export const MAIN_COLOR = '#e879f9';
+export const MAIN_COLOR_LIGHT = '#e879f9';
 
 // Static color constants
-export const RUN_COLOR_LIGHT = '#2563eb';
+export const RUN_COLOR_LIGHT = '#e5ff3d';
 export const RUN_COLOR_DARK = MAIN_COLOR;
 
 // Single run animation colors
-export const SINGLE_RUN_COLOR_LIGHT = '#dc2626'; // Red for light theme
-export const SINGLE_RUN_COLOR_DARK = '#ff4d4f'; // Red for dark theme
+export const SINGLE_RUN_COLOR_LIGHT = '#ff4fd8';
+export const SINGLE_RUN_COLOR_DARK = '#ff4fd8';
 
 // Helper function to get theme-aware SINGLE_RUN_COLOR
 export const getRuntimeSingleColor = (
@@ -224,19 +217,19 @@ export const getRuntimeSingleColor = (
 };
 
 // Legacy export for backwards compatibility
-export const RUN_COLOR = ['#2563eb', '#2563eb'];
-export const RIDE_COLOR = ['#15803d', '#15803d'];
-export const VIRTUAL_RIDE_COLOR = [veryPeri, veryPeri];
-export const HIKE_COLOR = ['#7c2d12', '#7c2d12'];
-export const SWIM_COLOR = ['#0369a1', '#0369a1'];
-export const ROWING_COLOR = ['#0f766e', '#0f766e'];
-export const ROAD_TRIP_COLOR = ['#6d28d9', '#6d28d9'];
-export const FLIGHT_COLOR = [dark_vanilla, dark_vanilla];
-export const KAYAKING_COLOR = [red, red];
-export const SNOWBOARD_COLOR = ['#475569', '#475569'];
-export const TRAIL_RUN_COLOR = ['#1d4ed8', '#1d4ed8'];
-export const PROVINCE_FILL_COLOR = '#94a3b8';
-export const COUNTRY_FILL_COLOR = '#cbd5e1';
+export const RUN_COLOR = ['#e5ff3d', '#e5ff3d'];
+export const RIDE_COLOR = ['#00ed5e', '#00ed5e'];
+export const VIRTUAL_RIDE_COLOR = ['#79ff68', '#79ff68'];
+export const HIKE_COLOR = ['#4dd2ff', '#4dd2ff'];
+export const SWIM_COLOR = ['#38f8ff', '#38f8ff'];
+export const ROWING_COLOR = ['#00ffc8', '#00ffc8'];
+export const ROAD_TRIP_COLOR = ['#ff4fd8', '#ff4fd8'];
+export const FLIGHT_COLOR = ['#d8b4fe', '#d8b4fe'];
+export const KAYAKING_COLOR = ['#ff7a45', '#ff7a45'];
+export const SNOWBOARD_COLOR = ['#a7f3d0', '#a7f3d0'];
+export const TRAIL_RUN_COLOR = ['#fff04d', '#fff04d'];
+export const PROVINCE_FILL_COLOR = '#334155';
+export const COUNTRY_FILL_COLOR = '#475569';
 export const INDOOR_COLOR = '#8899aa';
 
 // map tiles vendor, maptiler or mapbox or stadiamaps
@@ -244,8 +237,8 @@ export const INDOOR_COLOR = '#8899aa';
 export const MAP_TILE_VENDOR = 'mapcn';
 
 // map tiles style name, see MAP_TILE_STYLES for more details
-export const MAP_TILE_STYLE_LIGHT = 'osm-bright';
-export const MAP_TILE_STYLE_DARK = 'osm-bright';
+export const MAP_TILE_STYLE_LIGHT = 'dark-matter';
+export const MAP_TILE_STYLE_DARK = 'dark-matter';
 
 // access token. you can apply a new one, it's free.
 // maptiler: Gt5R0jT8tuIYxW6sNrAg | sign up at https://cloud.maptiler.com/auth/widget

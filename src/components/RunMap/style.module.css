@@ -41,7 +41,8 @@
 }
 
 .selected {
-  color: var(--color-primary);
+  color: #ff4fd8;
+  font-weight: 700;
 }
 
 .runTitle {

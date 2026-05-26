@@ -33,7 +33,7 @@
   color: var(--color-run-table-thead);
   background-color: var(--color-background);
   font-family: var(--font-mono);
-  table-layout: auto;
+  table-layout: fixed;
   :is(thead) {
     color: var(--color-run-table-thead);
 
@@ -67,7 +67,12 @@
   }
 
   :is(th, td):first-child {
+    width: 34%;
+    min-width: 220px;
+    overflow-wrap: anywhere;
     text-align: left;
+    white-space: normal;
+    word-break: normal;
   }
 
   :is(th, td):last-child {
@@ -97,7 +102,8 @@
 }
 
 .selected {
-  color: red !important;
+  background-color: var(--color-run-row-hover-background);
+  color: var(--color-text-primary) !important;
 }
 
 .tableContainer {
