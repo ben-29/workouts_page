@@ -1,24 +1,19 @@
 import { useEffect, useState } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import Layout from '@/components/Layout';
-import LocationStat from '@/components/LocationStat';
 import RunMap from '@/components/RunMap';
 import RunTable from '@/components/RunTable';
 import SVGStat from '@/components/SVGStat';
 import YearsStat from '@/components/YearsStat';
 import useActivities from '@/hooks/useActivities';
 import useSiteMetadata from '@/hooks/useSiteMetadata';
-import { IS_CHINESE } from '@/utils/const';
 import {
   Activity,
   IViewState,
   filterAndSortRuns,
-  filterCityRuns,
-  filterTitleRuns,
   filterYearRuns,
   geoJsonForRuns,
   getBoundsForGeoData,
-  scrollToMap,
   sortDateFunc,
   titleForShow,
   RunIds,
@@ -27,7 +22,7 @@ import {
 const Index = () => {
   const { siteTitle } = useSiteMetadata();
   const { activities, thisYear } = useActivities();
-  const [year, setYear] = useState(thisYear);
+  const [year, setYear] = useState('Total');
   const [runIndex, setRunIndex] = useState(-1);
   const [runs, setActivity] = useState(
     filterAndSortRuns(activities, year, filterYearRuns, sortDateFunc)
@@ -36,8 +31,6 @@ const Index = () => {
   const [geoData, setGeoData] = useState(geoJsonForRuns(runs));
   // for auto zoom
   const bounds = getBoundsForGeoData(geoData);
-  const [intervalId, setIntervalId] = useState<number>();
-
   const [viewState, setViewState] = useState<IViewState>({
     ...bounds,
   });
@@ -47,7 +40,6 @@ const Index = () => {
     name: string,
     func: (_run: Activity, _value: string) => boolean
   ) => {
-    scrollToMap();
     if (name != 'Year') {
       setYear(thisYear);
     }
@@ -67,15 +59,6 @@ const Index = () => {
     }
 
     changeByItem(y, 'Year', filterYearRuns);
-    clearInterval(intervalId);
-  };
-
-  const changeCity = (city: string) => {
-    changeByItem(city, 'City', filterCityRuns);
-  };
-
-  const changeTitle = (title: string) => {
-    changeByItem(title, 'Title', filterTitleRuns);
   };
 
   const locateActivity = (runIds: RunIds) => {
@@ -96,8 +79,6 @@ const Index = () => {
     }
     setGeoData(geoJsonForRuns(selectedRuns));
     setTitle(titleForShow(lastRun));
-    clearInterval(intervalId);
-    scrollToMap();
   };
 
   useEffect(() => {
@@ -107,20 +88,7 @@ const Index = () => {
   }, [geoData]);
 
   useEffect(() => {
-    const runsNum = runs.length;
-    // maybe change 20 ?
-    const sliceNume = runsNum >= 20 ? runsNum / 20 : 1;
-    let i = sliceNume;
-    const id = setInterval(() => {
-      if (i >= runsNum) {
-        clearInterval(id);
-      }
-
-      const tempRuns = runs.slice(0, i);
-      setGeoData(geoJsonForRuns(tempRuns));
-      i += sliceNume;
-    }, 100);
-    setIntervalId(id);
+    setGeoData(geoJsonForRuns(runs));
   }, [runs]);
 
   useEffect(() => {
@@ -172,21 +140,14 @@ const Index = () => {
 
   return (
     <Layout>
-      <div className="w-full lg:w-1/3">
-        <h1 className="my-12 text-5xl font-extrabold italic">
+      <div className="w-[360px] shrink-0">
+        <h1 className="mt-0 text-4xl font-extrabold italic">
           <a href="/">{siteTitle}</a>
         </h1>
-        {(viewState.zoom ?? 0) <= 3 && IS_CHINESE ? (
-          <LocationStat
-            changeYear={changeYear}
-            changeCity={changeCity}
-            changeTitle={changeTitle}
-          />
-        ) : (
-          <YearsStat year={year} onClick={changeYear} />
-        )}
+        <hr />
+        <YearsStat year={year} onClick={changeYear} />
       </div>
-      <div className="w-full lg:w-2/3">
+      <div className="min-w-0 flex-1">
         <RunMap
           title={title}
           viewState={viewState}
