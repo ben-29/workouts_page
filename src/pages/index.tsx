@@ -9,6 +9,7 @@ import {
 import { Analytics } from '@vercel/analytics/react';
 import { Helmet } from 'react-helmet-async';
 import Layout from '@/components/Layout';
+import DailyDistanceChart from '@/components/DailyDistanceChart';
 import LocationStat from '@/components/LocationStat';
 import RunMap from '@/components/RunMap';
 import RunTable from '@/components/RunTable';
@@ -17,15 +18,14 @@ import YearsStat from '@/components/YearsStat';
 import useActivities from '@/hooks/useActivities';
 import getSiteMetadata from '@/hooks/useSiteMetadata';
 import { useInterval } from '@/hooks/useInterval';
-import { IS_CHINESE } from '@/utils/const';
 import {
   Activity,
   filterAndSortRuns,
   filterCityRuns,
-  filterTitleRuns,
   filterTypeRuns,
   filterYearRuns,
   sortDateFunc,
+  scrollToMap,
   titleForShow,
   RunIds,
 } from '@/utils/utils';
@@ -34,6 +34,10 @@ import {
   getBoundsForGeoData,
   type IViewState,
 } from '@/utils/geoUtils';
+import {
+  getRouteScopedLocationStats,
+  getScopedLocationStats,
+} from '@/utils/locationStats';
 import { useTheme, useThemeChangeCounter } from '@/hooks/useTheme';
 
 const HASH_RUN_CHANGE_EVENT = 'running-page-hash-run-change';
@@ -130,6 +134,27 @@ const Index = () => {
     void themeChangeCounter;
     return geoJsonForRuns(runs);
   }, [runs, themeChangeCounter]);
+
+  const scopedLocationStats = useMemo(
+    () => getScopedLocationStats(runs),
+    [runs]
+  );
+  const [routeScopedLocationStats, setRouteScopedLocationStats] =
+    useState(scopedLocationStats);
+
+  useEffect(() => {
+    let canceled = false;
+    getRouteScopedLocationStats(runs)
+      .then((stats) => {
+        if (!canceled) setRouteScopedLocationStats(stats);
+      })
+      .catch(() => {
+        if (!canceled) setRouteScopedLocationStats(scopedLocationStats);
+      });
+    return () => {
+      canceled = true;
+    };
+  }, [runs, scopedLocationStats]);
 
   // for auto zoom
   const bounds = useMemo(() => {
@@ -250,27 +275,6 @@ const Index = () => {
     [changeByItem]
   );
 
-  const changeTitle = useCallback(
-    (title: string) => {
-      changeByItem(title, 'Title', filterTitleRuns);
-    },
-    [changeByItem]
-  );
-
-  const changeType = useCallback(
-    (type: string) => {
-      changeByItem(type, 'Type', filterTypeRuns);
-    },
-    [changeByItem]
-  );
-
-  // For RunTable compatibility - create a mock setActivity function
-  const setActivity = useCallback((_newRuns: Activity[]) => {
-    // Since we're using memoized runs, we can't directly set activity
-    // This is used by RunTable but we can work around it by managing the filter instead
-    console.warn('setActivity called but runs are now computed from filters');
-  }, []);
-
   const locateActivity = useCallback(
     (runIds: RunIds) => {
       const ids = new Set(runIds);
@@ -326,6 +330,9 @@ const Index = () => {
       setViewState({
         ...selectedBounds,
       });
+      if (runIds.length === 1) {
+        requestAnimationFrame(scrollToMap);
+      }
       setTitle(titleForShow(lastRun));
     },
     [runs]
@@ -459,16 +466,11 @@ const Index = () => {
         <h1 className="mt-0 mb-5 text-3xl leading-none font-extrabold italic">
           {siteTitle}
         </h1>
-        <p className="mb-6 max-w-[320px] font-mono text-xs font-semibold tracking-tight text-lime-600">
-          Strava activity archive and route visualization.
-        </p>
         <hr className="my-5 border-lime-300" />
-        {(viewState.zoom ?? 0) <= 3 && IS_CHINESE ? (
+        {(viewState.zoom ?? 0) <= 3 ? (
           <LocationStat
-            changeYear={changeYear}
             changeCity={changeCity}
-            changeType={changeType}
-            onClickTypeInYear={changeTypeInYear}
+            stats={routeScopedLocationStats}
           />
         ) : (
           <YearsStat
@@ -487,7 +489,10 @@ const Index = () => {
           changeYear={changeYear}
           thisYear={year}
           animationTrigger={animationTrigger}
+          countries={routeScopedLocationStats.countries}
+          provinces={routeScopedLocationStats.provinces}
         />
+        <DailyDistanceChart runs={runs} />
         {year === 'Total' ? (
           <SVGStat />
         ) : (

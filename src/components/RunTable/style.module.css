@@ -83,12 +83,11 @@
 
   :is(th, td):nth-child(3),
   :is(th, td):nth-child(4),
-  :is(th, td):nth-child(6) {
+  :is(th, td):nth-child(5) {
     width: 8%;
   }
 
-  :is(th, td):nth-child(5),
-  :is(th, td):nth-child(7) {
+  :is(th, td):nth-child(6) {
     width: 10%;
   }
 

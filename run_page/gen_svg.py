@@ -66,11 +66,23 @@ def main():
         "--title", metavar="TITLE", type=str, help="Title to display."
     )
     args_parser.add_argument(
+        "--hide-title",
+        dest="hide_title",
+        action="store_true",
+        help="Hide poster title/header text.",
+    )
+    args_parser.add_argument(
         "--athlete",
         metavar="NAME",
         type=str,
         default="John Doe",
         help='Athlete name to display (default: "John Doe").',
+    )
+    args_parser.add_argument(
+        "--hide-athlete",
+        dest="hide_athlete",
+        action="store_true",
+        help="Hide athlete/footer name.",
     )
     args_parser.add_argument(
         "--special",
@@ -256,8 +268,10 @@ def main():
             f"Creating poster of type {args.type} with {len(tracks)} tracks and storing it in file {args.output}..."
         )
     p.set_language(args.language)
-    p.athlete = args.athlete
-    if args.title:
+    p.athlete = "" if args.hide_athlete else args.athlete
+    if args.hide_title:
+        p.title = ""
+    elif args.title:
         p.title = args.title
     else:
         p.title = p.trans("MY TRACKS")
@@ -327,7 +341,7 @@ def main():
             # Re-set tracks for this year's data
             p.set_tracks(tracks)
             # Use year-specific title if available, otherwise use default
-            year_title = args.title if args.title else f"{y} Running"
+            year_title = "" if args.hide_title else (args.title if args.title else f"{y} Running")
             original_title = p.title
             p.title = year_title
             p.draw(

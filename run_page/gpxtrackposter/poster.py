@@ -148,6 +148,8 @@ class Poster:
         self.tracks_drawer.draw(d, size, offset)
 
     def __draw_header(self, d):
+        if not self.title:
+            return
         text_color = self.colors["text"]
         title_style = "font-size:12px; font-family:Arial; font-weight:bold;"
         d.add(d.text(self.title, insert=(10, 20), fill=text_color, style=title_style))
@@ -169,114 +171,58 @@ class Poster:
             weeks,
         ) = self.__compute_track_statistics()
 
-        # d.add(
-        #     d.text(
-        #         self.trans("Runner"),
-        #         insert=(10, self.height - 20),
-        #         fill=text_color,
-        #         style=header_style,
-        #     )
-        # )
-        d.add(
-            d.text(
-                self.athlete,
-                insert=(10, self.height - 10),
-                fill=text_color,
-                style=value_style,
-            )
-        )
         if self.drawer_type != "monthoflife":
+            legend_y = self.height - 20
             d.add(
                 d.text(
                     self.trans("SPECIAL TRACKS"),
-                    insert=(65, self.height - 20),
+                    insert=(10, legend_y),
                     fill=text_color,
                     style=header_style,
                 )
             )
-
-            d.add(
-                d.rect((65, self.height - 17), (2.6, 2.6), fill=self.colors["special"])
-            )
-
-            d.add(
-                d.text(
-                    f"Over {special_distance1:.1f} {self.u()}",
-                    insert=(70, self.height - 14.5),
-                    fill=text_color,
-                    style=small_value_style,
+            legend_items = [
+                (55, self.colors["track"], "Default"),
+                (84, self.colors["special"], f"Over {special_distance1:.1f} {self.u()}"),
+                (125, self.colors["special2"], f"Over {special_distance2:.1f} {self.u()}"),
+            ]
+            for x, color, label in legend_items:
+                d.add(d.rect((x, legend_y - 3), (2.8, 2.8), fill=color, stroke=color))
+                d.add(
+                    d.text(
+                        label,
+                        insert=(x + 4.8, legend_y - 0.5),
+                        fill=text_color,
+                        style=small_value_style,
+                    )
                 )
-            )
 
-            d.add(
-                d.rect((65, self.height - 13), (2.6, 2.6), fill=self.colors["special2"])
-            )
-
-            d.add(
-                d.text(
-                    f"Over {special_distance2:.1f} {self.u()}",
-                    insert=(70, self.height - 10.5),
-                    fill=text_color,
-                    style=small_value_style,
-                )
-            )
-
+        stats_y = self.height - 9
+        stat_items = [
+            (43, self.trans("Number") + f": {len(self.tracks)}"),
+            (68, self.trans("Weekly") + ": " + format_float(len(self.tracks) / weeks)),
+            (93, self.trans("Total") + ": " + self.format_distance(total_length)),
+            (124, self.trans("Avg") + ": " + self.format_distance(average_length)),
+            (150, self.trans("Min") + ": " + self.format_distance(min_length)),
+            (174, self.trans("Max") + ": " + self.format_distance(max_length)),
+        ]
         d.add(
             d.text(
                 self.trans("STATISTICS"),
-                insert=(120, self.height - 20),
+                insert=(10, stats_y),
                 fill=text_color,
                 style=header_style,
             )
         )
-        d.add(
-            d.text(
-                self.trans("Number") + f": {len(self.tracks)}",
-                insert=(120, self.height - 15),
-                fill=text_color,
-                style=small_value_style,
+        for x, label in stat_items:
+            d.add(
+                d.text(
+                    label,
+                    insert=(x, stats_y),
+                    fill=text_color,
+                    style=small_value_style,
+                )
             )
-        )
-        d.add(
-            d.text(
-                self.trans("Weekly") + ": " + format_float(len(self.tracks) / weeks),
-                insert=(120, self.height - 10),
-                fill=text_color,
-                style=small_value_style,
-            )
-        )
-        d.add(
-            d.text(
-                self.trans("Total") + ": " + self.format_distance(total_length),
-                insert=(141, self.height - 15),
-                fill=text_color,
-                style=small_value_style,
-            )
-        )
-        d.add(
-            d.text(
-                self.trans("Avg") + ": " + self.format_distance(average_length),
-                insert=(141, self.height - 10),
-                fill=text_color,
-                style=small_value_style,
-            )
-        )
-        d.add(
-            d.text(
-                self.trans("Min") + ": " + self.format_distance(min_length),
-                insert=(167, self.height - 15),
-                fill=text_color,
-                style=small_value_style,
-            )
-        )
-        d.add(
-            d.text(
-                self.trans("Max") + ": " + self.format_distance(max_length),
-                insert=(167, self.height - 10),
-                fill=text_color,
-                style=small_value_style,
-            )
-        )
 
     def __compute_track_statistics(self):
         length_range = ValueRange()

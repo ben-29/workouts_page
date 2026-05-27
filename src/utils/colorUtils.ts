@@ -165,7 +165,7 @@ export const updateSvgSpecialColors = (): void => {
       '[fill="#FFFF00"], [fill="#ffff00"], [fill="yellow"], [stroke="#FFFF00"], [stroke="#ffff00"], [stroke="yellow"]'
     );
     const redElements = svg.querySelectorAll(
-      '[fill="#FF0000"], [fill="#ff0000"], [fill="red"], [stroke="#FF0000"], [stroke="#ff0000"], [stroke="red"]'
+      '[fill="#FF0000"], [fill="#ff0000"], [fill="#ED55DB"], [fill="#ed55db"], [fill="red"], [stroke="#FF0000"], [stroke="#ff0000"], [stroke="#ED55DB"], [stroke="#ed55db"], [stroke="red"]'
     );
 
     // Apply CSS classes for theme-aware coloring

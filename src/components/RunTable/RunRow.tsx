@@ -27,7 +27,6 @@ const RunRow = ({
   const distance = (run.distance / M_TO_DIST).toFixed(2);
   const elevation_gain = run.elevation_gain?.toFixed(0);
   const paceParts = run.average_speed ? formatPace(run.average_speed) : null;
-  const heartRate = run.average_heartrate;
   const type = run.type;
   const runTime = formatRunTime(run.moving_time);
   const handleClick = () => {
@@ -53,7 +52,6 @@ const RunRow = ({
         <td>{((elevation_gain ?? 0) * M_TO_ELEV).toFixed(1)}</td>
       )}
       <td>{paceParts}</td>
-      <td>{heartRate && heartRate.toFixed(0)}</td>
       <td>{runTime}</td>
       <td className={styles.runDate}>{run.start_date_local}</td>
     </tr>

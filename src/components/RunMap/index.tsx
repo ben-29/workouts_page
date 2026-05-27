@@ -14,7 +14,6 @@ import Map, {
   MapRef,
   MapInstance,
 } from 'react-map-gl/mapbox';
-import useActivities from '@/hooks/useActivities';
 import {
   IS_CHINESE,
   ROAD_LABEL_DISPLAY,
@@ -54,6 +53,8 @@ interface IRunMapProps {
   geoData: FeatureCollection<RPGeometry>;
   thisYear: string;
   animationTrigger?: number; // Optional trigger to force animation replay
+  countries: string[];
+  provinces: string[];
 }
 
 type MapStyleLayer = {
@@ -70,8 +71,9 @@ const RunMap = ({
   geoData,
   thisYear,
   animationTrigger,
+  countries,
+  provinces,
 }: IRunMapProps) => {
-  const { countries, provinces } = useActivities();
   const mapRef = useRef<MapRef>(null);
   const lights = true;
   const [mapGeoData, setMapGeoData] =
@@ -290,7 +292,7 @@ const RunMap = ({
   const isBigMap = (viewState.zoom ?? 0) <= 3;
 
   useEffect(() => {
-    if (isBigMap && IS_CHINESE && !mapGeoData && !isLoadingMapDataRef.current) {
+    if (isBigMap && !mapGeoData && !isLoadingMapDataRef.current) {
       isLoadingMapDataRef.current = true;
       geoJsonForMap()
         .then((data) => {
@@ -306,7 +308,7 @@ const RunMap = ({
   }, [isBigMap, mapGeoData]);
 
   let combinedGeoData = geoData;
-  if (isBigMap && IS_CHINESE && mapGeoData) {
+  if (isBigMap && mapGeoData) {
     // Show boundary and line together, combine geoData(only when not combine yet)
     if (geoData.features.length === initGeoDataLength) {
       combinedGeoData = {

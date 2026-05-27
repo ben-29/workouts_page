@@ -1,23 +1,22 @@
 import Stat from '@/components/Stat';
-import useActivities from '@/hooks/useActivities';
+import type { ScopedLocationStats } from '@/utils/locationStats';
 
-// only support China for now
-const LocationSummary = () => {
-  const { years, countries, provinces, cities } = useActivities();
+const LocationSummary = ({ stats }: { stats: ScopedLocationStats }) => {
+  const { yearCount, countries, provinces, cities } = stats;
   return (
     <div className="cursor-pointer">
       <section>
-        {years ? (
-          <Stat value={`${years.length}`} description=" 年里我走过" />
+        {yearCount ? (
+          <Stat value={`${yearCount}`} description=" years of activity" />
         ) : null}
         {countries ? (
-          <Stat value={countries.length} description=" 个国家" />
+          <Stat value={countries.length} description=" countries" />
         ) : null}
         {provinces ? (
-          <Stat value={provinces.length} description=" 个省份" />
+          <Stat value={provinces.length} description=" provinces" />
         ) : null}
         {cities ? (
-          <Stat value={Object.keys(cities).length} description=" 个城市" />
+          <Stat value={Object.keys(cities).length} description=" cities" />
         ) : null}
       </section>
       <hr />

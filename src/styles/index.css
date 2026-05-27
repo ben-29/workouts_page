@@ -154,7 +154,7 @@ hr {
 
 .github-svg .svg-color-bg,
 .grid-svg .svg-color-bg {
-  fill: #1a1a1a;
+  fill: #f5f5f5;
 }
 
 .svg-color-inactive-cell {
@@ -162,7 +162,7 @@ hr {
 }
 
 .github-svg .svg-color-inactive-cell {
-  fill: #464646;
+  fill: #e5e5e5;
 }
 
 .svg-color-active-cell {
@@ -170,30 +170,30 @@ hr {
 }
 
 .github-svg .svg-color-active-cell {
-  fill: rgb(224, 237, 94);
+  fill: #4dd2ff;
 }
 
 .svg-special-color {
-  fill: rgb(224, 237, 94);
+  fill: #ffff00;
 }
 
 .svg-special-color2 {
-  fill: #ff2a20;
+  fill: #ed55db;
 }
 
 .grid-svg .svg-color-active-cell {
-  fill: none;
-  stroke: rgb(224, 237, 94);
+  fill: #4dd2ff;
+  stroke: #4dd2ff;
 }
 
 .grid-svg .svg-special-color {
-  fill: none;
-  stroke: rgb(224, 237, 94);
+  fill: #ffff00;
+  stroke: #ffff00;
 }
 
 .grid-svg .svg-special-color2 {
-  fill: none;
-  stroke: #ff2a20;
+  fill: #ed55db;
+  stroke: #ed55db;
 }
 
 /* Mobile-specific improvements */
