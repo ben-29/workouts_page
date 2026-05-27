@@ -4,7 +4,7 @@ import type { ScopedLocationStats } from '@/utils/locationStats';
 const LocationSummary = ({ stats }: { stats: ScopedLocationStats }) => {
   const { yearCount, countries, provinces, cities } = stats;
   return (
-    <div className="cursor-pointer">
+    <div>
       <section>
         {yearCount ? (
           <Stat value={`${yearCount}`} description=" years of activity" />

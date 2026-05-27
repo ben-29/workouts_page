@@ -140,14 +140,26 @@ export const getBoundsForGeoData = (
   }
 
   const selectedBounds =
-    routeBounds.length > 1 && routeBounds.length <= 700
+    routeBounds.length > 1
       ? (() => {
-          const sorted = routeBounds
-            .slice()
-            .sort((a, b) => b.pointCount - a.pointCount);
-          const seed = sorted[0];
-          const neighborCount = Math.min(160, sorted.length);
-          const nearest = sorted
+          const radius = routeBounds.length > 700 ? 0.6 : 0.45;
+          const seed = routeBounds
+            .map((candidate) => {
+              const score = routeBounds.reduce((total, bounds) => {
+                const distance =
+                  Math.abs(bounds.centerLon - candidate.centerLon) +
+                  Math.abs(bounds.centerLat - candidate.centerLat);
+                if (distance > radius) return total;
+                return total + bounds.pointCount / Math.max(distance, 0.02);
+              }, 0);
+              return { bounds: candidate, score };
+            })
+            .sort((a, b) => b.score - a.score)[0].bounds;
+          const neighborCount = Math.min(
+            routeBounds.length > 700 ? 180 : 140,
+            routeBounds.length
+          );
+          return routeBounds
             .map((bounds) => ({
               bounds,
               distance:
@@ -157,7 +169,6 @@ export const getBoundsForGeoData = (
             .sort((a, b) => a.distance - b.distance)
             .slice(0, neighborCount)
             .map(({ bounds }) => bounds);
-          return nearest;
         })()
       : routeBounds;
 
@@ -192,14 +203,20 @@ export const getBoundsForGeoData = (
       ? 320
       : Math.max(Math.min(window.innerHeight * 0.34, 340), 280);
   const padding =
-    typeof window !== 'undefined' && window.innerWidth <= 768 ? 36 : 48;
+    features.length <= 1
+      ? typeof window !== 'undefined' && window.innerWidth <= 768
+        ? 24
+        : 28
+      : typeof window !== 'undefined' && window.innerWidth <= 768
+        ? 34
+        : 42;
   const viewState = new WebMercatorViewport({
     width: viewportWidth,
     height: viewportHeight,
   }).fitBounds(cornersLongLat, { padding });
   let { longitude, latitude, zoom } = viewState;
   const maxZoom =
-    features.length <= 1 ? 14 : selectedBounds === routeBounds ? 11.2 : 13.2;
+    features.length <= 1 ? 15.4 : selectedBounds === routeBounds ? 11.2 : 12.8;
   zoom = Math.max(1.5, Math.min(zoom, maxZoom));
   return { longitude, latitude, zoom };
 };

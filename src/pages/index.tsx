@@ -3,17 +3,17 @@ import {
   useState,
   useMemo,
   useCallback,
-  useRef,
   useSyncExternalStore,
 } from 'react';
 import { Analytics } from '@vercel/analytics/react';
 import { Helmet } from 'react-helmet-async';
+import ContributionHeatmap from '@/components/ContributionHeatmap';
 import Layout from '@/components/Layout';
-import DailyDistanceChart from '@/components/DailyDistanceChart';
+import LongRouteGrid from '@/components/LongRouteGrid';
 import LocationStat from '@/components/LocationStat';
 import RunMap from '@/components/RunMap';
 import RunTable from '@/components/RunTable';
-import SVGStat from '@/components/SVGStat';
+import WeeklyDistanceChart from '@/components/WeeklyDistanceChart';
 import YearsStat from '@/components/YearsStat';
 import useActivities from '@/hooks/useActivities';
 import getSiteMetadata from '@/hooks/useSiteMetadata';
@@ -21,7 +21,6 @@ import { useInterval } from '@/hooks/useInterval';
 import {
   Activity,
   filterAndSortRuns,
-  filterCityRuns,
   filterTypeRuns,
   filterYearRuns,
   sortDateFunc,
@@ -108,9 +107,6 @@ const Index = () => {
 
   // Animation trigger for single runs - increment this to force animation replay
   const [animationTrigger, setAnimationTrigger] = useState(0);
-
-  const selectedRunIdRef = useRef<number | null>(null);
-  const selectedRunDateRef = useRef<string | null>(null);
 
   // Memoize expensive calculations
   const runs = useMemo(() => {
@@ -268,13 +264,6 @@ const Index = () => {
     [viewState.zoom, bounds, changeByItem]
   );
 
-  const changeCity = useCallback(
-    (city: string) => {
-      changeByItem(city, 'City', filterCityRuns);
-    },
-    [changeByItem]
-  );
-
   const locateActivity = useCallback(
     (runIds: RunIds) => {
       const ids = new Set(runIds);
@@ -396,65 +385,6 @@ const Index = () => {
     }
   }, [runs, startAnimation, singleRunId]);
 
-  useEffect(() => {
-    if (year !== 'Total') {
-      return;
-    }
-
-    let svgStat = document.getElementById('svgStat');
-    if (!svgStat) {
-      return;
-    }
-
-    const handleClick = (e: Event) => {
-      const target = e.target as HTMLElement;
-      if (target.tagName.toLowerCase() === 'path') {
-        // Use querySelector to get the <desc> element and the <title> element.
-        const descEl = target.querySelector('desc');
-        if (descEl) {
-          // If the runId exists in the <desc> element, it means that a running route has been clicked.
-          const runId = Number(descEl.innerHTML);
-          if (!runId) {
-            return;
-          }
-          if (selectedRunIdRef.current === runId) {
-            selectedRunIdRef.current = null;
-            locateActivity(runs.map((r) => r.run_id));
-          } else {
-            selectedRunIdRef.current = runId;
-            locateActivity([runId]);
-          }
-          return;
-        }
-
-        const titleEl = target.querySelector('title');
-        if (titleEl) {
-          // If the runDate exists in the <title> element, it means that a date square has been clicked.
-          const [runDate] = titleEl.innerHTML.match(
-            /\d{4}-\d{1,2}-\d{1,2}/
-          ) || [`${+thisYear + 1}`];
-          const runIDsOnDate = runs
-            .filter((r) => r.start_date_local.slice(0, 10) === runDate)
-            .map((r) => r.run_id);
-          if (!runIDsOnDate.length) {
-            return;
-          }
-          if (selectedRunDateRef.current === runDate) {
-            selectedRunDateRef.current = null;
-            locateActivity(runs.map((r) => r.run_id));
-          } else {
-            selectedRunDateRef.current = runDate;
-            locateActivity(runIDsOnDate);
-          }
-        }
-      }
-    };
-    svgStat.addEventListener('click', handleClick);
-    return () => {
-      svgStat && svgStat.removeEventListener('click', handleClick);
-    };
-  }, [year, locateActivity, runs, thisYear]);
-
   const { theme } = useTheme();
 
   return (
@@ -463,15 +393,15 @@ const Index = () => {
         <html lang="en" data-theme={theme} />
       </Helmet>
       <div className="w-[390px] shrink-0 pr-2">
-        <h1 className="mt-0 mb-5 text-3xl leading-none font-extrabold italic">
+        <a
+          className="mt-0 mb-5 block text-3xl leading-none font-extrabold text-neutral-950 italic no-underline"
+          href="/"
+        >
           {siteTitle}
-        </h1>
+        </a>
         <hr className="my-5 border-lime-300" />
         {(viewState.zoom ?? 0) <= 3 ? (
-          <LocationStat
-            changeCity={changeCity}
-            stats={routeScopedLocationStats}
-          />
+          <LocationStat stats={routeScopedLocationStats} />
         ) : (
           <YearsStat
             year={year}
@@ -489,19 +419,20 @@ const Index = () => {
           changeYear={changeYear}
           thisYear={year}
           animationTrigger={animationTrigger}
-          countries={routeScopedLocationStats.countries}
-          provinces={routeScopedLocationStats.provinces}
         />
-        <DailyDistanceChart runs={runs} />
+        <WeeklyDistanceChart runs={runs} />
         {year === 'Total' ? (
-          <SVGStat />
+          <ContributionHeatmap activities={activities} />
         ) : (
-          <RunTable
-            runs={runs}
-            locateActivity={locateActivity}
-            runIndex={runIndex}
-            setRunIndex={setRunIndex}
-          />
+          <>
+            <LongRouteGrid runs={runs} locateActivity={locateActivity} />
+            <RunTable
+              runs={runs}
+              locateActivity={locateActivity}
+              runIndex={runIndex}
+              setRunIndex={setRunIndex}
+            />
+          </>
         )}
       </div>
       {/* Enable Audiences in Vercel Analytics: https://vercel.com/docs/concepts/analytics/audiences/quickstart */}

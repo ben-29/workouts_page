@@ -12,14 +12,10 @@ import Map, {
   FullscreenControl,
   NavigationControl,
   MapRef,
-  MapInstance,
 } from 'react-map-gl/mapbox';
 import {
   IS_CHINESE,
   ROAD_LABEL_DISPLAY,
-  MAPBOX_TOKEN,
-  PROVINCE_FILL_COLOR,
-  COUNTRY_FILL_COLOR,
   USE_DASH_LINE,
   LINE_OPACITY,
   MAP_HEIGHT,
@@ -30,7 +26,6 @@ import {
 import {
   Coordinate,
   IViewState,
-  geoJsonForMap,
   getMapStyle,
   isTouchDevice,
 } from '@/utils/geoUtils';
@@ -43,8 +38,6 @@ import type { RPGeometry } from '@/static/run_countries';
 import './mapbox.css';
 import { useMapTheme, useThemeChangeCounter } from '@/hooks/useTheme';
 
-const KEEP_WHEN_LIGHTS_OFF = ['runs2', 'runs2-indoor', 'animated-run'];
-
 interface IRunMapProps {
   title: string;
   viewState: IViewState;
@@ -53,15 +46,7 @@ interface IRunMapProps {
   geoData: FeatureCollection<RPGeometry>;
   thisYear: string;
   animationTrigger?: number; // Optional trigger to force animation replay
-  countries: string[];
-  provinces: string[];
 }
-
-type MapStyleLayer = {
-  id: string;
-  type?: string;
-  layout?: Record<string, unknown>;
-};
 
 const RunMap = ({
   title,
@@ -71,14 +56,9 @@ const RunMap = ({
   geoData,
   thisYear,
   animationTrigger,
-  countries,
-  provinces,
 }: IRunMapProps) => {
   const mapRef = useRef<MapRef>(null);
   const lights = true;
-  const [mapGeoData, setMapGeoData] =
-    useState<FeatureCollection<RPGeometry> | null>(null);
-  const isLoadingMapDataRef = useRef(false);
   const [mapError, setMapError] = useState<string | null>(null);
 
   // Use the map theme hook to get the current map theme
@@ -94,73 +74,6 @@ const RunMap = ({
     () => getMapStyle(MAP_TILE_VENDOR, currentMapTheme, MAP_TILE_ACCESS_TOKEN),
     [currentMapTheme]
   );
-
-  // Mapbox GL JS requires a token even when using other vendors
-  // Always use the MAPBOX_TOKEN from const.ts (user may have set their own token)
-  const mapboxAccessToken = MAPBOX_TOKEN;
-
-  /**
-   * Toggle visibility of map layers based on lights setting
-   * @param map - The Mapbox map instance
-   * @param nextLights - Whether lights are on or off
-   */
-  const switchLayerVisibility = useCallback(
-    (map: MapInstance, nextLights: boolean) => {
-      const styleJson = map.getStyle();
-      styleJson.layers.forEach((it: { id: string }) => {
-        if (!KEEP_WHEN_LIGHTS_OFF.includes(it.id)) {
-          if (nextLights) map.setLayoutProperty(it.id, 'visibility', 'visible');
-          else map.setLayoutProperty(it.id, 'visibility', 'none');
-        }
-      });
-    },
-    []
-  );
-
-  // Update map when theme changes
-  useEffect(() => {
-    if (mapRef.current) {
-      const map = mapRef.current.getMap();
-      let restoreStyleTimer: ReturnType<typeof setTimeout> | undefined;
-
-      // Save current map state before changing style
-      const currentCenter = map.getCenter();
-      const currentZoom = map.getZoom();
-      const currentBearing = map.getBearing();
-      const currentPitch = map.getPitch();
-
-      // Apply new style
-      map.setStyle(mapStyle);
-
-      // Create a stable handler for style.load to ensure proper cleanup
-      const handleStyleLoad = () => {
-        // Add a small delay to ensure style is fully loaded
-        restoreStyleTimer = setTimeout(() => {
-          try {
-            // Restore map view state
-            map.setCenter(currentCenter);
-            map.setZoom(currentZoom);
-            map.setBearing(currentBearing);
-            map.setPitch(currentPitch);
-
-            // Reapply layer visibility settings with current lights state
-            switchLayerVisibility(map, lights);
-          } catch (error) {
-            console.warn('Error applying map style changes:', error);
-          }
-        }, 100);
-      };
-
-      // Use once to automatically remove the listener after it fires
-      map.once('style.load', handleStyleLoad);
-      return () => {
-        map.off('style.load', handleStyleLoad);
-        if (restoreStyleTimer) {
-          clearTimeout(restoreStyleTimer);
-        }
-      };
-    }
-  }, [mapStyle, lights, switchLayerVisibility]); // Include lights to ensure layer visibility updates correctly when theme changes
 
   useEffect(() => {
     if (mapRef.current) {
@@ -218,105 +131,40 @@ const RunMap = ({
   const routeAnimatorRef = useRef<RouteAnimator | null>(null);
   const lastRouteKeyRef = useRef<string | null>(null);
 
-  // Memoize filter arrays to prevent recreating them on every render
-  const filterProvinces = useMemo(() => {
-    const filtered = provinces.slice();
-    filtered.unshift('in', 'name');
-    return filtered;
-  }, [provinces]);
-
-  const filterCountries = useMemo(() => {
-    const filtered = countries.slice();
-    filtered.unshift('in', 'name');
-    return filtered;
-  }, [countries]);
-
-  // Apply layer visibility when lights setting changes
-  useEffect(() => {
-    if (mapRef.current) {
-      const map = mapRef.current.getMap();
-      // Add a small delay to ensure map is ready
-      const visibilityTimer = setTimeout(() => {
-        try {
-          switchLayerVisibility(map, lights);
-        } catch (error) {
-          console.warn('Error switching layer visibility:', error);
+  const mapRefCallback = useCallback((ref: MapRef) => {
+    if (ref !== null) {
+      const map = ref.getMap();
+      if (map && IS_CHINESE) {
+        map.addControl(new MapboxLanguage({ defaultLanguage: 'zh-Hans' }));
+      }
+      // all style resources have been downloaded
+      // and the first visually complete rendering of the base style has occurred.
+      // it's odd. when use style other than mapbox, the style.load event is not triggered.Add commentMore actions
+      // so I use data event instead of style.load event and make sure we handle it only once.
+      map.on('data', (event) => {
+        if (event.dataType !== 'style' || mapRef.current) {
+          return;
         }
-      }, 50);
-      return () => clearTimeout(visibilityTimer);
+        if (!ROAD_LABEL_DISPLAY) {
+          const layers = map.getStyle().layers ?? [];
+          const labelLayerNames = layers
+            .filter(
+              (layer) =>
+                (layer.type === 'symbol' || layer.type === 'composite') &&
+                (layer.layout?.['text-field'] !== undefined ||
+                  layer.layout?.text_field !== undefined)
+            )
+            .map((layer) => layer.id);
+          labelLayerNames.forEach((layerId) => {
+            map.removeLayer(layerId);
+          });
+        }
+        mapRef.current = ref;
+      });
     }
-  }, [lights, switchLayerVisibility]);
+  }, []);
 
-  const mapRefCallback = useCallback(
-    (ref: MapRef) => {
-      if (ref !== null) {
-        const map = ref.getMap();
-        if (map && IS_CHINESE) {
-          map.addControl(new MapboxLanguage({ defaultLanguage: 'zh-Hans' }));
-        }
-        // all style resources have been downloaded
-        // and the first visually complete rendering of the base style has occurred.
-        // it's odd. when use style other than mapbox, the style.load event is not triggered.Add commentMore actions
-        // so I use data event instead of style.load event and make sure we handle it only once.
-        map.on('data', (event) => {
-          if (event.dataType !== 'style' || mapRef.current) {
-            return;
-          }
-          if (!ROAD_LABEL_DISPLAY) {
-            const layers = (map.getStyle().layers ?? []) as MapStyleLayer[];
-            const labelLayerNames = layers
-              .filter(
-                (layer) =>
-                  (layer.type === 'symbol' || layer.type === 'composite') &&
-                  (layer.layout?.['text-field'] !== undefined ||
-                    layer.layout?.text_field !== undefined)
-              )
-              .map((layer) => layer.id);
-            labelLayerNames.forEach((layerId) => {
-              map.removeLayer(layerId);
-            });
-          }
-          mapRef.current = ref;
-          switchLayerVisibility(map, lights);
-        });
-      }
-      if (mapRef.current) {
-        const map = mapRef.current.getMap();
-        switchLayerVisibility(map, lights);
-      }
-    },
-    [lights, switchLayerVisibility]
-  );
-
-  const initGeoDataLength = geoData.features.length;
   const isBigMap = (viewState.zoom ?? 0) <= 3;
-
-  useEffect(() => {
-    if (isBigMap && !mapGeoData && !isLoadingMapDataRef.current) {
-      isLoadingMapDataRef.current = true;
-      geoJsonForMap()
-        .then((data) => {
-          setMapGeoData(data);
-        })
-        .catch(() => {
-          // Keep map behavior unchanged; tile errors are reported separately.
-        })
-        .finally(() => {
-          isLoadingMapDataRef.current = false;
-        });
-    }
-  }, [isBigMap, mapGeoData]);
-
-  let combinedGeoData = geoData;
-  if (isBigMap && mapGeoData) {
-    // Show boundary and line together, combine geoData(only when not combine yet)
-    if (geoData.features.length === initGeoDataLength) {
-      combinedGeoData = {
-        type: 'FeatureCollection',
-        features: geoData.features.concat(mapGeoData.features),
-      };
-    }
-  }
 
   // Memoize expensive calculations
   const { isSingleRun, startLon, startLat, endLon, endLat, isIndoorRun } =
@@ -452,7 +300,6 @@ const RunMap = ({
       mapStyle={mapStyle}
       ref={mapRefCallback}
       cooperativeGestures={isTouchDevice()}
-      mapboxAccessToken={mapboxAccessToken}
     >
       {mapError && (
         <div className={styles.mapErrorNotification}>
@@ -468,26 +315,7 @@ const RunMap = ({
         </div>
       )}
       <RunMapButtons changeYear={changeYear} thisYear={thisYear} />
-      <Source id="data" type="geojson" data={combinedGeoData}>
-        <Layer
-          id="province"
-          type="fill"
-          paint={{
-            'fill-color': PROVINCE_FILL_COLOR,
-            'fill-opacity': 0.2,
-          }}
-          filter={filterProvinces}
-        />
-        <Layer
-          id="countries"
-          type="fill"
-          paint={{
-            'fill-color': COUNTRY_FILL_COLOR,
-            // in China, fill a bit lighter while already filled provinces
-            'fill-opacity': ['case', ['==', ['get', 'name'], '中国'], 0.1, 0.5],
-          }}
-          filter={filterCountries}
-        />
+      <Source id="data" type="geojson" data={geoData}>
         <Layer
           id="runs2"
           type="line"

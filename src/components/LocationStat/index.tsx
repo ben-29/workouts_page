@@ -3,17 +3,13 @@ import CitiesStat from './CitiesStat';
 import LocationSummary from './LocationSummary';
 
 interface ILocationStatProps {
-  changeCity: (_city: string) => void;
   stats: ScopedLocationStats;
 }
 
-const LocationStat = ({
-  changeCity,
-  stats,
-}: ILocationStatProps) => (
+const LocationStat = ({ stats }: ILocationStatProps) => (
   <div className="w-full pb-16 lg:w-full lg:pr-16">
     <LocationSummary stats={stats} />
-    <CitiesStat onClick={changeCity} stats={stats} />
+    <CitiesStat stats={stats} />
   </div>
 );
 

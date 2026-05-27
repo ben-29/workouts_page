@@ -4,15 +4,9 @@ import {
   type ScopedLocationStats,
 } from '@/utils/locationStats';
 
-const CitiesStat = ({
-  onClick,
-  stats,
-}: {
-  onClick: (_city: string) => void;
-  stats: ScopedLocationStats;
-}) => {
+const CitiesStat = ({ stats }: { stats: ScopedLocationStats }) => {
   return (
-    <div className="cursor-pointer">
+    <div>
       <section>
         {stats.topPlaces.map(({ label, distance }) => (
           <Stat
@@ -20,7 +14,6 @@ const CitiesStat = ({
             value={label}
             description={` ${formatPlaceDistance(distance)}`}
             citySize={5}
-            onClick={() => onClick(label)}
           />
         ))}
       </section>

@@ -12,6 +12,7 @@ on:
       - run_page/nike_sync.py
       - run_page/nike_to_strava_sync.py
       - run_page/strava_sync.py
+      - run_page/enrich_locations.py
       - run_page/gen_svg.py
       - run_page/garmin_sync.py
       - run_page/coros_sync.py
@@ -148,6 +149,11 @@ jobs:
         run: |
           python run_page/strava_sync.py ${{ secrets.STRAVA_CLIENT_ID }} ${{ secrets.STRAVA_CLIENT_SECRET }} ${{ secrets.STRAVA_CLIENT_REFRESH_TOKEN }}
         # If you only want to sync 'type running' add args --only-run, default script is to sync all data (rides and runs).
+
+      - name: Enrich English location cache
+        if: env.RUN_TYPE == 'strava'
+        run: |
+          python run_page/enrich_locations.py --db run_page/data.db --json src/static/activities.json --cache src/static/location-cache.json
 
       # for garmin if you want generate 'tcx' you can add --tcx command in the args.
       - name: Run sync Garmin script

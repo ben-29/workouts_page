@@ -16,6 +16,7 @@ import {
   RICH_TITLE,
   getRuntimeSingleColor,
 } from './const';
+import locationCacheData from '@/static/location-cache.json';
 
 export type Coordinate = [number, number];
 
@@ -25,7 +26,7 @@ export type RunIds = Array<number> | [];
 const IS_IMPERIAL = import.meta.env.VITE_USE_IMPERIAL === 'true';
 export const M_TO_DIST = IS_IMPERIAL ? 1609.344 : 1000; // Meters to Mi or Km
 export const M_TO_ELEV = IS_IMPERIAL ? 3.28084 : 1; // Meters to Feet or Meters
-export const DIST_UNIT = IS_IMPERIAL ? 'mi' : 'km'; // Label
+export const DIST_UNIT = IS_IMPERIAL ? 'mi' : 'KM'; // Label
 export const ELEV_UNIT = IS_IMPERIAL ? 'ft' : 'm'; // Label
 
 export interface Activity {
@@ -133,6 +134,57 @@ const extractCoordinate = (str: string): [number, number] | null => {
 
 const cities = chinaCities.map((c) => c.name);
 const locationCache = new Map<number, ReturnType<typeof locationForRun>>();
+const enrichedLocations = locationCacheData as Record<
+  string,
+  {
+    city?: string | null;
+    province?: string | null;
+    country?: string | null;
+    coordinate?: [number, number] | null;
+  }
+>;
+
+const parseEnrichedLocation = (
+  location: string | null | undefined
+): {
+  country: string;
+  province: string;
+  city: string;
+  coordinate: [number, number] | null;
+} | null => {
+  if (!location) return null;
+  try {
+    const parsed = JSON.parse(location) as {
+      country?: string | null;
+      province?: string | null;
+      city?: string | null;
+      coordinate?: [number, number] | null;
+    };
+    if (parsed && (parsed.country || parsed.province || parsed.city)) {
+      return {
+        country: parsed.country ?? '',
+        province: parsed.province ?? '',
+        city: parsed.city ?? '',
+        coordinate: parsed.coordinate ?? null,
+      };
+    }
+  } catch {
+    // Fall back to parsing plain geocoder display text below.
+  }
+
+  const parts = location
+    .split(',')
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .filter((part) => !/^\d{3,}/.test(part));
+
+  if (parts.length < 2) return null;
+  const country = parts[parts.length - 1] ?? '';
+  const province = parts.length >= 3 ? parts[parts.length - 2] : '';
+  const city = parts[0] === province ? (parts[1] ?? '') : (parts[0] ?? '');
+  return { country, province, city, coordinate: extractCoordinate(location) };
+};
+
 // what about oversea?
 const locationForRun = (
   run: Activity
@@ -145,10 +197,26 @@ const locationForRun = (
   if (locationCache.has(run.run_id)) {
     return locationCache.get(run.run_id)!;
   }
+  const cachedLocation = enrichedLocations[String(run.run_id)];
+  if (cachedLocation) {
+    const r = {
+      country: cachedLocation.country ?? '',
+      province: cachedLocation.province ?? '',
+      city: cachedLocation.city ?? '',
+      coordinate: cachedLocation.coordinate ?? null,
+    };
+    locationCache.set(run.run_id, r);
+    return r;
+  }
   let location = run.location_country;
   let [city, province, country] = ['', '', ''];
   let coordinate = null;
   if (location) {
+    const enrichedLocation = parseEnrichedLocation(location);
+    if (enrichedLocation) {
+      locationCache.set(run.run_id, enrichedLocation);
+      return enrichedLocation;
+    }
     // Only for Chinese now
     // should filter 臺灣
     const cityMatch = extractCities(location);

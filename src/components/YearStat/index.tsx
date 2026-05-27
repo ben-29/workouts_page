@@ -147,13 +147,14 @@ const YearStat = ({
   onClickTypeInYear: (_year: string, _type: string) => void;
 }) => {
   const { activities: runs } = useActivities();
+  void onClick;
   void onClickTypeInYear;
   const summary = getYearStatSummaries(runs).get(year);
 
   if (!summary) return null;
 
   return (
-    <div className="cursor-pointer" onClick={() => onClick(year)}>
+    <div>
       <section>
         <Stat value={year} description=" Journey" citySize={3} />
         <Stat value={summary.runCount} description=" Activities" citySize={3} />
