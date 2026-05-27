@@ -156,36 +156,22 @@ const YearStat = ({
   return (
     <div>
       <section>
-        <Stat value={year} description=" Journey" citySize={3} />
-        <Stat value={summary.runCount} description=" Activities" citySize={3} />
-        <Stat
-          value={summary.totalDistance}
-          description={` ${DIST_UNIT}`}
-          citySize={3}
-        />
-        <Stat
-          value={summary.averagePace}
-          description=" Avg Pace"
-          citySize={3}
-        />
-        <Stat
-          value={summary.activeDays}
-          description=" Active Days"
-          citySize={3}
-        />
+        <Stat value={year} description=" Journey" />
+        <Stat value={summary.runCount} description=" Activities" />
+        <Stat value={summary.totalDistance} description={` ${DIST_UNIT}`} />
+        <Stat value={summary.averagePace} description=" Avg Pace" />
+        <Stat value={summary.activeDays} description=" Active Days" />
         {SHOW_ELEVATION_GAIN && summary.totalElevationGain > 0 && (
           <Stat
-            value={`${summary.totalElevationGain} `}
+            value={summary.totalElevationGain}
             description={`${ELEV_UNIT} Elev Gain`}
             className="w-full pb-1"
-            citySize={3}
           />
         )}
         {summary.hasHeartRate && (
           <Stat
             value={summary.averageHeartRate}
             description=" Avg Heart Rate"
-            citySize={3}
           />
         )}
       </section>

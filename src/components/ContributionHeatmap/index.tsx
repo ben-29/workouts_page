@@ -29,6 +29,20 @@ const getYearDays = (year: number) => {
   return days;
 };
 
+const getMonthColumns = (year: number) =>
+  Array.from({ length: 12 }, (_, month) => {
+    const firstDay = new Date(year, month, 1);
+    const firstYearDay = new Date(year, 0, 1);
+    const dayOfYear = Math.floor(
+      (firstDay.getTime() - firstYearDay.getTime()) / (24 * 60 * 60 * 1000)
+    );
+    const leadingBlanks = firstYearDay.getDay();
+    return {
+      month,
+      column: Math.floor((dayOfYear + leadingBlanks) / 7) + 1,
+    };
+  });
+
 const dateKey = (date: Date) =>
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(
     date.getDate()
@@ -54,8 +68,8 @@ const ContributionHeatmap = ({ activities }: ContributionHeatmapProps) => {
   }, [activities]);
 
   return (
-    <section className="mt-4 w-full bg-transparent font-sans text-neutral-900">
-      <div className="space-y-3">
+    <section className="w-full bg-transparent font-sans text-neutral-900">
+      <div className="mx-auto max-w-[760px] space-y-3">
         {years.map((year) => {
           const days = getYearDays(year);
           const leadingBlanks = days[0].getDay();
@@ -85,22 +99,34 @@ const ContributionHeatmap = ({ activities }: ContributionHeatmapProps) => {
                 {year}
               </div>
               <div className="min-w-0">
-                <div className="mb-1 grid grid-cols-12 text-[10px] text-neutral-500">
-                  {[
-                    'Jan',
-                    'Feb',
-                    'Mar',
-                    'Apr',
-                    'May',
-                    'Jun',
-                    'Jul',
-                    'Aug',
-                    'Sep',
-                    'Oct',
-                    'Nov',
-                    'Dec',
-                  ].map((month) => (
-                    <span key={`${year}-${month}`}>{month}</span>
+                <div
+                  className="mb-1 grid gap-[3px] text-[10px] text-neutral-500"
+                  style={{
+                    gridTemplateColumns: 'repeat(53, 10px)',
+                  }}
+                >
+                  {getMonthColumns(year).map(({ month, column }) => (
+                    <span
+                      key={`${year}-${month}`}
+                      style={{ gridColumnStart: column }}
+                    >
+                      {
+                        [
+                          'Jan',
+                          'Feb',
+                          'Mar',
+                          'Apr',
+                          'May',
+                          'Jun',
+                          'Jul',
+                          'Aug',
+                          'Sep',
+                          'Oct',
+                          'Nov',
+                          'Dec',
+                        ][month]
+                      }
+                    </span>
                   ))}
                 </div>
                 <div
@@ -124,7 +150,7 @@ const ContributionHeatmap = ({ activities }: ContributionHeatmapProps) => {
           );
         })}
       </div>
-      <div className="mt-3 flex items-center justify-end gap-1 text-xs text-neutral-500">
+      <div className="mx-auto mt-3 flex max-w-[760px] items-center justify-end gap-1 text-xs text-neutral-500">
         <span>Less</span>
         <span className="h-[10px] w-[10px] rounded-[2px] bg-[#ebedf0]" />
         {GITHUB_GREENS.map((color) => (

@@ -1,5 +1,4 @@
 import type { ScopedLocationStats } from '@/utils/locationStats';
-import CitiesStat from './CitiesStat';
 import LocationSummary from './LocationSummary';
 
 interface ILocationStatProps {
@@ -9,7 +8,6 @@ interface ILocationStatProps {
 const LocationStat = ({ stats }: ILocationStatProps) => (
   <div className="w-full pb-16 lg:w-full lg:pr-16">
     <LocationSummary stats={stats} />
-    <CitiesStat stats={stats} />
   </div>
 );
 

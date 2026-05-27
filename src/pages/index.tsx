@@ -410,28 +410,41 @@ const Index = () => {
           />
         )}
       </div>
-      <div className="w-[calc(1280px-390px-2rem)] flex-1" id="map-container">
-        <RunMap
-          title={title}
-          viewState={viewState}
-          geoData={animatedGeoData}
-          setViewState={setViewState}
-          changeYear={changeYear}
-          thisYear={year}
-          animationTrigger={animationTrigger}
-        />
-        <WeeklyDistanceChart runs={runs} />
+      <div
+        className="w-[calc(1280px-390px-2rem)] flex-1 border-l border-lime-300 pl-8"
+        id="map-container"
+      >
+        <section>
+          <RunMap
+            title={title}
+            viewState={viewState}
+            geoData={animatedGeoData}
+            setViewState={setViewState}
+            changeYear={changeYear}
+            thisYear={year}
+            animationTrigger={animationTrigger}
+          />
+        </section>
+        <section className="mt-5 border-t border-lime-300 pt-5">
+          <WeeklyDistanceChart runs={runs} />
+        </section>
         {year === 'Total' ? (
-          <ContributionHeatmap activities={activities} />
+          <section className="mt-5 border-t border-lime-300 pt-5">
+            <ContributionHeatmap activities={activities} />
+          </section>
         ) : (
           <>
-            <LongRouteGrid runs={runs} locateActivity={locateActivity} />
-            <RunTable
-              runs={runs}
-              locateActivity={locateActivity}
-              runIndex={runIndex}
-              setRunIndex={setRunIndex}
-            />
+            <section className="mt-5 border-t border-lime-300 pt-5">
+              <LongRouteGrid runs={runs} locateActivity={locateActivity} />
+            </section>
+            <section className="mt-5 border-t border-lime-300 pt-5">
+              <RunTable
+                runs={runs}
+                locateActivity={locateActivity}
+                runIndex={runIndex}
+                setRunIndex={setRunIndex}
+              />
+            </section>
           </>
         )}
       </div>

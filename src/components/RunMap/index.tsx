@@ -12,10 +12,12 @@ import Map, {
   FullscreenControl,
   NavigationControl,
   MapRef,
+  MapInstance,
 } from 'react-map-gl/mapbox';
 import {
   IS_CHINESE,
   ROAD_LABEL_DISPLAY,
+  MAPBOX_TOKEN,
   USE_DASH_LINE,
   LINE_OPACITY,
   MAP_HEIGHT,
@@ -38,6 +40,8 @@ import type { RPGeometry } from '@/static/run_countries';
 import './mapbox.css';
 import { useMapTheme, useThemeChangeCounter } from '@/hooks/useTheme';
 
+const KEEP_WHEN_LIGHTS_OFF = ['runs2', 'runs2-indoor', 'animated-run'];
+
 interface IRunMapProps {
   title: string;
   viewState: IViewState;
@@ -47,6 +51,12 @@ interface IRunMapProps {
   thisYear: string;
   animationTrigger?: number; // Optional trigger to force animation replay
 }
+
+type MapStyleLayer = {
+  id: string;
+  type?: string;
+  layout?: Record<string, unknown>;
+};
 
 const RunMap = ({
   title,
@@ -74,6 +84,72 @@ const RunMap = ({
     () => getMapStyle(MAP_TILE_VENDOR, currentMapTheme, MAP_TILE_ACCESS_TOKEN),
     [currentMapTheme]
   );
+
+  const mapboxAccessToken = MAPBOX_TOKEN;
+
+  const switchLayerVisibility = useCallback(
+    (map: MapInstance, nextLights: boolean) => {
+      const styleJson = map.getStyle();
+      (styleJson.layers ?? []).forEach((layer: { id: string }) => {
+        if (KEEP_WHEN_LIGHTS_OFF.includes(layer.id)) return;
+        try {
+          map.setLayoutProperty(
+            layer.id,
+            'visibility',
+            nextLights ? 'visible' : 'none'
+          );
+        } catch {
+          // Some third-party styles expose transient layers during load.
+        }
+      });
+    },
+    []
+  );
+
+  const applyMapLayerTweaks = useCallback(
+    (map: MapInstance) => {
+      try {
+        if (!ROAD_LABEL_DISPLAY) {
+          const layers = (map.getStyle().layers ?? []) as MapStyleLayer[];
+          const labelLayerNames = layers
+            .filter(
+              (layer) =>
+                (layer.type === 'symbol' || layer.type === 'composite') &&
+                (layer.layout?.['text-field'] !== undefined ||
+                  layer.layout?.text_field !== undefined)
+            )
+            .map((layer) => layer.id);
+          labelLayerNames.forEach((layerId) => {
+            try {
+              map.removeLayer(layerId);
+            } catch {
+              // The layer may have already been removed by a prior style event.
+            }
+          });
+        }
+        switchLayerVisibility(map, lights);
+      } catch (error) {
+        console.warn('Error applying map layer tweaks:', error);
+      }
+    },
+    [lights, switchLayerVisibility]
+  );
+
+  useEffect(() => {
+    if (!mapRef.current) return;
+    const map = mapRef.current.getMap();
+    const styleLoadHandler = () => applyMapLayerTweaks(map);
+    const dataHandler = (event: { dataType?: string }) => {
+      if (event.dataType === 'style') applyMapLayerTweaks(map);
+    };
+    map.on('style.load', styleLoadHandler);
+    map.on('data', dataHandler);
+    styleLoadHandler();
+    return () => {
+      map.off('style.load', styleLoadHandler);
+      map.off('data', dataHandler);
+    };
+  }, [applyMapLayerTweaks, mapStyle]);
 
   useEffect(() => {
     if (mapRef.current) {
@@ -131,38 +207,18 @@ const RunMap = ({
   const routeAnimatorRef = useRef<RouteAnimator | null>(null);
   const lastRouteKeyRef = useRef<string | null>(null);
 
-  const mapRefCallback = useCallback((ref: MapRef) => {
-    if (ref !== null) {
+  const mapRefCallback = useCallback(
+    (ref: MapRef | null) => {
+      if (ref === null) return;
+      mapRef.current = ref;
       const map = ref.getMap();
       if (map && IS_CHINESE) {
         map.addControl(new MapboxLanguage({ defaultLanguage: 'zh-Hans' }));
       }
-      // all style resources have been downloaded
-      // and the first visually complete rendering of the base style has occurred.
-      // it's odd. when use style other than mapbox, the style.load event is not triggered.Add commentMore actions
-      // so I use data event instead of style.load event and make sure we handle it only once.
-      map.on('data', (event) => {
-        if (event.dataType !== 'style' || mapRef.current) {
-          return;
-        }
-        if (!ROAD_LABEL_DISPLAY) {
-          const layers = map.getStyle().layers ?? [];
-          const labelLayerNames = layers
-            .filter(
-              (layer) =>
-                (layer.type === 'symbol' || layer.type === 'composite') &&
-                (layer.layout?.['text-field'] !== undefined ||
-                  layer.layout?.text_field !== undefined)
-            )
-            .map((layer) => layer.id);
-          labelLayerNames.forEach((layerId) => {
-            map.removeLayer(layerId);
-          });
-        }
-        mapRef.current = ref;
-      });
-    }
-  }, []);
+      applyMapLayerTweaks(map);
+    },
+    [applyMapLayerTweaks]
+  );
 
   const isBigMap = (viewState.zoom ?? 0) <= 3;
 
@@ -300,6 +356,7 @@ const RunMap = ({
       mapStyle={mapStyle}
       ref={mapRefCallback}
       cooperativeGestures={isTouchDevice()}
+      mapboxAccessToken={mapboxAccessToken}
     >
       {mapError && (
         <div className={styles.mapErrorNotification}>

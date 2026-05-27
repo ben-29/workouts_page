@@ -262,9 +262,6 @@ const locationForRun = (
 };
 
 const intComma = (x = '') => {
-  if (x.toString().length <= 5) {
-    return x;
-  }
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };
 
