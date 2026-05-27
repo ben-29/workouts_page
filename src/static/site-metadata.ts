@@ -10,10 +10,10 @@ interface ISiteMetadataResult {
 }
 
 const data: ISiteMetadataResult = {
-  siteTitle: 'Cleopas Strava',
+  siteTitle: 'CLEOPAS Strava Page',
   siteUrl: 'https://cleopas-strava.vercel.app/',
-  logo: '',
-  description: 'A personal Strava activity archive and route visualization.',
+  logo: 'https://github.com/shuncleopasfang.png',
+  description: 'Cleopas Fang Strava activity archive and visualization',
   navLinks: [],
 };
 

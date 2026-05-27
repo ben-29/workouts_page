@@ -1,52 +1,46 @@
+@media only screen and (max-width: 700px) {
+  /* 当屏幕宽度小于 700px 时 */
+  .runTable th:nth-child(4),
+  .runTable td:nth-child(4) {
+    display: none;
+    /* 隐藏第四列 */
+  }
+}
+
 .runTable {
   width: 100%;
-  table-layout: fixed;
   font-variant: tabular-nums;
-  margin: 1.5rem 0 5rem 0;
-  color: rgb(20, 20, 20);
-  font-size: 0.82rem;
+  margin: 2rem 0 5rem 0;
 
   :is(thead) {
-    color: rgb(80, 80, 80);
+    color: rgb(204, 204, 204);
     text-align: right;
 
     :is(th) {
-      padding: 0.35rem 0.45rem;
+      padding: 0.5rem;
     }
-  }
-
-  :is(th:first-child, td:first-child) {
-    width: 42%;
-  }
-
-  :is(th:last-child, td:last-child) {
-    width: 24%;
   }
 }
 
 .runRow {
   cursor: pointer;
   :is(td) {
-    padding: 0.35rem 0.45rem;
+    padding: 0.5rem;
     border: 0;
     text-align: right;
-    vertical-align: top;
 
     &:first-child {
       text-align: left;
-      white-space: normal;
-      overflow-wrap: anywhere;
-      word-break: normal;
     }
   }
 
   &:hover {
-    background-color: rgb(232, 232, 232);
+    background-color: lighten(rgb(26, 26, 26), 3%);
   }
 }
 
 .selected {
-  background-color: rgb(224, 224, 224);
+  color: red;
 }
 
 .tableContainer {
@@ -55,5 +49,5 @@
 }
 
 .runDate {
-  color: rgb(70, 70, 70);
+  color: rgb(204, 204, 204);
 }

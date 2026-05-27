@@ -50,7 +50,7 @@ const titleForShow = (run: Activity): string => {
 };
 
 const formatPace = (d: number): string => {
-  if (!Number.isFinite(d) || d <= 0) return '';
+  if (Number.isNaN(d)) return '0';
   const pace = (1000.0 / 60.0) * (1.0 / d);
   const minutes = Math.floor(pace);
   const seconds = Math.floor((pace - minutes) * 60.0);
@@ -316,43 +316,35 @@ const getBoundsForGeoData = (
   geoData: FeatureCollection<LineString>
 ): IViewState => {
   const { features } = geoData;
-  let minLon = Infinity;
-  let minLat = Infinity;
-  let maxLon = -Infinity;
-  let maxLat = -Infinity;
-  let validPoints = 0;
-  let firstPoint: Coordinate | null = null;
-
+  let points: Coordinate[] = [];
+  // find first have data
   for (const f of features) {
-    const points = f.geometry.coordinates as Coordinate[];
-    for (const [lon, lat] of points) {
-      if (!Number.isFinite(lon) || !Number.isFinite(lat)) {
-        continue;
-      }
-      firstPoint = firstPoint || [lon, lat];
-      minLon = Math.min(minLon, lon);
-      minLat = Math.min(minLat, lat);
-      maxLon = Math.max(maxLon, lon);
-      maxLat = Math.max(maxLat, lat);
-      validPoints += 1;
+    if (f.geometry.coordinates.length) {
+      points = f.geometry.coordinates as Coordinate[];
+      break;
     }
   }
-  if (!firstPoint || validPoints === 0) {
+  if (points.length === 0) {
     return { longitude: 20, latitude: 20, zoom: 3 };
   }
-  if (minLon === maxLon && minLat === maxLat) {
-    return { longitude: firstPoint[0], latitude: firstPoint[1], zoom: 9 };
+  if (points.length === 2 && String(points[0]) === String(points[1])) {
+    return { longitude: points[0][0], latitude: points[0][1], zoom: 9 };
   }
+  // Calculate corner values of bounds
+  const pointsLong = points.map((point) => point[0]) as number[];
+  const pointsLat = points.map((point) => point[1]) as number[];
   const cornersLongLat: [Coordinate, Coordinate] = [
-    [minLon, minLat],
-    [maxLon, maxLat],
+    [Math.min(...pointsLong), Math.min(...pointsLat)],
+    [Math.max(...pointsLong), Math.max(...pointsLat)],
   ];
   const viewState = new WebMercatorViewport({
-    width: Math.max(window.innerWidth - 430, 720),
-    height: 430,
-  }).fitBounds(cornersLongLat, { padding: 80 });
+    width: 800,
+    height: 600,
+  }).fitBounds(cornersLongLat, { padding: 200 });
   let { longitude, latitude, zoom } = viewState;
-  zoom = Math.min(zoom, features.length > 1 ? 11.5 : 14);
+  if (features.length > 1) {
+    zoom = 11.5;
+  }
   return { longitude, latitude, zoom };
 };
 

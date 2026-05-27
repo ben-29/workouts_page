@@ -8,29 +8,18 @@ interface IStatProperties {
   onClick?: () => void;
 }
 
-const textSizeClass = (citySize?: number) => {
-  if (citySize === 4) return 'text-4xl';
-  if (citySize === 5) return 'text-5xl';
-  if (citySize === 6) return 'text-6xl';
-  return 'text-3xl';
-};
-
 const Stat = ({
   value,
   description,
-  className = 'pb-1 w-full',
+  className = 'pb-2 w-full',
   citySize,
   onClick,
 }: IStatProperties) => (
   <div className={`${className}`} onClick={onClick}>
-    <span
-      className={`${textSizeClass(citySize)} font-bold italic text-zinc-950`}
-    >
+    <span className={`text-${citySize || 5}xl font-bold italic`}>
       {intComma(value.toString())}
     </span>
-    <span className="text-sm font-semibold italic text-zinc-900">
-      {description}
-    </span>
+    <span className="text-lg font-semibold italic">{description}</span>
   </div>
 );
 

@@ -8,8 +8,8 @@
 
 .buttons {
   position: absolute;
-  top: 8px;
-  left: 12px;
+  top: 10px;
+  left: 10px;
   margin: 0 auto;
   padding-right: 70px;
 }
@@ -18,16 +18,15 @@
   display: inline-block;
   position: relative;
   cursor: pointer;
-  padding: 0.45rem 0.35rem;
+  padding: 1.3rem 0.4rem;
   margin-top: 0.1rem;
-  font-size: 0.85rem;
-  font-weight: 700;
+  font-size: 1rem;
   text-align: center;
-  color: rgb(150, 150, 150);
+  color: white;
 }
 
 .selected {
-  color: white;
+  color: rgb(224, 237, 94);
 }
 
 .runTitle {

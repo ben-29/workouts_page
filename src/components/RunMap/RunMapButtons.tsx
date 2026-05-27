@@ -9,7 +9,8 @@ const RunMapButtons = ({
   thisYear: string;
 }) => {
   const { years } = useActivities();
-  const yearsButtons = ['Total'].concat(years.slice());
+  const yearsButtons = years.slice();
+  yearsButtons.push('Total');
 
   return (
     <ul className={styles.buttons}>

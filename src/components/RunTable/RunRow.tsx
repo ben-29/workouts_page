@@ -23,7 +23,8 @@ const RunRow = ({
   setRunIndex,
 }: IRunRowProperties) => {
   const distance = (run.distance / 1000.0).toFixed(2);
-  const paceParts = run.average_speed ? formatPace(run.average_speed) : '';
+  const paceParts = run.average_speed ? formatPace(run.average_speed) : null;
+  const heartRate = run.average_heartrate;
   const runTime = formatRunTime(run.moving_time);
   const handleClick = () => {
     if (runIndex === elementIndex) {
@@ -43,7 +44,8 @@ const RunRow = ({
     >
       <td>{titleForRun(run)}</td>
       <td>{distance}</td>
-      <td>{paceParts}</td>
+      {paceParts && <td>{paceParts}</td>}
+      <td>{heartRate && heartRate.toFixed(0)}</td>
       <td>{runTime}</td>
       <td className={styles.runDate}>{run.start_date_local}</td>
     </tr>
