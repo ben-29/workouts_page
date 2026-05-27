@@ -8,7 +8,7 @@ const LocationSummary = () => {
     <div className="cursor-pointer">
       <section>
         {years ? (
-          <Stat value={`${years.length}`} description=" 年里我走过" />
+          <Stat value={`${years.length}`} description=" 年里我跑过" />
         ) : null}
         {countries ? (
           <Stat value={countries.length} description=" 个国家" />
@@ -20,7 +20,7 @@ const LocationSummary = () => {
           <Stat value={Object.keys(cities).length} description=" 个城市" />
         ) : null}
       </section>
-      <hr />
+      <hr color="red" />
     </div>
   );
 };

@@ -1,11 +1,14 @@
 import React from 'react';
 import usePageTracking from '../hooks/usePageTracking';
-import { USE_GOOGLE_ANALYTICS } from './analytics';
+import ReactGA from 'react-ga4';
+import { USE_GOOGLE_ANALYTICS } from './const';
 
 const TrackPageRoute: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  usePageTracking();
+  if (ReactGA.isInitialized) {
+    usePageTracking();
+  }
   return <>{children}</>;
 };
 

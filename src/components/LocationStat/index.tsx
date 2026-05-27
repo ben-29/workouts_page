@@ -10,15 +10,13 @@ import PeriodStat from './PeriodStat';
 interface ILocationStatProps {
   changeYear: (_year: string) => void;
   changeCity: (_city: string) => void;
-  changeType: (_type: string) => void;
-  onClickTypeInYear: (_year: string, _type: string) => void;
+  changeTitle: (_title: string) => void;
 }
 
 const LocationStat = ({
   changeYear,
   changeCity,
-  changeType,
-  onClickTypeInYear,
+  changeTitle,
 }: ILocationStatProps) => (
   <div className="w-full pb-16 lg:w-full lg:pr-16">
     <section className="pb-0">
@@ -33,15 +31,11 @@ const LocationStat = ({
         Yesterday you said tomorrow.
       </p>
     </section>
-    <hr />
+    <hr color="red" />
     <LocationSummary />
     <CitiesStat onClick={changeCity} />
-    <PeriodStat onClick={changeType} />
-    <YearStat
-      year="Total"
-      onClick={changeYear}
-      onClickTypeInYear={onClickTypeInYear}
-    />
+    <PeriodStat onClick={changeTitle} />
+    <YearStat year="Total" onClick={changeYear} />
   </div>
 );
 

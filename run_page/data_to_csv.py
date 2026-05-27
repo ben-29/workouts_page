@@ -2,7 +2,7 @@ import sqlite3
 
 try:
     import pandas as pd
-except Exception:
+except:
     raise Exception("please install pandas run: pip3 install pandas")
 from math import floor
 
@@ -13,8 +13,7 @@ df = pd.read_sql_query("SELECT * FROM activities", data)
 def apply_duration_time(d):
     try:
         return d.split()[1].split(".")[0]
-    except Exception as e:
-        print(f"Error applying duration time: {e}")
+    except:
         return ""
 
 

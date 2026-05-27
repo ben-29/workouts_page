@@ -1,5 +1,5 @@
-httpx
-gpxpy==1.6.2
+httpx>=0.15.0,<=0.15.5
+gpxpy==1.4.2
 stravalib==0.10.4
 appdirs>=1.4.0
 svgwrite>=1.1.9
@@ -13,10 +13,10 @@ tzfpy; platform_system != "Windows"
 timezonefinder; platform_system == "Windows"
 pyyaml
 aiofiles
-cloudscraper==1.2.71
+cloudscraper==1.2.58
 tcxreader
 rich
-lxml
+lxml==4.9.4
 eviltransform
 stravaweblib
 tenacity
@@ -28,13 +28,3 @@ haversine==2.8.0
 garth
 pycryptodome
 duckdb
-openai==1.88.0
-# cairosvg
-certifi==2025.1.31
-
-
-bs4
-html.parser
-aiofiles
-# if you need to import kml file
-#fastkml

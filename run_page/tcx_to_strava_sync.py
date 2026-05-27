@@ -12,7 +12,7 @@ from utils import make_strava_client, get_strava_last_time, upload_file_to_strav
 
 def get_to_generate_files(last_time):
     """
-    return to values one dict for upload
+    reuturn to values one dict for upload
     and one sorted list for next time upload
     """
     file_names = os.listdir(TCX_FOLDER)
@@ -59,17 +59,17 @@ if __name__ == "__main__":
     for i in to_upload_time_list:
         tcx_file = to_upload_dict.get(i)
         try:
-            upload_file_to_strava(client, tcx_file, "tcx", False)
+            upload_file_to_strava(client, tcx_file, "tcx")
         except RateLimitTimeout as e:
             timeout = e.timeout
             print(f"Strava API Rate Limit Timeout. Retry in {timeout} seconds")
             print()
             time.sleep(timeout)
             # try previous again
-            upload_file_to_strava(client, tcx_file, "tcx", False)
+            upload_file_to_strava(client, tcx_file, "tcx")
 
         except ActivityUploadFailed as e:
-            print(f"Upload failed error {str(e)}")
+            print(f"Upload faild error {str(e)}")
         # spider rule
         time.sleep(1)
 

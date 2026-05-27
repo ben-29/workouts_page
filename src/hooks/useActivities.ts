@@ -1,69 +1,18 @@
-import { useMemo } from 'react';
-import type { Activity } from '@/utils/utils';
-import { locationForRun, typeForRun } from '@/utils/utils';
-import activitiesUrl from '@/static/activities.json?url';
-import { COUNTRY_STANDARDIZATION } from '@/static/city';
+import { locationForRun, titleForRun } from '@/utils/utils';
+import activities from '@/static/activities.json';
 
-interface ProcessedActivities {
-  activities: Activity[];
-  years: string[];
-  countries: string[];
-  provinces: string[];
-  cities: Record<string, number>;
-  runPeriod: Record<string, number>;
-  thisYear: string;
-}
-
-const standardizeCountryName = (country: string): string => {
-  for (const [pattern, standardName] of COUNTRY_STANDARDIZATION) {
-    if (country.includes(pattern)) {
-      return standardName;
-    }
-  }
-  return country;
-};
-
-let activityDataCache: Activity[] | null = null;
-let activityDataError: unknown = null;
-let activityDataPromise: Promise<Activity[]> | null = null;
-
-const loadActivityData = () => {
-  activityDataPromise ??= fetch(activitiesUrl)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`Failed to load activities: ${response.status}`);
-      }
-      return response.json() as Promise<Activity[]>;
-    })
-    .then((activityData) => {
-      activityDataCache = activityData;
-      return activityData;
-    })
-    .catch((error: unknown) => {
-      activityDataError = error;
-      throw error;
-    });
-
-  return activityDataPromise;
-};
-
-const getActivityData = () => {
-  if (activityDataError) throw activityDataError;
-  if (activityDataCache) return activityDataCache;
-  throw loadActivityData();
-};
-
-const processActivities = (activityData: Activity[]): ProcessedActivities => {
+const useActivities = () => {
   const cities: Record<string, number> = {};
   const runPeriod: Record<string, number> = {};
   const provinces: Set<string> = new Set();
   const countries: Set<string> = new Set();
-  const years: Set<string> = new Set();
+  let years: Set<string> = new Set();
+  let thisYear = '';
 
-  activityData.forEach((run) => {
+  activities.forEach((run) => {
     const location = locationForRun(run);
 
-    const periodName = typeForRun(run);
+    const periodName = titleForRun(run);
     if (periodName) {
       runPeriod[periodName] = runPeriod[periodName]
         ? runPeriod[periodName] + 1
@@ -76,16 +25,16 @@ const processActivities = (activityData: Activity[]): ProcessedActivities => {
       cities[city] = cities[city] ? cities[city] + run.distance : run.distance;
     }
     if (province) provinces.add(province);
-    if (country) countries.add(standardizeCountryName(country));
+    if (country) countries.add(country);
     const year = run.start_date_local.slice(0, 4);
     years.add(year);
   });
 
-  const yearsArray = [...years].sort().reverse();
-  const thisYear = yearsArray[0] || '';
+  let yearsArray = [...years].sort().reverse();
+  if (years) [thisYear] = yearsArray; // set current year as first one of years array
 
   return {
-    activities: activityData,
+    activities,
     years: yearsArray,
     countries: [...countries],
     provinces: [...provinces],
@@ -93,26 +42,6 @@ const processActivities = (activityData: Activity[]): ProcessedActivities => {
     runPeriod,
     thisYear,
   };
-};
-
-let processedActivitiesCache: {
-  activityData: Activity[];
-  processedActivities: ProcessedActivities;
-} | null = null;
-
-const getProcessedActivities = (activityData: Activity[]) => {
-  if (processedActivitiesCache?.activityData === activityData) {
-    return processedActivitiesCache.processedActivities;
-  }
-
-  const processedActivities = processActivities(activityData);
-  processedActivitiesCache = { activityData, processedActivities };
-  return processedActivities;
-};
-
-const useActivities = () => {
-  const activityData = getActivityData();
-  return useMemo(() => getProcessedActivities(activityData), [activityData]);
 };
 
 export default useActivities;

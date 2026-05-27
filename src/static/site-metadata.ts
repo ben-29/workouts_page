@@ -2,15 +2,18 @@ interface ISiteMetadataResult {
   siteTitle: string;
   siteUrl: string;
   description: string;
-  keywords: string;
-  navLinks: [];
+  logo: string;
+  navLinks: {
+    name: string;
+    url: string;
+  }[];
 }
 
 const data: ISiteMetadataResult = {
-  siteTitle: 'Cleopas Strava',
-  siteUrl: 'https://cleopas-strava.vercel.app',
+  siteTitle: 'CLEOPAS Strava Page',
+  siteUrl: 'https://cleopas-strava.vercel.app/',
+  logo: 'https://github.com/shuncleopasfang.png',
   description: 'Cleopas Fang Strava activity archive and visualization',
-  keywords: 'workouts, running, cycling, riding, roadtrip, hiking, swimming',
   navLinks: [],
 };
 

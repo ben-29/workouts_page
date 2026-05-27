@@ -111,16 +111,14 @@ class Poster:
         width = self.width
         if self.drawer_type == "plain":
             height = height - 100
-        if self.drawer_type == "year_summary":
-            # Year summary has its own layout, use full size
-            height = height
+            self.colors["background"] = "#1a1a1a"
+            self.colors["track"] = "red"
+            self.colors["special"] = "yellow"
+            self.colors["text"] = "#e1ed5e"
         d = svgwrite.Drawing(output, (f"{width}mm", f"{height}mm"))
         d.viewbox(0, 0, self.width, height)
         d.add(d.rect((0, 0), (width, height), fill=self.colors["background"]))
-        if self.drawer_type == "year_summary":
-            # Year summary drawer handles its own layout
-            self.__draw_tracks(d, XY(width - 10, height - 10), XY(5, 5))
-        elif not self.drawer_type == "plain":
+        if not self.drawer_type == "plain":
             self.__draw_header(d)
             self.__draw_footer(d)
             self.__draw_tracks(d, XY(width - 20, height - 30 - 30), XY(10, 30))
@@ -169,14 +167,14 @@ class Poster:
             weeks,
         ) = self.__compute_track_statistics()
 
-        # d.add(
-        #     d.text(
-        #         self.trans("Runner"),
-        #         insert=(10, self.height - 20),
-        #         fill=text_color,
-        #         style=header_style,
-        #     )
-        # )
+        d.add(
+            d.text(
+                self.trans("ATHLETE"),
+                insert=(10, self.height - 20),
+                fill=text_color,
+                style=header_style,
+            )
+        )
         d.add(
             d.text(
                 self.athlete,
@@ -185,41 +183,37 @@ class Poster:
                 style=value_style,
             )
         )
-        if self.drawer_type != "monthoflife":
-            d.add(
-                d.text(
-                    self.trans("SPECIAL TRACKS"),
-                    insert=(65, self.height - 20),
-                    fill=text_color,
-                    style=header_style,
-                )
-            )
 
-            d.add(
-                d.rect((65, self.height - 17), (2.6, 2.6), fill=self.colors["special"])
+        d.add(
+            d.text(
+                self.trans("SPECIAL TRACKS"),
+                insert=(65, self.height - 20),
+                fill=text_color,
+                style=header_style,
             )
+        )
 
-            d.add(
-                d.text(
-                    f"Over {special_distance1:.1f} {self.u()}",
-                    insert=(70, self.height - 14.5),
-                    fill=text_color,
-                    style=small_value_style,
-                )
-            )
+        d.add(d.rect((65, self.height - 17), (2.6, 2.6), fill=self.colors["special"]))
 
-            d.add(
-                d.rect((65, self.height - 13), (2.6, 2.6), fill=self.colors["special2"])
+        d.add(
+            d.text(
+                f"Over {special_distance1:.1f} km",
+                insert=(70, self.height - 14.5),
+                fill=text_color,
+                style=small_value_style,
             )
+        )
 
-            d.add(
-                d.text(
-                    f"Over {special_distance2:.1f} {self.u()}",
-                    insert=(70, self.height - 10.5),
-                    fill=text_color,
-                    style=small_value_style,
-                )
+        d.add(d.rect((65, self.height - 13), (2.6, 2.6), fill=self.colors["special2"]))
+
+        d.add(
+            d.text(
+                f"Over {special_distance2:.1f} km",
+                insert=(70, self.height - 10.5),
+                fill=text_color,
+                style=small_value_style,
             )
+        )
 
         d.add(
             d.text(

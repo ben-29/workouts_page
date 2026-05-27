@@ -57,17 +57,16 @@ class GridDrawer(TracksDrawer):
 
         str_length = format_float(self.poster.m2u(tr.length))
 
-        date_title = f"{str(tr.start_time_local)[:10]} {str_length}{self.poster.u()}"
+        date_title = f"{str(tr.start_time_local)[:10]} {str_length}km"
         for line in project(tr.bbox(), size, offset, tr.polylines):
             distance1 = self.poster.special_distance["special_distance"]
             distance2 = self.poster.special_distance["special_distance2"]
-            has_special = distance1 < self.poster.m2u(tr.length) < distance2
+            has_special = distance1 < tr.length / 1000 < distance2
             color = self.color(self.poster.length_range_by_date, tr.length, has_special)
-            if self.poster.m2u(tr.length) >= distance2:
+            if tr.length / 1000 >= distance2:
                 color = self.poster.colors.get("special2") or self.poster.colors.get(
                     "special"
                 )
-            is_indoor = getattr(tr, "subtype", None) == "indoor"
             polyline = dr.polyline(
                 points=line,
                 stroke=color,
@@ -75,8 +74,6 @@ class GridDrawer(TracksDrawer):
                 stroke_width=0.5,
                 stroke_linejoin="round",
                 stroke_linecap="round",
-                stroke_dasharray="1,0.5" if is_indoor else "none",
-                opacity=0.5 if is_indoor else 1,
             )
             polyline.set_desc(title=date_title, desc=tr.run_id)
             dr.add(polyline)

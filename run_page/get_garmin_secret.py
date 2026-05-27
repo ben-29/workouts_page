@@ -10,11 +10,11 @@ if __name__ == "__main__":
         "--is-cn",
         dest="is_cn",
         action="store_true",
-        help="if garmin account is cn",
+        help="if garmin accout is cn",
     )
     options = parser.parse_args()
     if options.is_cn:
-        garth.configure(domain="garmin.cn", ssl_verify=False)
+        garth.configure(domain="garmin.cn")
     garth.login(options.email, options.password)
     secret_string = garth.client.dumps()
     print(secret_string)

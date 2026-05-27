@@ -1,8 +1,8 @@
 import Layout from '@/components/Layout';
-import getSiteMetadata from '@/hooks/useSiteMetadata';
+import useSiteMetadata from '@/hooks/useSiteMetadata';
 
 const NotFoundPage = () => {
-  const { siteUrl } = getSiteMetadata();
+  const { siteUrl } = useSiteMetadata();
   return (
     <Layout>
       <h1 className="my-2.5 text-5xl font-bold italic">404</h1>
