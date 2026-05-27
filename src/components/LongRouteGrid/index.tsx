@@ -58,7 +58,7 @@ const LongRouteGrid = ({ runs, locateActivity }: LongRouteGridProps) => {
       runs
         .filter((run) => run.distance / M_TO_KM >= 10 && run.summary_polyline)
         .slice()
-        .sort((a, b) => b.start_date_local.localeCompare(a.start_date_local)),
+        .sort((a, b) => a.start_date_local.localeCompare(b.start_date_local)),
     [runs]
   );
 
@@ -69,8 +69,8 @@ const LongRouteGrid = ({ runs, locateActivity }: LongRouteGridProps) => {
   return (
     <section className="w-full bg-transparent">
       <div
-        className="mx-auto grid max-w-[760px] gap-1"
-        style={{ gridTemplateColumns: 'repeat(20, minmax(0, 1fr))' }}
+        className="mx-auto grid max-w-[840px] gap-2"
+        style={{ gridTemplateColumns: 'repeat(10, minmax(0, 1fr))' }}
       >
         {longRuns.map((run) => {
           const distanceKm = run.distance / M_TO_KM;
@@ -79,7 +79,7 @@ const LongRouteGrid = ({ runs, locateActivity }: LongRouteGridProps) => {
           return (
             <button
               aria-label={`${run.name} ${distanceKm.toFixed(1)} KM`}
-              className="h-12 w-full cursor-pointer border-0 bg-transparent p-0 hover:bg-neutral-100"
+              className="h-16 w-full cursor-pointer border-0 bg-transparent p-0 hover:bg-neutral-100"
               key={run.run_id}
               onClick={() => locateActivity([run.run_id])}
               title={`${run.name} ${distanceKm.toFixed(1)} KM`}
@@ -97,7 +97,7 @@ const LongRouteGrid = ({ runs, locateActivity }: LongRouteGridProps) => {
                   stroke={colorForDistance(distanceKm)}
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth="2.2"
+                  strokeWidth="3.2"
                 />
               </svg>
             </button>

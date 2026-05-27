@@ -141,10 +141,12 @@ const YearStat = ({
   year,
   onClick,
   onClickTypeInYear,
+  showDivider = true,
 }: {
   year: string;
   onClick: (_year: string) => void;
   onClickTypeInYear: (_year: string, _type: string) => void;
+  showDivider?: boolean;
 }) => {
   const { activities: runs } = useActivities();
   void onClick;
@@ -158,16 +160,21 @@ const YearStat = ({
       <section>
         <Stat value={year} description=" Journey" />
         <Stat value={summary.runCount} description=" Activities" />
-        <Stat value={summary.totalDistance} description={` ${DIST_UNIT}`} />
-        <Stat value={summary.averagePace} description=" Avg Pace" />
-        <Stat value={summary.activeDays} description=" Active Days" />
+        <Stat
+          value={summary.totalDistance}
+          description={` ${DIST_UNIT}`}
+          format="comma"
+        />
         {SHOW_ELEVATION_GAIN && summary.totalElevationGain > 0 && (
           <Stat
             value={summary.totalElevationGain}
-            description={`${ELEV_UNIT} Elev Gain`}
+            description={` ${ELEV_UNIT} Elev Gain`}
             className="w-full pb-1"
+            format="comma"
           />
         )}
+        <Stat value={summary.averagePace} description=" Avg Pace" />
+        <Stat value={summary.activeDays} description=" Active Days" />
         {summary.hasHeartRate && (
           <Stat
             value={summary.averageHeartRate}
@@ -175,7 +182,7 @@ const YearStat = ({
           />
         )}
       </section>
-      <hr className="my-5 border-lime-300" />
+      {showDivider && <hr className="my-5 border-neutral-300" />}
     </div>
   );
 };

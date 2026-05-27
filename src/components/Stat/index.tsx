@@ -5,6 +5,7 @@ interface IStatProperties {
   description: string;
   className?: string;
   citySize?: number;
+  format?: 'comma' | 'plain';
   onClick?: () => void;
 }
 
@@ -13,17 +14,20 @@ const Stat = ({
   description,
   className = 'pb-1 w-full',
   citySize,
+  format = 'plain',
   onClick,
 }: IStatProperties) => {
   const sizeClass =
-    citySize === 5 ? 'text-5xl' : citySize === 3 ? 'text-3xl' : 'text-4xl';
+    citySize === 5 ? 'text-5xl' : citySize === 3 ? 'text-3xl' : 'text-5xl';
+  const displayValue =
+    format === 'comma' ? intComma(value.toString()) : value.toString();
 
   return (
     <div className={`${className}`} onClick={onClick}>
       <span className={`${sizeClass} leading-none font-bold italic`}>
-        {intComma(value.toString())}
+        {displayValue}
       </span>
-      <span className="text-base leading-none font-semibold italic">
+      <span className="text-lg leading-none font-semibold italic">
         {description}
       </span>
     </div>

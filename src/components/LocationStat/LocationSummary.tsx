@@ -19,7 +19,6 @@ const LocationSummary = ({ stats }: { stats: ScopedLocationStats }) => {
           <Stat value={Object.keys(cities).length} description=" cities" />
         ) : null}
       </section>
-      <hr />
     </div>
   );
 };

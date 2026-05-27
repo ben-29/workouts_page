@@ -10,6 +10,7 @@ import {
   getMapTileVendorStyles,
   MAP_TILE_STYLE_DARK,
   MAP_TILE_STYLES,
+  MAP_HEIGHT,
   NEED_FIX_MAP,
 } from './const';
 import { Activity, colorFromType } from './utils';
@@ -142,7 +143,12 @@ export const getBoundsForGeoData = (
   const selectedBounds =
     routeBounds.length > 1
       ? (() => {
-          const radius = routeBounds.length > 700 ? 0.6 : 0.45;
+          const radius =
+            routeBounds.length > 700
+              ? 1.15
+              : routeBounds.length > 80
+                ? 0.9
+                : 1.35;
           const seed = routeBounds
             .map((candidate) => {
               const score = routeBounds.reduce((total, bounds) => {
@@ -156,7 +162,11 @@ export const getBoundsForGeoData = (
             })
             .sort((a, b) => b.score - a.score)[0].bounds;
           const neighborCount = Math.min(
-            routeBounds.length > 700 ? 180 : 140,
+            routeBounds.length > 700
+              ? 280
+              : routeBounds.length > 80
+                ? 220
+                : Math.max(36, routeBounds.length),
             routeBounds.length
           );
           return routeBounds
@@ -199,24 +209,22 @@ export const getBoundsForGeoData = (
       ? 800
       : Math.max(window.innerWidth - 520, 360);
   const viewportHeight =
-    typeof window === 'undefined'
-      ? 320
-      : Math.max(Math.min(window.innerHeight * 0.34, 340), 280);
+    typeof window === 'undefined' ? MAP_HEIGHT : MAP_HEIGHT;
   const padding =
     features.length <= 1
       ? typeof window !== 'undefined' && window.innerWidth <= 768
-        ? 24
-        : 28
+        ? 38
+        : 46
       : typeof window !== 'undefined' && window.innerWidth <= 768
-        ? 34
-        : 42;
+        ? 52
+        : 64;
   const viewState = new WebMercatorViewport({
     width: viewportWidth,
     height: viewportHeight,
   }).fitBounds(cornersLongLat, { padding });
   let { longitude, latitude, zoom } = viewState;
   const maxZoom =
-    features.length <= 1 ? 15.4 : selectedBounds === routeBounds ? 11.2 : 12.8;
+    features.length <= 1 ? 15.0 : selectedBounds === routeBounds ? 10.2 : 11.4;
   zoom = Math.max(1.5, Math.min(zoom, maxZoom));
   return { longitude, latitude, zoom };
 };

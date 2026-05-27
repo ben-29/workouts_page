@@ -13,7 +13,6 @@ import LongRouteGrid from '@/components/LongRouteGrid';
 import LocationStat from '@/components/LocationStat';
 import RunMap from '@/components/RunMap';
 import RunTable from '@/components/RunTable';
-import WeeklyDistanceChart from '@/components/WeeklyDistanceChart';
 import YearsStat from '@/components/YearsStat';
 import useActivities from '@/hooks/useActivities';
 import getSiteMetadata from '@/hooks/useSiteMetadata';
@@ -394,12 +393,12 @@ const Index = () => {
       </Helmet>
       <div className="w-[390px] shrink-0 pr-2">
         <a
-          className="mt-0 mb-5 block text-3xl leading-none font-extrabold text-neutral-950 italic no-underline"
+          className="mt-0 mb-6 block text-5xl leading-none font-extrabold text-neutral-950 italic no-underline"
           href="/"
         >
           {siteTitle}
         </a>
-        <hr className="my-5 border-lime-300" />
+        <hr className="my-6 border-neutral-300" />
         {(viewState.zoom ?? 0) <= 3 ? (
           <LocationStat stats={routeScopedLocationStats} />
         ) : (
@@ -411,7 +410,7 @@ const Index = () => {
         )}
       </div>
       <div
-        className="w-[calc(1280px-390px-2rem)] flex-1 border-l border-lime-300 pl-8"
+        className="w-[calc(1280px-390px-2rem)] flex-1 border-l border-neutral-300 pl-8"
         id="map-container"
       >
         <section>
@@ -425,27 +424,24 @@ const Index = () => {
             animationTrigger={animationTrigger}
           />
         </section>
-        <section className="mt-5 border-t border-lime-300 pt-5">
-          <WeeklyDistanceChart runs={runs} />
-        </section>
         {year === 'Total' ? (
-          <section className="mt-5 border-t border-lime-300 pt-5">
-            <ContributionHeatmap activities={activities} />
-          </section>
-        ) : (
           <>
-            <section className="mt-5 border-t border-lime-300 pt-5">
+            <section className="mt-5 border-t border-neutral-300 pt-5">
+              <ContributionHeatmap activities={activities} />
+            </section>
+            <section className="mt-5 border-t border-neutral-300 pt-5">
               <LongRouteGrid runs={runs} locateActivity={locateActivity} />
             </section>
-            <section className="mt-5 border-t border-lime-300 pt-5">
-              <RunTable
-                runs={runs}
-                locateActivity={locateActivity}
-                runIndex={runIndex}
-                setRunIndex={setRunIndex}
-              />
-            </section>
           </>
+        ) : (
+          <section className="mt-5 border-t border-neutral-300 pt-5">
+            <RunTable
+              runs={runs}
+              locateActivity={locateActivity}
+              runIndex={runIndex}
+              setRunIndex={setRunIndex}
+            />
+          </section>
         )}
       </div>
       {/* Enable Audiences in Vercel Analytics: https://vercel.com/docs/concepts/analytics/audiences/quickstart */}

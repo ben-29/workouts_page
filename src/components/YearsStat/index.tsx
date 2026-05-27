@@ -22,12 +22,13 @@ const YearsStat = ({
   // for short solution need to refactor
   return (
     <div className="w-full pb-8">
-      {yearsArrayUpdate.map((yearItem) => (
+      {yearsArrayUpdate.map((yearItem, index) => (
         <YearStat
           key={yearItem}
           year={yearItem}
           onClick={onClick}
           onClickTypeInYear={onClickTypeInYear}
+          showDivider={index < yearsArrayUpdate.length - 1}
         />
       ))}
     </div>
