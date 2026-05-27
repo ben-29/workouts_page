@@ -6,7 +6,6 @@ import {
   useRef,
   useSyncExternalStore,
 } from 'react';
-import { Link } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
 import { Helmet } from 'react-helmet-async';
 import Layout from '@/components/Layout';
@@ -14,7 +13,6 @@ import LocationStat from '@/components/LocationStat';
 import RunMap from '@/components/RunMap';
 import RunTable from '@/components/RunTable';
 import SVGStat from '@/components/SVGStat';
-import WeeklyStat from '@/components/WeeklyStat';
 import YearsStat from '@/components/YearsStat';
 import useActivities from '@/hooks/useActivities';
 import getSiteMetadata from '@/hooks/useSiteMetadata';
@@ -27,7 +25,6 @@ import {
   filterTitleRuns,
   filterTypeRuns,
   filterYearRuns,
-  scrollToMap,
   sortDateFunc,
   titleForShow,
   RunIds,
@@ -85,10 +82,10 @@ const useRunHashId = () =>
   useSyncExternalStore(subscribeToRunHash, getRunIdFromHash, () => null);
 
 const Index = () => {
-  const { siteTitle, navLinks } = getSiteMetadata();
+  const { siteTitle } = getSiteMetadata();
   const { activities, thisYear } = useActivities();
   const themeChangeCounter = useThemeChangeCounter();
-  const [year, setYear] = useState(thisYear);
+  const [year, setYear] = useState('Total');
   const [runIndex, setRunIndex] = useState(-1);
   const [title, setTitle] = useState('');
   // Animation states for replacing intervalIdRef
@@ -100,7 +97,7 @@ const Index = () => {
     func: (_run: Activity, _value: string) => boolean;
     item2: string | null;
     func2: ((_run: Activity, _value: string) => boolean) | null;
-  }>({ item: thisYear, func: filterYearRuns, item2: null, func2: null });
+  }>({ item: 'Total', func: filterYearRuns, item2: null, func2: null });
 
   // Track if we're showing a single run from URL hash
   const singleRunId = useRunHashId();
@@ -193,7 +190,6 @@ const Index = () => {
       name: string,
       func: (_run: Activity, _value: string) => boolean
     ) => {
-      scrollToMap();
       if (name != 'Year') {
         setYear(thisYear);
       }
@@ -208,7 +204,6 @@ const Index = () => {
 
   const changeTypeInYear = useCallback(
     (year: string, type: string) => {
-      scrollToMap();
       // type in year, filter year first, then type
       if (year != 'Total') {
         setYear(year);
@@ -332,7 +327,6 @@ const Index = () => {
         ...selectedBounds,
       });
       setTitle(titleForShow(lastRun));
-      scrollToMap();
     },
     [runs]
   );
@@ -461,18 +455,14 @@ const Index = () => {
       <Helmet>
         <html lang="en" data-theme={theme} />
       </Helmet>
-      <div className="w-full lg:w-[420px] lg:shrink-0 lg:pr-2">
-        <h1 className="mt-2 mb-6 text-5xl font-extrabold italic lg:mt-0">
-          <Link to="/">{siteTitle}</Link>
+      <div className="w-[390px] shrink-0 pr-2">
+        <h1 className="mt-0 mb-5 text-3xl leading-none font-extrabold italic">
+          {siteTitle}
         </h1>
-        <nav className="font-mono text-xl">
-          {navLinks.map((n) => (
-            <Link key={n.url} to={n.url}>
-              {n.name}
-            </Link>
-          ))}
-        </nav>
-        <hr className="my-8" />
+        <p className="mb-6 max-w-[320px] font-mono text-xs font-semibold tracking-tight text-lime-600">
+          Strava activity archive and route visualization.
+        </p>
+        <hr className="my-5 border-lime-300" />
         {(viewState.zoom ?? 0) <= 3 && IS_CHINESE ? (
           <LocationStat
             changeYear={changeYear}
@@ -488,7 +478,7 @@ const Index = () => {
           />
         )}
       </div>
-      <div className="w-full lg:flex-1" id="map-container">
+      <div className="w-[calc(1280px-390px-2rem)] flex-1" id="map-container">
         <RunMap
           title={title}
           viewState={viewState}
@@ -498,7 +488,6 @@ const Index = () => {
           thisYear={year}
           animationTrigger={animationTrigger}
         />
-        <WeeklyStat runs={runs} />
         {year === 'Total' ? (
           <SVGStat />
         ) : (

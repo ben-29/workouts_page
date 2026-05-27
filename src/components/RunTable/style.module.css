@@ -1,12 +1,12 @@
 @media only screen and (max-width: 768px) {
   .tableContainer {
-    overflow-x: auto;
+    overflow-x: visible;
     -webkit-overflow-scrolling: touch;
   }
 
   .runTable {
-    min-width: 650px;
-    font-size: 0.8rem;
+    min-width: 820px;
+    font-size: 0.72rem;
   }
 
   .runTable th,
@@ -29,16 +29,18 @@
 
 .runTable {
   width: 100%;
-  margin: 0rem 0 5rem 0;
+  margin: 0.9rem 0 5rem 0;
   color: var(--color-run-table-thead);
   background-color: var(--color-background);
   font-family: var(--font-mono);
+  font-size: 0.76rem;
+  line-height: 1.2;
   table-layout: fixed;
   :is(thead) {
     color: var(--color-run-table-thead);
 
     :is(th) {
-      padding: 0.5rem;
+      padding: 0.28rem 0.35rem;
       white-space: nowrap;
       text-align: center;
     }
@@ -67,7 +69,7 @@
   }
 
   :is(th, td):first-child {
-    width: 31%;
+    width: 35%;
     min-width: 220px;
     overflow-wrap: anywhere;
     text-align: left;
@@ -91,7 +93,7 @@
   }
 
   :is(th, td):last-child {
-    width: 16%;
+    width: 14%;
     overflow-wrap: anywhere;
     text-align: right;
     white-space: normal;
@@ -101,7 +103,7 @@
 .runRow {
   cursor: pointer;
   :is(td) {
-    padding: 0.5rem;
+    padding: 0.26rem 0.35rem;
     border: 0;
     text-align: center; /* 默认居中 */
   }

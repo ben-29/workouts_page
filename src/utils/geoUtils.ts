@@ -189,8 +189,8 @@ export const getBoundsForGeoData = (
       : Math.max(window.innerWidth - 520, 360);
   const viewportHeight =
     typeof window === 'undefined'
-      ? 520
-      : Math.max(Math.min(window.innerHeight * 0.56, 520), 320);
+      ? 320
+      : Math.max(Math.min(window.innerHeight * 0.34, 340), 280);
   const padding =
     typeof window !== 'undefined' && window.innerWidth <= 768 ? 36 : 48;
   const viewState = new WebMercatorViewport({

@@ -8,10 +8,10 @@
     overflow: hidden;
   }
 
-  /* Ensure body doesn't require horizontal scrolling */
+  /* Keep the desktop-style composition available on mobile. */
   body {
-    overflow-x: hidden;
-    max-width: 100vw;
+    overflow-x: auto;
+    max-width: none;
   }
 
   /* Make main content areas mobile-friendly */

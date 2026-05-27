@@ -10,7 +10,6 @@ import '@/styles/index.css';
 import { withOptionalGAPageTracking } from './utils/trackRoute';
 
 const Index = lazy(() => import('./pages'));
-const HomePage = lazy(() => import('@/pages/total'));
 const NotFound = lazy(() => import('./pages/404'));
 
 const createRouteElement = (element: React.ReactElement) =>
@@ -25,10 +24,6 @@ const routes = createBrowserRouter(
     {
       path: '/',
       element: createRouteElement(<Index />),
-    },
-    {
-      path: 'summary',
-      element: createRouteElement(<HomePage />),
     },
     {
       path: '*',

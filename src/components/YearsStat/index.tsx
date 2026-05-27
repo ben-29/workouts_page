@@ -15,13 +15,13 @@ const YearsStat = ({
 
   // Memoize the years array calculation
   const yearsArrayUpdate = useMemo(() => {
-    if (year === 'Total') return ['Total', ...years];
-    return [year, ...years.filter((x) => x !== year), 'Total'];
+    void year;
+    return ['Total', ...years];
   }, [years, year]);
 
   // for short solution need to refactor
   return (
-    <div className="w-full pb-8 lg:w-full">
+    <div className="w-full pb-8">
       {yearsArrayUpdate.map((yearItem) => (
         <YearStat
           key={yearItem}

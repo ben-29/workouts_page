@@ -144,8 +144,6 @@ hr {
   margin: 2rem 0;
 }
 
-.github-svg text,
-.grid-svg text,
 .year-svg text {
   fill: var(--color-run-date);
 }
@@ -154,35 +152,48 @@ hr {
   fill: var(--color-run-row-hover-background);
 }
 
+.github-svg .svg-color-bg,
+.grid-svg .svg-color-bg {
+  fill: #1a1a1a;
+}
+
 .svg-color-inactive-cell {
   fill: var(--color-activity-card);
+}
+
+.github-svg .svg-color-inactive-cell {
+  fill: #464646;
 }
 
 .svg-color-active-cell {
   fill: var(--svg-color-active-cell);
 }
 
+.github-svg .svg-color-active-cell {
+  fill: rgb(224, 237, 94);
+}
+
 .svg-special-color {
-  fill: var(--svg-special-color);
+  fill: rgb(224, 237, 94);
 }
 
 .svg-special-color2 {
-  fill: var(--svg-special-color2);
+  fill: #ff2a20;
 }
 
 .grid-svg .svg-color-active-cell {
   fill: none;
-  stroke: var(--svg-color-active-cell);
+  stroke: rgb(224, 237, 94);
 }
 
 .grid-svg .svg-special-color {
   fill: none;
-  stroke: var(--svg-special-color);
+  stroke: rgb(224, 237, 94);
 }
 
 .grid-svg .svg-special-color2 {
   fill: none;
-  stroke: var(--svg-special-color2);
+  stroke: #ff2a20;
 }
 
 /* Mobile-specific improvements */
@@ -193,6 +204,6 @@ hr {
 
   /* Ensure mobile layout doesn't require min-width */
   body {
-    overflow-x: hidden;
+    overflow-x: auto;
   }
 }

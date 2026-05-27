@@ -1,6 +1,5 @@
 import { lazy, Suspense } from 'react';
 import Stat from '@/components/Stat';
-import WorkoutStat from '@/components/WorkoutStat';
 import useActivities from '@/hooks/useActivities';
 import type { Activity } from '@/utils/utils';
 import { formatPace } from '@/utils/utils';
@@ -165,7 +164,8 @@ const YearStat = ({
   onClick: (_year: string) => void;
   onClickTypeInYear: (_year: string, _type: string) => void;
 }) => {
-  const { activities: runs, years } = useActivities();
+  const { activities: runs } = useActivities();
+  void onClickTypeInYear;
   // for hover
   const [hovered, eventHandlers] = useHover();
   // lazy Component
@@ -178,44 +178,36 @@ const YearStat = ({
   return (
     <div className="cursor-pointer" onClick={() => onClick(year)}>
       <section {...eventHandlers}>
-        <Stat value={year} description=" Journey" />
-        {summary.totalDistance > 0 && (
-          <WorkoutStat
-            key="total"
-            value={summary.runCount}
-            description={' Total'}
-            distance={summary.totalDistance}
-          />
-        )}
-        {Array.from(summary.workoutsStat).map(([type, count]) => (
-          <WorkoutStat
-            key={type}
-            value={count[0]}
-            description={` ${type}` + 's'}
-            // pace={formatPace(count[2] / count[1])}
-            distance={count[2]}
-            onClick={(e: Event) => {
-              onClickTypeInYear(year, type);
-              e.stopPropagation();
-            }}
-          />
-        ))}
+        <Stat value={year} description=" Journey" citySize={3} />
+        <Stat value={summary.runCount} description=" Activities" citySize={3} />
+        <Stat
+          value={summary.totalDistance}
+          description={` ${DIST_UNIT}`}
+          citySize={3}
+        />
+        <Stat
+          value={summary.averagePace}
+          description=" Avg Pace"
+          citySize={3}
+        />
+        <Stat
+          value={summary.activeDays}
+          description=" Active Days"
+          citySize={3}
+        />
         {SHOW_ELEVATION_GAIN && summary.totalElevationGain > 0 && (
           <Stat
             value={`${summary.totalElevationGain} `}
             description={`${ELEV_UNIT} Elev Gain`}
-            className="pb-2"
+            className="w-full pb-1"
+            citySize={3}
           />
         )}
-        <Stat
-          value={summary.activeDays}
-          description=" Active Days"
-          className="pb-2"
-        />
         {summary.hasHeartRate && (
           <Stat
             value={summary.averageHeartRate}
             description=" Avg Heart Rate"
+            citySize={3}
           />
         )}
       </section>
@@ -225,7 +217,7 @@ const YearStat = ({
           <GithubYearSVG className="github-year-svg my-4 h-auto w-full border-0 p-0" />
         </Suspense>
       )}
-      <hr />
+      <hr className="my-5 border-lime-300" />
     </div>
   );
 };

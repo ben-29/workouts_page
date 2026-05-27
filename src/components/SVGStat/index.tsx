@@ -21,8 +21,8 @@ const SVGStat = () => {
   return (
     <div id="svgStat">
       <Suspense fallback={<div className="text-center">Loading...</div>}>
-        <GridSvg className="grid-svg mt-4 h-auto w-full" />
         <GithubSvg className="github-svg mt-4 h-auto w-full" />
+        <GridSvg className="grid-svg mt-4 h-auto w-full" />
       </Suspense>
     </div>
   );
