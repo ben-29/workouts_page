@@ -3,7 +3,6 @@ import logging
 import os
 import sys
 
-import appdirs
 from config import SQL_FILE
 from gpxtrackposter import (
     circular_drawer,
@@ -11,6 +10,8 @@ from gpxtrackposter import (
     grid_drawer,
     poster,
     track_loader,
+    month_of_life_drawer,
+    year_summary_drawer,
 )
 from gpxtrackposter.exceptions import ParameterError, PosterError
 
@@ -27,6 +28,8 @@ def main():
         "grid": grid_drawer.GridDrawer(p),
         "circular": circular_drawer.CircularDrawer(p),
         "github": github_drawer.GithubDrawer(p),
+        "monthoflife": month_of_life_drawer.MonthOfLifeDrawer(p),
+        "year_summary": year_summary_drawer.YearSummaryDrawer(p),
     }
 
     args_parser = argparse.ArgumentParser()
@@ -189,6 +192,22 @@ def main():
         help='github svg style; "align-firstday", "align-monday" (default: "align-firstday").',
     )
 
+    args_parser.add_argument(
+        "--sport-type",
+        dest="sport_type",
+        metavar="SPORT_TYPE",
+        type=str,
+        default="all",
+        help="Sport type",
+    )
+
+    args_parser.add_argument(
+        "--generate-all-years",
+        dest="generate_all_years",
+        action="store_true",
+        help="Generate separate SVG files for each year (for github type only)",
+    )
+
     for _, drawer in drawers.items():
         drawer.create_args(args_parser)
 
@@ -215,15 +234,24 @@ def main():
     if args.from_db:
         # for svg from db here if you want gpx please do not use --from-db
         # args.type == "grid" means have polyline data or not
-        tracks = loader.load_tracks_from_db(SQL_FILE, args.type == "grid")
+        tracks = loader.load_tracks_from_db(
+            SQL_FILE, args.type == "grid", args.type == "circular"
+        )
     else:
         tracks = loader.load_tracks(args.gpx_dir)
+
+    if args.sport_type != "all":
+        tracks = [track for track in tracks if track.type == args.sport_type]
+
     if not tracks:
         return
 
     is_circular = args.type == "circular"
+    is_mol = args.type == "monthoflife"
+    is_year_summary = args.type == "year_summary"
+    is_github = args.type == "github"
 
-    if not is_circular:
+    if not is_circular and not is_mol and not is_year_summary:
         print(
             f"Creating poster of type {args.type} with {len(tracks)} tracks and storing it in file {args.output}..."
         )
@@ -251,17 +279,63 @@ def main():
     p.set_tracks(tracks)
     # circular not add footer and header
     p.drawer_type = "plain" if is_circular else "title"
+    if is_mol:
+        p.drawer_type = "monthoflife"
+    if is_year_summary:
+        p.drawer_type = "year_summary"
     if args.type == "github":
         p.height = 55 + p.years.real_year * 43
     p.github_style = args.github_style
+
+    if args.type == "circular":
+        if args.background_color == "#222222":
+            p.colors["background"] = "#1a1a1a"
+        if args.track_color == "#4DD2FF":
+            p.colors["track"] = "red"
+        if args.special_color == "#FFFF00":
+            p.colors["special"] = "yellow"
+        if args.text_color == "#FFFFFF":
+            p.colors["text"] = "#e1ed5e"
+
     # for special circular
     if is_circular:
         years = p.years.all()[:]
+        output_dir = os.path.dirname(args.output) or "assets"
         for y in years:
             p.years.from_year, p.years.to_year = y, y
             # may be refactor
             p.set_tracks(tracks)
-            p.draw(drawers[args.type], os.path.join("assets", f"year_{str(y)}.svg"))
+            p.draw(drawers[args.type], os.path.join(output_dir, f"year_{str(y)}.svg"))
+    elif is_year_summary and args.summary_year is None:
+        # Generate year summary for all years when --summary-year is not specified
+        years = p.years.all()[:]
+        output_dir = os.path.dirname(args.output) or "assets"
+        for y in years:
+            drawers[args.type].year = y
+            p.draw(
+                drawers[args.type],
+                os.path.join(output_dir, f"year_summary_{str(y)}.svg"),
+            )
+    elif is_github and args.year == "all" and args.generate_all_years:
+        # Generate GitHub heat map for all years when --generate-all-years flag is set
+        years = p.years.all()[:]
+        output_dir = os.path.dirname(args.output) or "assets"
+        for y in years:
+            p.years.from_year, p.years.to_year = y, y
+            # Single year = height for exactly 1 year row
+            p.height = 55 + 1 * 43
+            # Re-set tracks for this year's data
+            p.set_tracks(tracks)
+            # Use year-specific title if available, otherwise use default
+            year_title = args.title if args.title else f"{y} Running"
+            original_title = p.title
+            p.title = year_title
+            p.draw(
+                drawers[args.type],
+                os.path.join(output_dir, f"github_{str(y)}.svg"),
+            )
+            # Restore original title for next iteration
+            p.title = original_title
     else:
         p.draw(drawers[args.type], args.output)
 

@@ -1,10 +1,10 @@
 import datetime
+import os
 import random
 import string
-import time
 
-import geopy
-from geopy.geocoders import Nominatim
+from config import TYPE_DICT
+from geopy.geocoders import options, Nominatim
 from sqlalchemy import (
     Column,
     Float,
@@ -19,6 +19,11 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 Base = declarative_base()
+ENABLE_REVERSE_GEOCODE = os.getenv("ENABLE_REVERSE_GEOCODE", "").lower() in {
+    "1",
+    "true",
+    "yes",
+}
 
 
 # random user name 8 letters
@@ -27,8 +32,8 @@ def randomword():
     return "".join(random.choice(letters) for i in range(4))
 
 
-geopy.geocoders.options.default_user_agent = "my-application"
-# reverse the location (lan, lon) -> location detail
+options.default_user_agent = "workouts_page"
+# reverse the location (lat, lon) -> location detail
 g = Nominatim(user_agent=randomword())
 
 
@@ -38,13 +43,14 @@ ACTIVITY_KEYS = [
     "distance",
     "moving_time",
     "type",
-    "subtype",
     "start_date",
     "start_date_local",
     "location_country",
     "summary_polyline",
     "average_heartrate",
     "average_speed",
+    "elevation_gain",
+    "source",
 ]
 
 
@@ -57,14 +63,15 @@ class Activity(Base):
     moving_time = Column(Interval)
     elapsed_time = Column(Interval)
     type = Column(String)
-    subtype = Column(String)
     start_date = Column(String)
     start_date_local = Column(String)
     location_country = Column(String)
     summary_polyline = Column(String)
     average_heartrate = Column(Float)
     average_speed = Column(Float)
+    elevation_gain = Column(Float)
     streak = None
+    source = Column(String)
 
     def to_dict(self):
         out = {}
@@ -87,27 +94,51 @@ def update_or_create_activity(session, run_activity):
         activity = (
             session.query(Activity).filter_by(run_id=int(run_activity.id)).first()
         )
+        type = run_activity.type
+        source = run_activity.source if hasattr(run_activity, "source") else "gpx"
+        if run_activity.type in TYPE_DICT:
+            type = TYPE_DICT[run_activity.type]
+
+        current_elevation_gain = 0.0  # default value
+
+        # https://github.com/stravalib/stravalib/blob/main/src/stravalib/strava_model.py#L639C1-L643C41
+        if (
+            hasattr(run_activity, "total_elevation_gain")
+            and run_activity.total_elevation_gain is not None
+        ):
+            current_elevation_gain = float(run_activity.total_elevation_gain)
+        elif (
+            hasattr(run_activity, "elevation_gain")
+            and run_activity.elevation_gain is not None
+        ):
+            current_elevation_gain = float(run_activity.elevation_gain)
+
         if not activity:
             start_point = run_activity.start_latlng
             location_country = getattr(run_activity, "location_country", "")
             # or China for #176 to fix
-            if not location_country and start_point or location_country == "China":
+            if ENABLE_REVERSE_GEOCODE and (
+                (not location_country and start_point) or location_country == "China"
+            ):
                 try:
                     location_country = str(
                         g.reverse(
-                            f"{start_point.lat}, {start_point.lon}", language="zh-CN"
+                            f"{start_point.lat}, {start_point.lon}",
+                            language="zh-CN",  # type: ignore
+                            timeout=15,
                         )
                     )
                 # limit (only for the first time)
-                except Exception as e:
+                except Exception:
                     try:
                         location_country = str(
                             g.reverse(
                                 f"{start_point.lat}, {start_point.lon}",
-                                language="zh-CN",
+                                language="zh-CN",  # type: ignore
+                                timeout=15,
                             )
                         )
-                    except Exception as e:
+                    except Exception:
                         pass
 
             activity = Activity(
@@ -116,16 +147,17 @@ def update_or_create_activity(session, run_activity):
                 distance=run_activity.distance,
                 moving_time=run_activity.moving_time,
                 elapsed_time=run_activity.elapsed_time,
-                type=run_activity.type,
-                subtype=run_activity.subtype,
+                type=type,
                 start_date=run_activity.start_date,
                 start_date_local=run_activity.start_date_local,
                 location_country=location_country,
                 average_heartrate=run_activity.average_heartrate,
                 average_speed=float(run_activity.average_speed),
+                elevation_gain=current_elevation_gain,
                 summary_polyline=(
                     run_activity.map and run_activity.map.summary_polyline or ""
                 ),
+                source=source,
             )
             session.add(activity)
             created = True
@@ -134,13 +166,14 @@ def update_or_create_activity(session, run_activity):
             activity.distance = float(run_activity.distance)
             activity.moving_time = run_activity.moving_time
             activity.elapsed_time = run_activity.elapsed_time
-            activity.type = run_activity.type
-            activity.subtype = run_activity.subtype
+            activity.type = type
             activity.average_heartrate = run_activity.average_heartrate
             activity.average_speed = float(run_activity.average_speed)
+            activity.elevation_gain = current_elevation_gain
             activity.summary_polyline = (
                 run_activity.map and run_activity.map.summary_polyline or ""
             )
+            activity.source = source
     except Exception as e:
         print(f"something wrong with {run_activity.id}")
         print(str(e))

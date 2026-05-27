@@ -1,0 +1,66 @@
+[project]
+name = "workouts_page"
+version = "2.5.1"
+description = "Default template for PDM package"
+authors = [{ name = "ben_29", email = "ben_29@live.com" }]
+dependencies = [
+    "httpx",
+    "gpxpy==1.6.2",
+    "stravalib==0.10.4",
+    "appdirs>=1.4.0",
+    "svgwrite>=1.1.9",
+    "colour>=0.1.5",
+    "s2sphere",
+    "arrow",
+    "geopy",
+    "polyline",
+    "sqlalchemy",
+    "textual",
+    "tzfpy; platform_system != \"Windows\"",
+    "timezonefinder; platform_system == \"Windows\"",
+    "pyyaml",
+    "aiofiles",
+    "cloudscraper",
+    "tcxreader",
+    "rich>=15.0.0",
+    "lxml",
+    "eviltransform",
+    "stravaweblib",
+    "tenacity",
+    "numpy",
+    "tzlocal",
+    "fit-tool",
+    "garmin-fit-sdk",
+    "haversine==2.8.0",
+    "garth",
+    "pycryptodome",
+    "duckdb",
+    "openai",
+    "svglib>=1.5.1",
+    "cairosvg>=2.7.1",
+    "certifi==2025.1.31",
+    "cloudscraper==1.2.71",
+    "openai==1.88.0",
+    "bs4",
+    "html-parser",
+]
+requires-python = ">=3.12"
+readme = "README.md"
+license = { text = "MIT" }
+
+[project.scripts]
+run_page = "run_page.tui.app:main"
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+
+[tool.pdm]
+distribution = true
+packages = ["run_page"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+]

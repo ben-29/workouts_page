@@ -1,46 +1,129 @@
-@media only screen and (max-width: 700px) {
-  /* 当屏幕宽度小于 700px 时 */
-  .runTable th:nth-child(4),
-  .runTable td:nth-child(4) {
-    display: none;
-    /* 隐藏第四列 */
+@media only screen and (max-width: 768px) {
+  .tableContainer {
+    overflow-x: visible;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .runTable {
+    min-width: 820px;
+    font-size: 0.72rem;
+  }
+
+  .runTable th,
+  .runTable td {
+    padding: 0.25rem !important;
+    white-space: nowrap;
+    min-width: 60px;
+  }
+
+  .runTable th:first-child,
+  .runTable td:first-child {
+    min-width: 100px;
+  }
+
+  .runTable th:last-child,
+  .runTable td:last-child {
+    min-width: 80px;
   }
 }
 
 .runTable {
   width: 100%;
-  font-variant: tabular-nums;
-  margin: 2rem 0 5rem 0;
-
+  margin: 0.9rem 0 5rem 0;
+  color: var(--color-run-table-thead);
+  background-color: var(--color-background);
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  line-height: 1.2;
+  table-layout: fixed;
   :is(thead) {
-    color: rgb(204, 204, 204);
-    text-align: right;
+    color: var(--color-run-table-thead);
 
     :is(th) {
-      padding: 0.5rem;
+      padding: 0.28rem 0.35rem;
+      white-space: nowrap;
+      text-align: center;
     }
+
+    .sortableHeader {
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.2s ease;
+    }
+
+    .sortableHeader:hover {
+      color: var(--color-primary);
+    }
+
+    :is(th):first-child {
+      text-align: left;
+    }
+
+    :is(th):last-child {
+      text-align: right;
+    }
+  }
+  :is(th, td) {
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  :is(th, td):first-child {
+    width: 35%;
+    min-width: 220px;
+    overflow-wrap: anywhere;
+    text-align: left;
+    white-space: normal;
+    word-break: normal;
+  }
+
+  :is(th, td):nth-child(2) {
+    width: 9%;
+  }
+
+  :is(th, td):nth-child(3),
+  :is(th, td):nth-child(4),
+  :is(th, td):nth-child(6) {
+    width: 8%;
+  }
+
+  :is(th, td):nth-child(5),
+  :is(th, td):nth-child(7) {
+    width: 10%;
+  }
+
+  :is(th, td):last-child {
+    width: 14%;
+    overflow-wrap: anywhere;
+    text-align: right;
+    white-space: normal;
   }
 }
 
 .runRow {
   cursor: pointer;
   :is(td) {
-    padding: 0.5rem;
+    padding: 0.26rem 0.35rem;
     border: 0;
-    text-align: right;
+    text-align: center; /* 默认居中 */
+  }
 
-    &:first-child {
-      text-align: left;
-    }
+  :is(td):first-child {
+    text-align: left;
+  }
+
+  :is(td):last-child {
+    text-align: right;
   }
 
   &:hover {
-    background-color: lighten(rgb(26, 26, 26), 3%);
+    background-color: var(--color-run-row-hover-background);
   }
 }
 
 .selected {
-  color: red;
+  background-color: var(--color-run-row-hover-background);
+  color: var(--color-text-primary) !important;
 }
 
 .tableContainer {
@@ -49,5 +132,5 @@
 }
 
 .runDate {
-  color: rgb(204, 204, 204);
+  color: var(--color-run-date);
 }

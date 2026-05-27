@@ -1,24 +1,62 @@
 # some code from https://github.com/fieryd/PKURunningHelper great thanks
 import argparse
+import ast
 import json
 import os
 import subprocess
 import sys
 import time
+import warnings
 from collections import namedtuple
 from datetime import datetime, timedelta, timezone
+from xml.dom import minidom
 from hashlib import md5
+from typing import List
 from urllib.parse import quote
-
+import xml.etree.ElementTree as ET
 import gpxpy
+import numpy as np
 import polyline
 import requests
-from config import BASE_TIMEZONE, GPX_FOLDER, JSON_FILE, SQL_FILE, run_map, start_point
+from config import (
+    BASE_TIMEZONE,
+    GPX_FOLDER,
+    JSON_FILE,
+    SQL_FILE,
+    TCX_FOLDER,
+    run_map,
+    start_point,
+)
 from generator import Generator
-
 from utils import adjust_time
 
-get_md5_data = lambda data: md5(str(data).encode("utf-8")).hexdigest().upper()
+# struct body
+FitType = np.dtype(
+    {
+        "names": [
+            "time",
+            "bpm",
+            "lati",
+            "longi",
+            "elevation",
+        ],  # unix timestamp, heart bpm, LatitudeDegrees, LongitudeDegrees, elevation
+        "formats": ["i", "S4", "S32", "S32", "S8"],
+    }
+)
+
+# May be Forerunner 945?
+CONNECT_API_PART_NUMBER = "006-D2449-00"
+
+# for tcx type
+TCX_TYPE_DICT = {
+    0: "Hiking",
+    1: "Running",
+    2: "Biking",
+}
+
+
+def get_md5_data(data):
+    return md5(str(data).encode("utf-8")).hexdigest().upper()
 
 
 def download_joyrun_gpx(gpx_data, joyrun_id):
@@ -27,9 +65,29 @@ def download_joyrun_gpx(gpx_data, joyrun_id):
         file_path = os.path.join(GPX_FOLDER, str(joyrun_id) + ".gpx")
         with open(file_path, "w") as fb:
             fb.write(gpx_data)
-    except:
-        print(f"wrong id {joyrun_id}")
+    except Exception as e:
+        print(f"wrong id {joyrun_id}: {e}")
         pass
+
+
+def download_joyrun_tcx(tcx_data, joyrun_id):
+    # write to TCX file
+    try:
+        xml_str = minidom.parseString(ET.tostring(tcx_data)).toprettyxml()
+        with open(TCX_FOLDER + "/" + joyrun_id + ".tcx", "w") as f:
+            f.write(str(xml_str))
+    except Exception as e:
+        print(f"empty database error {str(e)}")
+        pass
+
+
+def formated_input(
+    run_data, run_data_label, tcx_label
+):  # load run_data from run_data_label, parse to tcx_label, return xml node
+    fit_data = str(run_data[run_data_label])
+    chile_node = ET.Element(tcx_label)
+    chile_node.text = fit_data
+    return chile_node
 
 
 class JoyrunAuth:
@@ -172,79 +230,301 @@ class Joyrun:
         if not content:
             return []
         try:
-            # eval is bad but easy maybe change it later
-            # TODO fix this
-            # just an easy way to fix joyrun issue, need to refactor this shit
-            # -[34132812,-118126177]- contains `-` so I just fix it by replace
+            # Replace unsafe eval() with ast.literal_eval for safer parsing
+            # -[34132812,-118126177]- contains `-` so we fix it by replace
             try:
-                points = eval(content.replace("]-[", "],["))
-            except Exception as e:
-                print(str(e))
-                print(f"Points: {str(points)} can not eval")
+                # Use ast.literal_eval instead of eval for security
+                normalized_content = content.replace("]-[", "],[")
+                points = ast.literal_eval(normalized_content)
+            except (ValueError, SyntaxError) as e:
+                print(f"Error parsing points content: {e}")
+                return []
             points = [[p[0] / 1000000, p[1] / 1000000] for p in points]
         except Exception as e:
-            print(str(e))
+            print(f"Error processing points: {e}")
             points = []
         return points
 
+    class Pause:
+        def __init__(self, pause_data_point: List[str]):
+            self.index = int(pause_data_point[0])
+            self.duration = int(pause_data_point[1])
+
+        def __repr__(self):
+            return f"Pause(index=${self.index}, duration=${self.duration})"
+
+    class PauseList:
+        def __init__(self, pause_list: List[List[str]]):
+            self._list = []
+            for pause in pause_list:
+                self._list.append(Joyrun.Pause(pause))
+
+        def next(self) -> "Joyrun.Pause":
+            return self._list.pop(0) if self._list else None
+
+    class DataSeries:
+        def __init__(self, data_string: str):
+            self._list = Joyrun.DataSeries._parse(data_string)
+
+        def next(self):
+            return self._list.pop(0) if self._list else None
+
+        @staticmethod
+        def _parse(data_str):
+            if not data_str:
+                return []
+            try:
+                parsed = ast.literal_eval(data_str)
+                if isinstance(parsed, list):
+                    return parsed
+                warnings.warn(f'"data" evaluated to {type(parsed)}, want List')
+            except (ValueError, SyntaxError) as e:
+                warnings.warn(f'Failed to evaluate "data": {e}')
+            return []
+
+    @staticmethod
+    def new_track_point(
+        latitude, longitude, elevation, time, heart_rate
+    ) -> gpxpy.gpx.GPXTrackPoint:
+        track_point = gpxpy.gpx.GPXTrackPoint(
+            latitude=latitude,
+            longitude=longitude,
+            elevation=elevation,
+            time=datetime.fromtimestamp(time, tz=timezone.utc),
+        )
+
+        # Extension
+        extension_element = ET.Element("gpxtpx:TrackPointExtension")
+        track_point.extensions.append(extension_element)
+
+        ## Heart rate
+        if heart_rate:
+            heart_rate_element = ET.Element("gpxtpx:hr")
+            heart_rate_element.text = str(heart_rate)
+            extension_element.append(heart_rate_element)
+
+        return track_point
+
     @staticmethod
     def parse_points_to_gpx(
-        run_points_data, start_time, end_time, pause_list, interval=5
+        run_points_data,
+        start_time,
+        end_time,
+        pause_list,
+        heart_rate_data_string,
+        altitude_data_string,
+        interval=5,
     ):
         """
         parse run_data content to gpx object
         TODO for now kind of same as `keep` maybe refactor later
 
-        :param run_points_data: [[latitude, longitude],...]
-        :param pause_list:      [[interval_index, pause_seconds],...]
-        :param interval:        time interval between each point, in seconds
+        :param run_points_data:        [[latitude, longitude],...]
+        :param pause_list:             [[interval_index, pause_seconds],...]
+        :param heart_rate_data_string: heart rate list in string format
+        :param altitude_data_string:   altitude list in string format
+        :param interval:               time interval between each point, in seconds
         """
 
-        # format data
-        segment_list = []
-        points_dict_list = []
-        current_time = start_time
-
-        for index, point in enumerate(run_points_data[:-1]):
-            points_dict = {
-                "latitude": point[0],
-                "longitude": point[1],
-                "time": datetime.fromtimestamp(current_time, tz=timezone.utc),
-            }
-            points_dict_list.append(points_dict)
-
-            current_time += interval
-            if pause_list and int(pause_list[0][0]) - 1 == index:
-                segment_list.append(points_dict_list[:])
-                points_dict_list.clear()
-                current_time += int(pause_list[0][1])
-                pause_list.pop(0)
-
-        points_dict_list.append(
-            {
-                "latitude": run_points_data[-1][0],
-                "longitude": run_points_data[-1][1],
-                "time": datetime.fromtimestamp(end_time, tz=timezone.utc),
-            }
-        )
-        segment_list.append(points_dict_list)
-
-        # gpx part
+        # GPX instance
         gpx = gpxpy.gpx.GPX()
         gpx.nsmap["gpxtpx"] = "http://www.garmin.com/xmlschemas/TrackPointExtension/v1"
-        gpx_track = gpxpy.gpx.GPXTrack()
-        gpx_track.name = "gpx from joyrun"
-        gpx.tracks.append(gpx_track)
 
-        # add segment list to our GPX track:
-        for point_list in segment_list:
-            gpx_segment = gpxpy.gpx.GPXTrackSegment()
-            gpx_track.segments.append(gpx_segment)
-            for p in point_list:
-                point = gpxpy.gpx.GPXTrackPoint(**p)
-                gpx_segment.points.append(point)
+        # GPX Track
+        track = gpxpy.gpx.GPXTrack()
+        track.name = f"gpx from joyrun {start_time}"
+        gpx.tracks.append(track)
 
-        return gpx.to_xml()
+        # GPX Track Segment
+        track_segment = gpxpy.gpx.GPXTrackSegment()
+        track.segments.append(track_segment)
+
+        # Initialize Pause
+        pause_list = Joyrun.PauseList(pause_list)
+        pause = pause_list.next()
+
+        # Extension data instances
+        heart_rate_list = Joyrun.DataSeries(heart_rate_data_string)
+        altitude_list = Joyrun.DataSeries(altitude_data_string)
+
+        current_time = start_time
+        for index, point in enumerate(run_points_data[:-1]):
+            # New Track Point
+            track_segment.points.append(
+                Joyrun.new_track_point(
+                    point[0],
+                    point[1],
+                    altitude_list.next(),
+                    current_time,
+                    heart_rate_list.next(),
+                )
+            )
+
+            # Increment time
+            current_time += interval
+
+            # Check pause
+            if pause and pause.index - 1 == index:
+                # New Segment
+                track_segment = gpxpy.gpx.GPXTrackSegment()
+                track.segments.append(track_segment)
+                # Add paused duration
+                current_time += pause.duration
+                # Next pause
+                pause = pause_list.next()
+
+        # Last Track Point uses end_time
+        last_point = run_points_data[-1]
+        track_segment.points.append(
+            Joyrun.new_track_point(
+                last_point[0],
+                last_point[1],
+                altitude_list.next(),
+                end_time,
+                heart_rate_list.next(),
+            )
+        )
+
+        return gpx
+
+    def parse_points_to_tcx(self, run_data, interval=5) -> ET.Element:
+        """
+        parse run_data content to tcx object
+        TODO for now kind of same as `keep` maybe refactor later
+
+        :param run_points_data:        [[latitude, longitude],...]
+        :param pause_list:             [[interval_index, pause_seconds],...]
+        :param heart_rate_data_string: heart rate list in string format
+        :param altitude_data_string:   altitude list in string format
+        :param interval:               time interval between each point, in seconds
+        """
+
+        # local time
+        fit_start_time_local = run_data["starttime"]
+        # zulu time
+        fit_start_time = time.strftime(
+            "%Y-%m-%dT%H:%M:%SZ", time.localtime(fit_start_time_local)
+        )
+
+        # Root node
+        training_center_database = ET.Element(
+            "TrainingCenterDatabase",
+            {
+                "xmlns": "http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2",
+                "xmlns:ns5": "http://www.garmin.com/xmlschemas/ActivityGoals/v1",
+                "xmlns:ns3": "http://www.garmin.com/xmlschemas/ActivityExtension/v2",
+                "xmlns:ns2": "http://www.garmin.com/xmlschemas/UserProfile/v2",
+                "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+                "xmlns:ns4": "http://www.garmin.com/xmlschemas/ProfileExtension/v1",
+                "xsi:schemaLocation": "http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 http://www.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd",
+            },
+        )
+        # xml tree
+        ET.ElementTree(training_center_database)
+        # Activities
+        activities = ET.Element("Activities")
+        training_center_database.append(activities)
+        # sport type
+        sports_type = TCX_TYPE_DICT.get(run_data["type"])
+        # activity
+        activity = ET.Element("Activity", {"Sport": sports_type})
+        activities.append(activity)
+        #   Id
+        activity_id = ET.Element("Id")
+        activity_id.text = fit_start_time  # Joyrun use start_time as ID
+        activity.append(activity_id)
+        #   Creator
+        activity_creator = ET.Element("Creator", {"xsi:type": "Device_t"})
+        activity.append(activity_creator)
+        #       Name
+        activity_creator_name = ET.Element("Name")
+        activity_creator_name.text = "Joyrun"
+        activity_creator.append(activity_creator_name)
+        activity_creator_product = ET.Element("ProductID")
+        activity_creator_product.text = "3441"
+        activity_creator.append(activity_creator_product)
+        #   Lap
+        activity_lap = ET.Element("Lap", {"StartTime": fit_start_time})
+        activity.append(activity_lap)
+        #       TotalTimeSeconds
+        activity_lap.append(formated_input(run_data, "second", "TotalTimeSeconds"))
+        #       DistanceMeters
+        activity_lap.append(formated_input(run_data, "meter", "DistanceMeters"))
+
+        # Initialize Pause
+        pause_list = Joyrun.PauseList(run_data["pause"])
+        pause = pause_list.next()
+        # Extension data instances
+        run_points_data = self.parse_content_to_ponits(run_data["content"])
+        heart_rate_list = Joyrun.DataSeries(run_data["heartrate"])
+        altitude_list = Joyrun.DataSeries(run_data["altitude"])
+
+        # Track
+        track = ET.Element("Track")
+        activity_lap.append(track)
+        current_time = fit_start_time_local
+        for index, point in enumerate(run_points_data[:-1]):
+            tp = ET.Element("Trackpoint")
+            track.append(tp)
+            # Time
+            time_stamp = time.strftime(
+                "%Y-%m-%dT%H:%M:%SZ", time.localtime(current_time)
+            )
+            time_label = ET.Element("Time")
+            time_label.text = time_stamp
+            tp.append(time_label)
+
+            # HeartRateBpm
+            # None was converted to bytes by np.dtype, becoming a string "None" after decode...-_-
+            # as well as LatitudeDegrees and LongitudeDegrees below
+            if "heartrate" in run_data:
+                bpm = ET.Element("HeartRateBpm")
+                bpm_value = ET.Element("Value")
+                bpm.append(bpm_value)
+                bpm_value.text = str(heart_rate_list.next())
+                tp.append(bpm)
+
+            # Position
+            if "content" in run_data:
+                position = ET.Element("Position")
+                tp.append(position)
+                #   LatitudeDegrees
+                lati = ET.Element("LatitudeDegrees")
+                lati.text = str(point[0])
+                position.append(lati)
+                #   LongitudeDegrees
+                longi = ET.Element("LongitudeDegrees")
+                longi.text = str(point[1])
+                position.append(longi)
+                #  AltitudeMeters
+                altitude_meters = ET.Element("AltitudeMeters")
+                altitude_meters.text = str(altitude_list.next())
+                tp.append(altitude_meters)
+
+            # Increment time
+            current_time += interval
+
+            # Check pause
+            if pause and pause.index - 1 == index:
+                # Add paused duration
+                current_time += pause.duration
+                # Next pause
+                pause = pause_list.next()
+
+        # Author
+        author = ET.Element("Author", {"xsi:type": "Application_t"})
+        training_center_database.append(author)
+        author_name = ET.Element("Name")
+        author_name.text = "Connect Api"
+        author.append(author_name)
+        author_lang = ET.Element("LangID")
+        author_lang.text = "en"
+        author.append(author_lang)
+        author_part = ET.Element("PartNumber")
+        author_part.text = CONNECT_API_PART_NUMBER
+        author.append(author_part)
+
+        return training_center_database
 
     def get_single_run_record(self, fid):
         payload = {
@@ -259,7 +539,9 @@ class Joyrun:
         data = r.json()
         return data
 
-    def parse_raw_data_to_nametuple(self, run_data, old_gpx_ids, with_gpx=False):
+    def parse_raw_data_to_nametuple(
+        self, run_data, old_gpx_ids, with_gpx=False, with_tcx=False
+    ):
         run_data = run_data["runrecord"]
         joyrun_id = run_data["fid"]
 
@@ -267,19 +549,33 @@ class Joyrun:
         end_time = run_data["endtime"]
         pause_list = run_data["pause"]
         run_points_data = self.parse_content_to_ponits(run_data["content"])
-        if with_gpx:
-            # pass the track no points
-            if run_points_data:
-                gpx_data = self.parse_points_to_gpx(
-                    run_points_data, start_time, end_time, pause_list
-                )
-                download_joyrun_gpx(gpx_data, str(joyrun_id))
+        elevation_gain = None
+        # pass the track no points
+        if run_points_data:
+            gpx_data = self.parse_points_to_gpx(
+                run_points_data,
+                start_time,
+                end_time,
+                pause_list,
+                run_data["heartrate"],
+                run_data["altitude"],
+            )
+            elevation_gain = gpx_data.get_uphill_downhill().uphill
+            if with_gpx and str(joyrun_id) not in old_gpx_ids:
+                download_joyrun_gpx(gpx_data.to_xml(), str(joyrun_id))
+
+            if with_tcx and str(joyrun_id) not in old_gpx_ids:
+                tcx_data = self.parse_points_to_tcx(run_data)
+                download_joyrun_tcx(tcx_data, str(joyrun_id))
         try:
             heart_rate_list = (
-                eval(run_data["heartrate"]) if run_data["heartrate"] else None
+                ast.literal_eval(run_data["heartrate"])
+                if run_data["heartrate"]
+                else None
             )
-        except:
-            print(f"Heart Rate: can not eval for {str(heart_rate_list)}")
+        except (ValueError, SyntaxError) as e:
+            print(f"Heart Rate: can not parse for {run_data['heartrate']}: {e}")
+
         heart_rate = None
         if heart_rate_list:
             heart_rate = int(sum(heart_rate_list) / len(heart_rate_list))
@@ -320,11 +616,14 @@ class Joyrun:
                 seconds=int((run_data["endtime"] - run_data["starttime"]))
             ),
             "average_speed": run_data["meter"] / run_data["second"],
+            "elevation_gain": elevation_gain,
             "location_country": location_country,
         }
         return namedtuple("x", d.keys())(*d.values())
 
-    def get_all_joyrun_tracks(self, old_tracks_ids, with_gpx=False, threshold=10):
+    def get_all_joyrun_tracks(
+        self, old_tracks_ids, with_gpx=False, with_tcx=False, threshold=10
+    ):
         run_ids = self.get_runs_records_ids()
         old_tracks_ids = [int(i) for i in old_tracks_ids if i.isdigit()]
 
@@ -350,11 +649,11 @@ class Joyrun:
                     break
             if not is_duplicate:
                 seen_runs[start_time] = {"run_data": run_data, "distance": distance}
-            for run in seen_runs.values():
-                track = self.parse_raw_data_to_nametuple(
-                    run["run_data"], old_gpx_ids, with_gpx
-                )
-                tracks.append(track)
+        for run in seen_runs.values():
+            track = self.parse_raw_data_to_nametuple(
+                run["run_data"], old_gpx_ids, with_gpx, with_tcx
+            )
+            tracks.append(track)
         return tracks
 
 
@@ -451,7 +750,13 @@ if __name__ == "__main__":
         "--with-gpx",
         dest="with_gpx",
         action="store_true",
-        help="get all joyrun data to gpx and download",
+        help="get all joyrun data to gpx and download, including heart rate data in best effort",
+    )
+    parser.add_argument(
+        "--with-tcx",
+        dest="with_tcx",
+        action="store_true",
+        help="get all joyrun data to tcx and download",
     )
     parser.add_argument(
         "--from-uid-sid",
@@ -482,7 +787,7 @@ if __name__ == "__main__":
     generator = Generator(SQL_FILE)
     old_tracks_ids = generator.get_old_tracks_ids()
     tracks = j.get_all_joyrun_tracks(
-        old_tracks_ids, options.with_gpx, options.threshold
+        old_tracks_ids, options.with_gpx, options.with_tcx, options.threshold
     )
     generator.sync_from_app(tracks)
     activities_list = generator.load()

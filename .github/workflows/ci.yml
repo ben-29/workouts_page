@@ -1,14 +1,15 @@
 name: CI
 
-on: [push, pull_request]
+on:
+  workflow_dispatch:
 
 jobs:
-  lint_and_test:
+  python_lint_and_test:
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 4
       matrix:
-        python-version: ['3.11', '3.12']
+        python-version: ['3.12', '3.13', '3.14']
     steps:
       - uses: actions/checkout@v4
         with:
@@ -27,5 +28,45 @@ jobs:
         run: |
           pip install -r requirements-dev.txt
 
+      - name: Run GPX sync test
+        run: |
+          # make sure the gpx_sync.py script is executable
+          python run_page/gpx_sync.py
+
       - name: Check formatting (black)
         run: black . --diff --color && black . --check
+
+      - name: Lint with Ruff
+        run: |
+          pip install ruff
+          ruff check .
+
+  node_lint_and_test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [20, 22, 24]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run check and build
+        run: |
+          pnpm run check
+          pnpm run lint
+          pnpm run build
