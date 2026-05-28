@@ -398,7 +398,7 @@ const Index = () => {
         >
           {siteTitle}
         </a>
-        <hr className="my-6 border-neutral-300" />
+        <hr className="my-6 border-t-2 border-neutral-300" />
         {(viewState.zoom ?? 0) <= 3 ? (
           <LocationStat stats={routeScopedLocationStats} />
         ) : (
@@ -410,7 +410,7 @@ const Index = () => {
         )}
       </div>
       <div
-        className="w-full min-w-0 flex-1 border-neutral-300 md:w-[calc(1280px-390px-2rem)] md:border-l md:pl-8"
+        className="w-full min-w-0 flex-1 border-neutral-300 md:w-[calc(1280px-390px-2rem)] md:border-l-2 md:pl-8"
         id="map-container"
       >
         <section>
@@ -426,15 +426,15 @@ const Index = () => {
         </section>
         {year === 'Total' ? (
           <>
-            <section className="mt-5 border-t-2 border-neutral-300 pt-5">
+            <section className="mt-5 border-t border-neutral-300 pt-5">
               <LongRouteGrid runs={runs} locateActivity={locateActivity} />
             </section>
-            <section className="mt-5 border-t-2 border-neutral-300 pt-5">
+            <section className="mt-5 border-t border-neutral-300 pt-5">
               <ContributionHeatmap activities={activities} />
             </section>
           </>
         ) : (
-          <section className="mt-5 border-t-2 border-neutral-300 pt-5">
+          <section className="mt-5 border-t border-neutral-300 pt-5">
             <RunTable
               runs={runs}
               locateActivity={locateActivity}
