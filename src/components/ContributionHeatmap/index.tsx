@@ -49,7 +49,7 @@ const dateKey = (date: Date) =>
   ).padStart(2, '0')}`;
 
 const ContributionHeatmap = ({ activities }: ContributionHeatmapProps) => {
-  const { years, distancesByDate } = useMemo(() => {
+  const { years, distancesByDate, lastYearContributionCount } = useMemo(() => {
     const yearSet = new Set<number>();
     const byDate = new Map<string, number>();
 
@@ -61,14 +61,32 @@ const ContributionHeatmap = ({ activities }: ContributionHeatmapProps) => {
       byDate.set(date, (byDate.get(date) ?? 0) + (activity.distance ?? 0));
     });
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const lastYearStart = new Date(today);
+    lastYearStart.setFullYear(lastYearStart.getFullYear() - 1);
+    const lastYearContributionCount = Array.from(byDate).filter(
+      ([dateText, distance]) => {
+        if (distance <= 0) return false;
+        const date = new Date(`${dateText}T00:00:00`);
+        return date >= lastYearStart && date <= today;
+      }
+    ).length;
+
     return {
       years: Array.from(yearSet).sort((a, b) => b - a),
       distancesByDate: byDate,
+      lastYearContributionCount,
     };
   }, [activities]);
 
   return (
     <section className="w-full bg-transparent font-sans text-neutral-900">
+      <div className="mx-auto mt-2 mb-5 max-w-[760px] text-center text-lg text-neutral-800">
+        {lastYearContributionCount}{' '}
+        {lastYearContributionCount === 1 ? 'contribution' : 'contributions'} in
+        the last year
+      </div>
       <div className="mx-auto max-w-[760px] space-y-3">
         {years.map((year) => {
           const days = getYearDays(year);
