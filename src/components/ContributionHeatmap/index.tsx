@@ -82,7 +82,7 @@ const ContributionHeatmap = ({ activities }: ContributionHeatmapProps) => {
 
   return (
     <section className="w-full bg-transparent font-sans text-neutral-900">
-      <div className="mx-auto mt-2 mb-5 max-w-[760px] text-center text-lg text-neutral-800">
+      <div className="mx-auto mt-2 mb-5 max-w-[760px] text-left text-sm text-neutral-700">
         {lastYearContributionCount}{' '}
         {lastYearContributionCount === 1 ? 'contribution' : 'contributions'} in
         the last year

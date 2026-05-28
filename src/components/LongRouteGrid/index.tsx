@@ -104,7 +104,7 @@ const LongRouteGrid = ({ runs, locateActivity }: LongRouteGridProps) => {
           );
         })}
       </div>
-      <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs text-neutral-500">
+      <div className="mx-auto mt-4 flex max-w-[840px] flex-wrap items-center justify-end gap-2 text-xs text-neutral-500">
         <span className="inline-flex items-center gap-1">
           <span className="h-2.5 w-2.5 bg-[#4DD2FF]" />
           Over 10.0 KM
