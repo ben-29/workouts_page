@@ -24,6 +24,9 @@ export interface IViewState {
   zoom?: number;
 }
 
+const clamp = (value: number, min: number, max: number) =>
+  Math.max(min, Math.min(value, max));
+
 export const pathForRun = (run: Activity): Coordinate[] => {
   try {
     if (!run.summary_polyline) {
@@ -143,32 +146,32 @@ export const getBoundsForGeoData = (
   const selectedBounds =
     routeBounds.length > 1
       ? (() => {
-          const radius =
+          const neighborCount = Math.min(
             routeBounds.length > 700
-              ? 1.15
+              ? 160
               : routeBounds.length > 80
-                ? 0.9
-                : 1.35;
+                ? 80
+                : Math.max(3, Math.ceil(routeBounds.length * 0.45)),
+            routeBounds.length
+          );
           const seed = routeBounds
             .map((candidate) => {
-              const score = routeBounds.reduce((total, bounds) => {
-                const distance =
-                  Math.abs(bounds.centerLon - candidate.centerLon) +
-                  Math.abs(bounds.centerLat - candidate.centerLat);
-                if (distance > radius) return total;
-                return total + bounds.pointCount / Math.max(distance, 0.02);
+              const nearest = routeBounds
+                .map((bounds) => {
+                  const distance =
+                    Math.abs(bounds.centerLon - candidate.centerLon) +
+                    Math.abs(bounds.centerLat - candidate.centerLat);
+                  return { bounds, distance };
+                })
+                .sort((a, b) => a.distance - b.distance)
+                .slice(0, neighborCount);
+              const score = nearest.reduce((total, { bounds, distance }) => {
+                return total + bounds.pointCount / Math.max(distance, 0.002);
               }, 0);
               return { bounds: candidate, score };
             })
             .sort((a, b) => b.score - a.score)[0].bounds;
-          const neighborCount = Math.min(
-            routeBounds.length > 700
-              ? 280
-              : routeBounds.length > 80
-                ? 220
-                : Math.max(36, routeBounds.length),
-            routeBounds.length
-          );
+
           return routeBounds
             .map((bounds) => ({
               bounds,
@@ -200,6 +203,15 @@ export const getBoundsForGeoData = (
     return { longitude: minLon, latitude: minLat, zoom: 9 };
   }
 
+  const lonSpan = Math.max(maxLon - minLon, 0.00001);
+  const latSpan = Math.max(maxLat - minLat, 0.00001);
+  const lonBuffer = clamp(lonSpan * 0.32, 0.0025, 0.035);
+  const latBuffer = clamp(latSpan * 0.32, 0.0025, 0.035);
+  minLon -= lonBuffer;
+  maxLon += lonBuffer;
+  minLat -= latBuffer;
+  maxLat += latBuffer;
+
   const cornersLongLat: [Coordinate, Coordinate] = [
     [minLon, minLat],
     [maxLon, maxLat],
@@ -207,7 +219,9 @@ export const getBoundsForGeoData = (
   const viewportWidth =
     typeof window === 'undefined'
       ? 800
-      : Math.max(window.innerWidth - 520, 360);
+      : window.innerWidth >= 1280
+        ? Math.max(window.innerWidth - 520, 760)
+        : 760;
   const viewportHeight =
     typeof window === 'undefined' ? MAP_HEIGHT : MAP_HEIGHT;
   const padding =
@@ -223,8 +237,7 @@ export const getBoundsForGeoData = (
     height: viewportHeight,
   }).fitBounds(cornersLongLat, { padding });
   let { longitude, latitude, zoom } = viewState;
-  const maxZoom =
-    features.length <= 1 ? 15.0 : selectedBounds === routeBounds ? 10.2 : 11.4;
+  const maxZoom = features.length <= 1 ? 15.2 : 14.2;
   zoom = Math.max(1.5, Math.min(zoom, maxZoom));
   return { longitude, latitude, zoom };
 };

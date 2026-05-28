@@ -18,7 +18,11 @@ const Stat = ({
   onClick,
 }: IStatProperties) => {
   const sizeClass =
-    citySize === 5 ? 'text-5xl' : citySize === 3 ? 'text-3xl' : 'text-5xl';
+    citySize === 5
+      ? 'text-5xl'
+      : citySize === 3
+        ? 'text-3xl'
+        : 'text-[2.65rem]';
   const displayValue =
     format === 'comma' ? intComma(value.toString()) : value.toString();
 

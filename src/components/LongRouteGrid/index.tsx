@@ -97,14 +97,14 @@ const LongRouteGrid = ({ runs, locateActivity }: LongRouteGridProps) => {
                   stroke={colorForDistance(distanceKm)}
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth="3.2"
+                  strokeWidth="2.8"
                 />
               </svg>
             </button>
           );
         })}
       </div>
-      <div className="mt-2 flex flex-wrap items-center justify-center gap-2 text-xs text-neutral-500">
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs text-neutral-500">
         <span className="inline-flex items-center gap-1">
           <span className="h-2.5 w-2.5 bg-[#4DD2FF]" />
           Over 10.0 KM
