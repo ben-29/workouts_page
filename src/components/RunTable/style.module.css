@@ -1,3 +1,33 @@
+@media only screen and (max-width: 768px) {
+  .tableContainer {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .runTable {
+    min-width: 820px;
+    font-size: 0.72rem;
+  }
+
+  .runTable th,
+  .runTable td {
+    padding: 0.25rem !important;
+    white-space: nowrap;
+    min-width: 60px;
+  }
+
+  .runTable th:first-child,
+  .runTable td:first-child {
+    min-width: 100px;
+  }
+
+  .runTable th:last-child,
+  .runTable td:last-child {
+    min-width: 80px;
+  }
+}
+
 .runTable {
   width: 100%;
   margin: 0.9rem 0 5rem 0;

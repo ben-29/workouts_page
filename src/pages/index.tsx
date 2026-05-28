@@ -391,14 +391,14 @@ const Index = () => {
       <Helmet>
         <html lang="en" data-theme={theme} />
       </Helmet>
-      <div className="w-[390px] shrink-0 pr-2">
+      <div className="w-full shrink-0 pr-0 md:w-[390px] md:pr-2">
         <a
           className="mt-0 mb-6 block text-5xl leading-none font-extrabold text-neutral-950 italic no-underline"
           href="/"
         >
           {siteTitle}
         </a>
-        <hr className="my-6 border-t-2 border-neutral-300" />
+        <hr className="my-6 border-neutral-300" />
         {(viewState.zoom ?? 0) <= 3 ? (
           <LocationStat stats={routeScopedLocationStats} />
         ) : (
@@ -410,7 +410,7 @@ const Index = () => {
         )}
       </div>
       <div
-        className="w-[calc(1280px-390px-2rem)] flex-1 border-l-2 border-neutral-300 pl-8"
+        className="w-full min-w-0 flex-1 border-neutral-300 md:w-[calc(1280px-390px-2rem)] md:border-l md:pl-8"
         id="map-container"
       >
         <section>

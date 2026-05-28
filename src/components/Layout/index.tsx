@@ -1,44 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import Header from '@/components/Header';
 import getSiteMetadata from '@/hooks/useSiteMetadata';
 
 const Layout = ({ children }: React.PropsWithChildren) => {
   const { siteTitle, description, keywords } = getSiteMetadata();
-  const designWidth = 1280;
-  const contentRef = useRef<HTMLDivElement>(null);
-  const [frame, setFrame] = useState({ height: 0, scale: 1 });
-
-  useEffect(() => {
-    let frameId = 0;
-    const updateFrame = () => {
-      const nextScale = Math.min(1, window.innerWidth / designWidth);
-      const contentHeight = contentRef.current?.scrollHeight ?? 0;
-      setFrame({
-        height: contentHeight * nextScale,
-        scale: nextScale,
-      });
-    };
-    const scheduleUpdate = () => {
-      cancelAnimationFrame(frameId);
-      frameId = requestAnimationFrame(updateFrame);
-    };
-
-    scheduleUpdate();
-    window.addEventListener('resize', scheduleUpdate);
-    const observer =
-      typeof ResizeObserver !== 'undefined'
-        ? new ResizeObserver(scheduleUpdate)
-        : null;
-    if (contentRef.current && observer) {
-      observer.observe(contentRef.current);
-    }
-    return () => {
-      cancelAnimationFrame(frameId);
-      window.removeEventListener('resize', scheduleUpdate);
-      observer?.disconnect();
-    };
-  }, []);
 
   return (
     <>
@@ -53,21 +19,8 @@ const Layout = ({ children }: React.PropsWithChildren) => {
         />
       </Helmet>
       <Header />
-      <div
-        className="w-full overflow-x-hidden"
-        style={{ height: frame.height ? `${frame.height}px` : undefined }}
-      >
-        <div
-          className="mb-16 box-border flex gap-8 p-8"
-          ref={contentRef}
-          style={{
-            transform: `scale(${frame.scale})`,
-            transformOrigin: 'top left',
-            width: `${designWidth}px`,
-          }}
-        >
-          {children}
-        </div>
+      <div className="mb-16 flex w-full max-w-full flex-col gap-8 overflow-x-hidden p-5 md:flex-row md:p-8">
+        {children}
       </div>
     </>
   );

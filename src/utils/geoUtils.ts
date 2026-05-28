@@ -143,12 +143,13 @@ export const getBoundsForGeoData = (
     return { longitude: 20, latitude: 20, zoom: 3 };
   }
 
+  const isTotalScope = routeBounds.length > 700;
   const selectedBounds =
     routeBounds.length > 1
       ? (() => {
           const neighborCount = Math.min(
-            routeBounds.length > 700
-              ? 160
+            isTotalScope
+              ? 320
               : routeBounds.length > 80
                 ? 80
                 : Math.max(3, Math.ceil(routeBounds.length * 0.45)),
@@ -205,8 +206,12 @@ export const getBoundsForGeoData = (
 
   const lonSpan = Math.max(maxLon - minLon, 0.00001);
   const latSpan = Math.max(maxLat - minLat, 0.00001);
-  const lonBuffer = clamp(lonSpan * 0.32, 0.0025, 0.035);
-  const latBuffer = clamp(latSpan * 0.32, 0.0025, 0.035);
+  const lonBuffer = isTotalScope
+    ? clamp(lonSpan * 0.85, 0.02, 0.16)
+    : clamp(lonSpan * 0.32, 0.0025, 0.035);
+  const latBuffer = isTotalScope
+    ? clamp(latSpan * 0.85, 0.02, 0.16)
+    : clamp(latSpan * 0.32, 0.0025, 0.035);
   minLon -= lonBuffer;
   maxLon += lonBuffer;
   minLat -= latBuffer;
@@ -237,7 +242,7 @@ export const getBoundsForGeoData = (
     height: viewportHeight,
   }).fitBounds(cornersLongLat, { padding });
   let { longitude, latitude, zoom } = viewState;
-  const maxZoom = features.length <= 1 ? 15.2 : 14.2;
+  const maxZoom = features.length <= 1 ? 15.2 : isTotalScope ? 11.2 : 14.2;
   zoom = Math.max(1.5, Math.min(zoom, maxZoom));
   return { longitude, latitude, zoom };
 };
