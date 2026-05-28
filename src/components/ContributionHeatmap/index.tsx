@@ -8,6 +8,7 @@ interface ContributionHeatmapProps {
 const HALF_MARATHON_KM = 21.0975;
 const FULL_MARATHON_KM = 42.195;
 const M_TO_KM = 1000;
+const HEATMAP_WIDTH = 686;
 const EMPTY_COLOR = '#ebedf0';
 const GITHUB_GREENS = ['#9be9a8', '#40c463', '#30a14e', '#216e39'];
 
@@ -87,7 +88,7 @@ const ContributionHeatmap = ({ activities }: ContributionHeatmapProps) => {
         {lastYearActiveDays === 1 ? 'active day' : 'active days'} in the last
         year
       </div>
-      <div className="mx-auto max-w-[760px] space-y-3">
+      <div className="w-full space-y-4">
         {years.map((year) => {
           const days = getYearDays(year);
           const leadingBlanks = days[0].getDay();
@@ -110,13 +111,10 @@ const ContributionHeatmap = ({ activities }: ContributionHeatmapProps) => {
 
           return (
             <div
-              className="grid grid-cols-[3.5rem_1fr] items-start gap-2"
+              className="flex w-full items-center justify-between"
               key={year}
             >
-              <div className="pt-5 text-sm font-medium text-neutral-700">
-                {year}
-              </div>
-              <div className="min-w-0">
+              <div className="shrink-0" style={{ width: `${HEATMAP_WIDTH}px` }}>
                 <div
                   className="mb-1 grid gap-[3px] text-[10px] text-neutral-500"
                   style={{
@@ -164,11 +162,17 @@ const ContributionHeatmap = ({ activities }: ContributionHeatmapProps) => {
                   ))}
                 </div>
               </div>
+              <div className="pl-8 font-mono text-5xl leading-none font-semibold tracking-wide text-neutral-700 italic">
+                {year}
+              </div>
             </div>
           );
         })}
       </div>
-      <div className="mt-3 flex w-full items-center justify-end gap-1 text-xs text-neutral-500">
+      <div
+        className="mt-3 flex items-center justify-end gap-1 text-xs text-neutral-500"
+        style={{ width: `${HEATMAP_WIDTH}px` }}
+      >
         <span>Less</span>
         <span className="h-[10px] w-[10px] rounded-[2px] bg-[#ebedf0]" />
         {GITHUB_GREENS.map((color) => (
