@@ -413,38 +413,36 @@ const Index = () => {
         className="min-w-0 flex-1 border-l border-neutral-300 pl-8"
         id="map-container"
       >
-        <div className="mx-auto w-full max-w-[840px]">
-          <section>
-            <RunMap
-              title={title}
-              viewState={viewState}
-              geoData={animatedGeoData}
-              setViewState={setViewState}
-              changeYear={changeYear}
-              thisYear={year}
-              animationTrigger={animationTrigger}
+        <section>
+          <RunMap
+            title={title}
+            viewState={viewState}
+            geoData={animatedGeoData}
+            setViewState={setViewState}
+            changeYear={changeYear}
+            thisYear={year}
+            animationTrigger={animationTrigger}
+          />
+        </section>
+        {year === 'Total' ? (
+          <>
+            <section className="mt-5 border-t border-neutral-300 pt-5">
+              <LongRouteGrid runs={runs} locateActivity={locateActivity} />
+            </section>
+            <section className="mt-5 border-t border-neutral-300 pt-5">
+              <ContributionHeatmap activities={activities} />
+            </section>
+          </>
+        ) : (
+          <section className="mt-5 border-t border-neutral-300 pt-5">
+            <RunTable
+              runs={runs}
+              locateActivity={locateActivity}
+              runIndex={runIndex}
+              setRunIndex={setRunIndex}
             />
           </section>
-          {year === 'Total' ? (
-            <>
-              <section className="mt-5 border-t border-neutral-300 pt-5">
-                <LongRouteGrid runs={runs} locateActivity={locateActivity} />
-              </section>
-              <section className="mt-5 border-t border-neutral-300 pt-5">
-                <ContributionHeatmap activities={activities} />
-              </section>
-            </>
-          ) : (
-            <section className="mt-5 border-t border-neutral-300 pt-5">
-              <RunTable
-                runs={runs}
-                locateActivity={locateActivity}
-                runIndex={runIndex}
-                setRunIndex={setRunIndex}
-              />
-            </section>
-          )}
-        </div>
+        )}
       </div>
       {/* Enable Audiences in Vercel Analytics: https://vercel.com/docs/concepts/analytics/audiences/quickstart */}
       {import.meta.env.VERCEL && <Analytics />}

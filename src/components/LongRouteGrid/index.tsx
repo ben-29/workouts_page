@@ -69,7 +69,7 @@ const LongRouteGrid = ({ runs, locateActivity }: LongRouteGridProps) => {
   return (
     <section className="w-full bg-transparent">
       <div
-        className="mx-auto grid max-w-[840px] gap-2"
+        className="grid w-full gap-2"
         style={{ gridTemplateColumns: 'repeat(10, minmax(0, 1fr))' }}
       >
         {longRuns.map((run) => {
@@ -104,7 +104,7 @@ const LongRouteGrid = ({ runs, locateActivity }: LongRouteGridProps) => {
           );
         })}
       </div>
-      <div className="mx-auto mt-4 flex max-w-[840px] flex-wrap items-center justify-end gap-2 text-xs text-neutral-500">
+      <div className="mt-4 flex w-full flex-wrap items-center justify-end gap-2 text-xs text-neutral-500">
         <span className="inline-flex items-center gap-1">
           <span className="h-2.5 w-2.5 bg-[#4DD2FF]" />
           Over 10.0 KM
