@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import MnistYear from '@/components/MnistYear';
 import type { Activity } from '@/utils/utils';
 
 interface ContributionHeatmapProps {
@@ -163,10 +164,10 @@ const ContributionHeatmap = ({ activities }: ContributionHeatmapProps) => {
                 </div>
               </div>
               <div
-                className="heatmap-year-number shrink-0 text-right text-[2.65rem] leading-none font-bold tracking-wide text-neutral-950 italic"
-                style={{ width: '5.75rem' }}
+                className="flex min-w-0 flex-1 justify-end pl-6"
+                style={{ maxWidth: '12rem' }}
               >
-                {year}
+                <MnistYear year={year} />
               </div>
             </div>
           );

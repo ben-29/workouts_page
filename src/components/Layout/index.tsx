@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import Header from '@/components/Header';
 import getSiteMetadata from '@/hooks/useSiteMetadata';
@@ -7,31 +7,34 @@ const DESIGN_WIDTH = 1280;
 
 const Layout = ({ children }: React.PropsWithChildren) => {
   const { siteTitle, description, keywords } = getSiteMetadata();
+  const canvasRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
+  const [canvasHeight, setCanvasHeight] = useState<number | null>(null);
 
   useEffect(() => {
     let frameId = 0;
-    const updateScale = () => {
-      setScale(Math.min(1, window.innerWidth / DESIGN_WIDTH));
+    const measure = () => {
+      const nextScale = Math.min(1, window.innerWidth / DESIGN_WIDTH);
+      setScale(nextScale);
+      setCanvasHeight(canvasRef.current?.scrollHeight ?? null);
     };
-    const scheduleUpdate = () => {
+    const scheduleMeasure = () => {
       cancelAnimationFrame(frameId);
-      frameId = requestAnimationFrame(updateScale);
+      frameId = requestAnimationFrame(measure);
     };
 
-    scheduleUpdate();
-    window.addEventListener('resize', scheduleUpdate);
+    scheduleMeasure();
+    const resizeObserver = new ResizeObserver(scheduleMeasure);
+    if (canvasRef.current) resizeObserver.observe(canvasRef.current);
+    window.addEventListener('resize', scheduleMeasure);
     return () => {
       cancelAnimationFrame(frameId);
-      window.removeEventListener('resize', scheduleUpdate);
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', scheduleMeasure);
     };
   }, []);
 
   const isScaled = scale < 1;
-  const canvasStyle = {
-    width: isScaled ? `${DESIGN_WIDTH}px` : '100%',
-    zoom: isScaled ? scale : undefined,
-  } as React.CSSProperties & { zoom?: number };
 
   return (
     <>
@@ -46,11 +49,24 @@ const Layout = ({ children }: React.PropsWithChildren) => {
         />
       </Helmet>
       <Header />
-      <div
-        className="mb-16 flex max-w-none flex-row gap-8 p-8"
-        style={canvasStyle}
-      >
-        {children}
+      <div className="w-full overflow-x-hidden">
+        <div
+          style={{
+            height:
+              isScaled && canvasHeight ? `${canvasHeight * scale}px` : 'auto',
+          }}
+        >
+          <div
+            className="mb-16 flex max-w-none origin-top-left flex-row gap-8 p-8"
+            ref={canvasRef}
+            style={{
+              width: isScaled ? `${DESIGN_WIDTH}px` : '100%',
+              transform: isScaled ? `scale(${scale})` : undefined,
+            }}
+          >
+            {children}
+          </div>
+        </div>
       </div>
     </>
   );

@@ -5,14 +5,6 @@
 @import 'tailwindcss';
 @import './mobile.css';
 
-@font-face {
-  font-family: 'DS-Digital';
-  src: url('../assets/fonts/ds-digital-bold.woff') format('woff');
-  font-display: swap;
-  font-style: normal;
-  font-weight: 700;
-}
-
 :root {
   /* global */
   --color-primary: var(--color-brand);
@@ -143,8 +135,34 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-.heatmap-year-number {
-  font-family: 'DS-Digital', var(--font-sans);
+.mnist-year {
+  --mnist-digit-size: clamp(1rem, calc((100% - 0.45rem) / 4), 2.65rem);
+  display: inline-flex;
+  width: 100%;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.15rem;
+  max-width: 100%;
+}
+
+.mnist-digit-tile {
+  display: inline-flex;
+  width: var(--mnist-digit-size);
+  height: var(--mnist-digit-size);
+  aspect-ratio: 1 / 1;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 var(--mnist-digit-size);
+  background: transparent;
+}
+
+.mnist-digit-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  shape-rendering: crispEdges;
 }
 
 iframe {
