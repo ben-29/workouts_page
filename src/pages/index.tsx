@@ -410,7 +410,7 @@ const Index = () => {
         )}
       </div>
       <div
-        className="w-[calc(1280px-390px-2rem)] min-w-0 flex-1 border-l border-neutral-300 pl-8"
+        className="min-w-0 flex-1 border-l border-neutral-300 pl-8"
         id="map-container"
       >
         <section>

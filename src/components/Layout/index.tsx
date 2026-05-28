@@ -57,9 +57,10 @@ const Layout = ({ children }: React.PropsWithChildren) => {
           }}
         >
           <div
-            className="mb-16 flex w-[1280px] max-w-none origin-top-left flex-row gap-8 p-8"
+            className="mb-16 flex max-w-none origin-top-left flex-row gap-8 p-8"
             ref={canvasRef}
             style={{
+              width: isScaled ? `${DESIGN_WIDTH}px` : '100%',
               transform: isScaled ? `scale(${scale})` : undefined,
             }}
           >
