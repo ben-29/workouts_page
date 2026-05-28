@@ -8,6 +8,8 @@ interface ContributionHeatmapProps {
 const HALF_MARATHON_KM = 21.0975;
 const FULL_MARATHON_KM = 42.195;
 const M_TO_KM = 1000;
+const HEATMAP_CELL_SIZE = 11;
+const HEATMAP_GAP = 3;
 const EMPTY_COLOR = '#ebedf0';
 const GITHUB_GREENS = ['#9be9a8', '#40c463', '#30a14e', '#216e39'];
 
@@ -82,12 +84,12 @@ const ContributionHeatmap = ({ activities }: ContributionHeatmapProps) => {
 
   return (
     <section className="w-full bg-transparent font-sans text-neutral-900">
-      <div className="mx-auto mt-2 mb-5 max-w-[760px] text-left text-sm text-neutral-700">
+      <div className="mx-auto mt-2 mb-5 max-w-[840px] text-left text-sm text-neutral-700">
         {lastYearContributionCount}{' '}
         {lastYearContributionCount === 1 ? 'contribution' : 'contributions'} in
         the last year
       </div>
-      <div className="mx-auto max-w-[760px] space-y-3">
+      <div className="mx-auto max-w-[840px] space-y-3">
         {years.map((year) => {
           const days = getYearDays(year);
           const leadingBlanks = days[0].getDay();
@@ -120,7 +122,8 @@ const ContributionHeatmap = ({ activities }: ContributionHeatmapProps) => {
                 <div
                   className="mb-1 grid gap-[3px] text-[10px] text-neutral-500"
                   style={{
-                    gridTemplateColumns: 'repeat(53, 10px)',
+                    gap: `${HEATMAP_GAP}px`,
+                    gridTemplateColumns: `repeat(53, ${HEATMAP_CELL_SIZE}px)`,
                   }}
                 >
                   {getMonthColumns(year).map(({ month, column }) => (
@@ -150,15 +153,20 @@ const ContributionHeatmap = ({ activities }: ContributionHeatmapProps) => {
                 <div
                   className="grid grid-flow-col grid-rows-7 justify-start gap-[3px]"
                   style={{
-                    gridTemplateColumns: 'repeat(53, minmax(0, 10px))',
+                    gap: `${HEATMAP_GAP}px`,
+                    gridTemplateColumns: `repeat(53, ${HEATMAP_CELL_SIZE}px)`,
                   }}
                 >
                   {cells.map((cell) => (
                     <span
                       aria-label={cell.title}
-                      className="h-[10px] w-[10px] rounded-[2px] border border-black/5"
+                      className="rounded-[2px] border border-black/5"
                       key={cell.key}
-                      style={{ backgroundColor: cell.color }}
+                      style={{
+                        backgroundColor: cell.color,
+                        height: `${HEATMAP_CELL_SIZE}px`,
+                        width: `${HEATMAP_CELL_SIZE}px`,
+                      }}
                       title={cell.title}
                     />
                   ))}
@@ -168,7 +176,7 @@ const ContributionHeatmap = ({ activities }: ContributionHeatmapProps) => {
           );
         })}
       </div>
-      <div className="mx-auto mt-3 flex max-w-[760px] items-center justify-end gap-1 text-xs text-neutral-500">
+      <div className="mx-auto mt-3 flex max-w-[840px] items-center justify-end gap-1 text-xs text-neutral-500">
         <span>Less</span>
         <span className="h-[10px] w-[10px] rounded-[2px] bg-[#ebedf0]" />
         {GITHUB_GREENS.map((color) => (
