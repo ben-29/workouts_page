@@ -82,7 +82,7 @@ const ContributionHeatmap = ({ activities }: ContributionHeatmapProps) => {
 
   return (
     <section className="w-full bg-transparent font-sans text-neutral-900">
-      <div className="mx-auto mt-2 mb-5 max-w-[760px] text-left text-sm text-neutral-700">
+      <div className="mt-2 mb-5 w-full text-left text-sm text-neutral-700">
         {lastYearActiveDays}{' '}
         {lastYearActiveDays === 1 ? 'active day' : 'active days'} in the last
         year
@@ -168,7 +168,7 @@ const ContributionHeatmap = ({ activities }: ContributionHeatmapProps) => {
           );
         })}
       </div>
-      <div className="mx-auto mt-3 flex max-w-[760px] items-center justify-end gap-1 text-xs text-neutral-500">
+      <div className="mt-3 flex w-full items-center justify-end gap-1 text-xs text-neutral-500">
         <span>Less</span>
         <span className="h-[10px] w-[10px] rounded-[2px] bg-[#ebedf0]" />
         {GITHUB_GREENS.map((color) => (
