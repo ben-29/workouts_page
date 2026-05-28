@@ -162,7 +162,10 @@ const ContributionHeatmap = ({ activities }: ContributionHeatmapProps) => {
                   ))}
                 </div>
               </div>
-              <div className="pl-8 font-mono text-5xl leading-none font-semibold tracking-wide text-neutral-700 italic">
+              <div
+                className="heatmap-year-number shrink-0 text-right text-[2.65rem] leading-none font-bold tracking-wide text-neutral-950 italic"
+                style={{ width: '5.75rem' }}
+              >
                 {year}
               </div>
             </div>

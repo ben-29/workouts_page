@@ -5,6 +5,14 @@
 @import 'tailwindcss';
 @import './mobile.css';
 
+@font-face {
+  font-family: 'DS-Digital';
+  src: url('../assets/fonts/ds-digital-bold.woff') format('woff');
+  font-display: swap;
+  font-style: normal;
+  font-weight: 700;
+}
+
 :root {
   /* global */
   --color-primary: var(--color-brand);
@@ -133,6 +141,10 @@ body {
   text-rendering: optimizeLegibility;
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
+}
+
+.heatmap-year-number {
+  font-family: 'DS-Digital', var(--font-sans);
 }
 
 iframe {
