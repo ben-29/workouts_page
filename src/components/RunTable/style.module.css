@@ -1,5 +1,6 @@
 .runTable {
   width: 100%;
+  min-width: 680px;
   margin: 0.9rem 0 5rem 0;
   color: var(--color-run-table-thead);
   background-color: var(--color-background);
@@ -102,7 +103,9 @@
 
 .tableContainer {
   width: 100%;
+  max-width: 100%;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .runDate {
