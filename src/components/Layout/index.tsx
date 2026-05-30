@@ -45,13 +45,16 @@ const Layout = ({ children }: React.PropsWithChildren) => {
         <meta name="keywords" content={keywords} />
         <meta
           name="viewport"
-          content="width=device-width, initial-scale=1, shrink-to-fit=no"
+          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no"
         />
       </Helmet>
       <Header />
       <div className="w-full overflow-x-hidden">
         <div
           style={{
+            width: isScaled ? `${DESIGN_WIDTH * scale}px` : '100%',
+            maxWidth: '100vw',
+            overflow: 'hidden',
             height:
               isScaled && canvasHeight ? `${canvasHeight * scale}px` : 'auto',
           }}
