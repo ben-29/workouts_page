@@ -75,6 +75,7 @@ const ContributionHeatmap = ({ activities }: ContributionHeatmapProps) => {
   }, []);
 
   const heatmapScale = Math.min(1, containerWidth / FULL_ROW_WIDTH);
+  const isMobileHeatmap = heatmapScale < 1;
 
   const { years, distancesByDate, lastYearActiveDays } = useMemo(() => {
     const yearSet = new Set<number>();
@@ -119,8 +120,8 @@ const ContributionHeatmap = ({ activities }: ContributionHeatmapProps) => {
         <div
           className="origin-top-left space-y-4"
           style={{
-            width: `${FULL_ROW_WIDTH}px`,
-            zoom: heatmapScale,
+            width: isMobileHeatmap ? `${FULL_ROW_WIDTH}px` : '100%',
+            zoom: isMobileHeatmap ? heatmapScale : undefined,
           }}
         >
           {years.map((year) => {
@@ -203,8 +204,16 @@ const ContributionHeatmap = ({ activities }: ContributionHeatmapProps) => {
                 </div>
 
                 <div
-                  className="flex shrink-0 justify-end pl-6"
-                  style={{ width: `${YEAR_WIDTH}px` }}
+                  className={
+                    isMobileHeatmap
+                      ? 'flex shrink-0 justify-end pl-6'
+                      : 'flex min-w-0 flex-1 justify-end pl-6'
+                  }
+                  style={
+                    isMobileHeatmap
+                      ? { width: `${YEAR_WIDTH}px` }
+                      : { maxWidth: '12rem' }
+                  }
                 >
                   <MnistYear year={year} />
                 </div>
