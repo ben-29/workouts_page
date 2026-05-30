@@ -52,9 +52,8 @@ const Layout = ({ children }: React.PropsWithChildren) => {
       <div className="w-full overflow-x-hidden">
         <div
           style={{
-            position: 'relative',
-            width: '100vw',
-            maxWidth: '100%',
+            width: isScaled ? `${DESIGN_WIDTH * scale}px` : '100%',
+            maxWidth: '100vw',
             overflow: 'hidden',
             height:
               isScaled && canvasHeight ? `${canvasHeight * scale}px` : 'auto',
@@ -64,9 +63,6 @@ const Layout = ({ children }: React.PropsWithChildren) => {
             className="mb-16 flex max-w-none origin-top-left flex-row gap-8 p-8"
             ref={canvasRef}
             style={{
-              position: isScaled ? 'absolute' : undefined,
-              top: isScaled ? 0 : undefined,
-              left: isScaled ? 0 : undefined,
               width: isScaled ? `${DESIGN_WIDTH}px` : '100%',
               transform: isScaled ? `scale(${scale})` : undefined,
             }}
