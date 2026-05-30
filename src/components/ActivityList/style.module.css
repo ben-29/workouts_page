@@ -258,3 +258,61 @@
   max-width: 100%;
   height: auto;
 }
+
+@media (max-width: 767px) {
+  .activityList {
+    padding: 12px 8px 0;
+  }
+
+  .filterContainer {
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+
+  .filterContainer select {
+    min-width: 88px;
+    padding: 4px 24px 4px 0;
+    font-size: 0.9rem;
+  }
+
+  .smallHomeButton {
+    margin-right: 0;
+    padding: 4px 0;
+    font-size: 0.9rem;
+  }
+
+  .lifeContainer {
+    align-items: stretch;
+    justify-content: flex-start;
+  }
+
+  .yearSelector {
+    gap: 5px;
+    margin-bottom: 10px;
+    padding: 4px 0;
+    justify-content: flex-start;
+  }
+
+  .yearButton {
+    padding: 5px 10px;
+    font-size: 12px;
+    border-radius: 4px;
+  }
+
+  .yearSummarySvg {
+    width: 108%;
+    max-width: 108%;
+    margin-left: -4%;
+    max-height: none;
+    display: block;
+  }
+
+  .lifeContainer > svg,
+  .lifeContainer :global(svg) {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+}

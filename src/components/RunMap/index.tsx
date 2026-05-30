@@ -266,8 +266,11 @@ const RunMap = ({
   const style: React.CSSProperties = useMemo(
     () => ({
       width: '100%',
-      height: MAP_HEIGHT,
-      maxWidth: '100%', // Prevent overflow on mobile
+      height:
+        typeof window !== 'undefined' && window.innerWidth < 768
+          ? 'calc((100vw - 32px) * 480 / 896)'
+          : MAP_HEIGHT,
+      maxWidth: '100%',
     }),
     []
   );

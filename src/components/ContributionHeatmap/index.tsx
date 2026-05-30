@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import MnistYear from '@/components/MnistYear';
 import type { Activity } from '@/utils/utils';
 
@@ -10,6 +10,8 @@ const HALF_MARATHON_KM = 21.0975;
 const FULL_MARATHON_KM = 42.195;
 const M_TO_KM = 1000;
 const HEATMAP_WIDTH = 686;
+const YEAR_WIDTH = 220;
+const FULL_ROW_WIDTH = HEATMAP_WIDTH + YEAR_WIDTH;
 const EMPTY_COLOR = '#ebedf0';
 const GITHUB_GREENS = ['#9be9a8', '#40c463', '#30a14e', '#216e39'];
 
@@ -51,6 +53,29 @@ const dateKey = (date: Date) =>
   ).padStart(2, '0')}`;
 
 const ContributionHeatmap = ({ activities }: ContributionHeatmapProps) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(FULL_ROW_WIDTH);
+
+  useEffect(() => {
+    const updateWidth = () => {
+      setContainerWidth(containerRef.current?.clientWidth ?? FULL_ROW_WIDTH);
+    };
+
+    updateWidth();
+
+    const resizeObserver = new ResizeObserver(updateWidth);
+    if (containerRef.current) resizeObserver.observe(containerRef.current);
+
+    window.addEventListener('resize', updateWidth);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', updateWidth);
+    };
+  }, []);
+
+  const heatmapScale = Math.min(1, containerWidth / FULL_ROW_WIDTH);
+
   const { years, distancesByDate, lastYearActiveDays } = useMemo(() => {
     const yearSet = new Set<number>();
     const byDate = new Map<string, number>();
@@ -89,104 +114,120 @@ const ContributionHeatmap = ({ activities }: ContributionHeatmapProps) => {
         {lastYearActiveDays === 1 ? 'active day' : 'active days'} in the last
         year
       </div>
-      <div className="w-full space-y-4">
-        {years.map((year) => {
-          const days = getYearDays(year);
-          const leadingBlanks = days[0].getDay();
-          const cells = [
-            ...Array.from({ length: leadingBlanks }, (_, index) => ({
-              key: `${year}-blank-${index}`,
-              color: 'transparent',
-              title: '',
-            })),
-            ...days.map((date) => {
-              const dateText = dateKey(date);
-              const distanceKm = (distancesByDate.get(dateText) ?? 0) / M_TO_KM;
-              return {
-                key: dateText,
-                color: colorForDistance(distanceKm),
-                title: `${dateText}: ${distanceKm.toFixed(1)} KM`,
-              };
-            }),
-          ];
 
-          return (
-            <div
-              className="flex w-full items-center justify-between"
-              key={year}
-            >
-              <div className="shrink-0" style={{ width: `${HEATMAP_WIDTH}px` }}>
-                <div
-                  className="mb-1 grid gap-[3px] text-[10px] text-neutral-500"
-                  style={{
-                    gridTemplateColumns: 'repeat(53, 10px)',
-                  }}
-                >
-                  {getMonthColumns(year).map(({ month, column }) => (
-                    <span
-                      key={`${year}-${month}`}
-                      style={{ gridColumnStart: column }}
-                    >
-                      {
-                        [
-                          'Jan',
-                          'Feb',
-                          'Mar',
-                          'Apr',
-                          'May',
-                          'Jun',
-                          'Jul',
-                          'Aug',
-                          'Sep',
-                          'Oct',
-                          'Nov',
-                          'Dec',
-                        ][month]
-                      }
-                    </span>
-                  ))}
-                </div>
-                <div
-                  className="grid grid-flow-col grid-rows-7 justify-start gap-[3px]"
-                  style={{
-                    gridTemplateColumns: 'repeat(53, minmax(0, 10px))',
-                  }}
-                >
-                  {cells.map((cell) => (
-                    <span
-                      aria-label={cell.title}
-                      className="h-[10px] w-[10px] rounded-[2px] border border-black/5"
-                      key={cell.key}
-                      style={{ backgroundColor: cell.color }}
-                      title={cell.title}
-                    />
-                  ))}
-                </div>
-              </div>
+      <div className="w-full overflow-hidden pb-2" ref={containerRef}>
+        <div
+          className="origin-top-left space-y-4"
+          style={{
+            width: `${FULL_ROW_WIDTH}px`,
+            zoom: heatmapScale,
+          }}
+        >
+          {years.map((year) => {
+            const days = getYearDays(year);
+            const leadingBlanks = days[0].getDay();
+            const cells = [
+              ...Array.from({ length: leadingBlanks }, (_, index) => ({
+                key: `${year}-blank-${index}`,
+                color: 'transparent',
+                title: '',
+              })),
+              ...days.map((date) => {
+                const dateText = dateKey(date);
+                const distanceKm =
+                  (distancesByDate.get(dateText) ?? 0) / M_TO_KM;
+                return {
+                  key: dateText,
+                  color: colorForDistance(distanceKm),
+                  title: `${dateText}: ${distanceKm.toFixed(1)} KM`,
+                };
+              }),
+            ];
+
+            return (
               <div
-                className="flex min-w-0 flex-1 justify-end pl-6"
-                style={{ maxWidth: '12rem' }}
+                className="flex w-full items-center justify-between"
+                key={year}
               >
-                <MnistYear year={year} />
+                <div
+                  className="shrink-0"
+                  style={{ width: `${HEATMAP_WIDTH}px` }}
+                >
+                  <div
+                    className="mb-1 grid gap-[3px] text-[10px] text-neutral-500"
+                    style={{
+                      gridTemplateColumns: 'repeat(53, 10px)',
+                    }}
+                  >
+                    {getMonthColumns(year).map(({ month, column }) => (
+                      <span
+                        key={`${year}-${month}`}
+                        style={{ gridColumnStart: column }}
+                      >
+                        {
+                          [
+                            'Jan',
+                            'Feb',
+                            'Mar',
+                            'Apr',
+                            'May',
+                            'Jun',
+                            'Jul',
+                            'Aug',
+                            'Sep',
+                            'Oct',
+                            'Nov',
+                            'Dec',
+                          ][month]
+                        }
+                      </span>
+                    ))}
+                  </div>
+
+                  <div
+                    className="grid grid-flow-col grid-rows-7 justify-start gap-[3px]"
+                    style={{
+                      gridTemplateColumns: 'repeat(53, minmax(0, 10px))',
+                    }}
+                  >
+                    {cells.map((cell) => (
+                      <span
+                        aria-label={cell.title}
+                        className="h-[10px] w-[10px] rounded-[2px] border border-black/5"
+                        key={cell.key}
+                        style={{ backgroundColor: cell.color }}
+                        title={cell.title}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div
+                  className="flex shrink-0 justify-end pl-6"
+                  style={{ width: `${YEAR_WIDTH}px` }}
+                >
+                  <MnistYear year={year} />
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
-      <div
-        className="mt-3 flex items-center justify-end gap-1 text-xs text-neutral-500"
-        style={{ width: `${HEATMAP_WIDTH}px` }}
-      >
-        <span>Less</span>
-        <span className="h-[10px] w-[10px] rounded-[2px] bg-[#ebedf0]" />
-        {GITHUB_GREENS.map((color) => (
-          <span
-            className="h-[10px] w-[10px] rounded-[2px]"
-            key={color}
-            style={{ backgroundColor: color }}
-          />
-        ))}
-        <span>More</span>
+            );
+          })}
+
+          <div
+            className="mt-3 flex items-center justify-end gap-1 text-xs text-neutral-500"
+            style={{ width: `${HEATMAP_WIDTH}px` }}
+          >
+            <span>Less</span>
+            <span className="h-[10px] w-[10px] rounded-[2px] bg-[#ebedf0]" />
+            {GITHUB_GREENS.map((color) => (
+              <span
+                className="h-[10px] w-[10px] rounded-[2px]"
+                key={color}
+                style={{ backgroundColor: color }}
+              />
+            ))}
+            <span>More</span>
+          </div>
+        </div>
       </div>
     </section>
   );
