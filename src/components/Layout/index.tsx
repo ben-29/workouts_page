@@ -9,12 +9,14 @@ const Layout = ({ children }: React.PropsWithChildren) => {
   const { siteTitle, description, keywords } = getSiteMetadata();
   const canvasRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
+  const [canvasHeight, setCanvasHeight] = useState<number | null>(null);
 
   useEffect(() => {
     let frameId = 0;
     const measure = () => {
       const nextScale = Math.min(1, window.innerWidth / DESIGN_WIDTH);
       setScale(nextScale);
+      setCanvasHeight(canvasRef.current?.scrollHeight ?? null);
     };
     const scheduleMeasure = () => {
       cancelAnimationFrame(frameId);
@@ -49,14 +51,28 @@ const Layout = ({ children }: React.PropsWithChildren) => {
       <Header />
       <div className="w-full overflow-x-hidden">
         <div
-          className="mb-16 flex max-w-none flex-row gap-8 p-8"
-          ref={canvasRef}
           style={{
-            width: isScaled ? `${DESIGN_WIDTH}px` : '100%',
-            zoom: isScaled ? scale : undefined,
+            position: 'relative',
+            width: '100vw',
+            maxWidth: '100%',
+            overflow: 'hidden',
+            height:
+              isScaled && canvasHeight ? `${canvasHeight * scale}px` : 'auto',
           }}
         >
-          {children}
+          <div
+            className="mb-16 flex max-w-none origin-top-left flex-row gap-8 p-8"
+            ref={canvasRef}
+            style={{
+              position: isScaled ? 'absolute' : undefined,
+              top: isScaled ? 0 : undefined,
+              left: isScaled ? 0 : undefined,
+              width: isScaled ? `${DESIGN_WIDTH}px` : '100%',
+              transform: isScaled ? `scale(${scale})` : undefined,
+            }}
+          >
+            {children}
+          </div>
         </div>
       </div>
     </>
