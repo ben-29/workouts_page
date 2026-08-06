@@ -22,6 +22,7 @@ from tcxreader.tcxreader import TCXReader
 
 from .exceptions import TrackLoadError
 from .utils import parse_datetime_to_local, get_normalized_sport_type
+from run_page.config import TYPE_DICT
 
 start_point = namedtuple("start_point", "lat lon")
 run_map = namedtuple("polyline", "summary_polyline")
@@ -203,6 +204,8 @@ class Track:
             "elapsed_time": datetime.timedelta(seconds=elapsed_time),
             "average_speed": self.length / moving_time if moving_time else 0,
         }
+        activity_type = tcx.activity_type.lower() if tcx.activity_type else "Run"
+        self.type = TYPE_DICT.get(activity_type)
 
     def _calc_moving_time(self, trackpoints, seconds_threshold=10):
         moving_time = 0
