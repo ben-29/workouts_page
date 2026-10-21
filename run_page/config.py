@@ -66,16 +66,40 @@ TYPE_DICT = {
     "AlpineSki": "Ski",  # strava
     "Ski": "Ski",
     "BackcountrySki": "BackcountrySki",
-    # google health
+    # google health v4 API exerciseType enum values (lowercase snake_case keys)
     "trail_run": "Run",
     "biking": "Ride",
     "outdoor_bike": "Ride",
     "electric_bike": "Ride",
     "mountain_biking": "Ride",
     "skiing": "Ski",
-    "snowboarding": "Swim",
+    "snowboarding": "Snowboard",
     "swimming_open_water": "Swim",
     "swimming_pool": "Swim",
+    # google health v4 uppercase enum values (as returned by the API and injected
+    # into TCX Extensions by google_health_sync.py)
+    "RUNNING": "Run",
+    "TRAIL_RUNNING": "Run",
+    "TREADMILL": "Run",
+    "HIKING": "Hike",
+    "WALKING": "Hike",
+    "BIKING": "Ride",
+    "MOUNTAIN_BIKING": "Ride",
+    "ROAD_BIKING": "Ride",
+    "INDOOR_CYCLING": "Indoor Ride",
+    "SWIMMING_POOL": "Swim",
+    "SWIMMING_OPEN_WATER": "Swim",
+    "ROWING": "Rowing",
+    "KAYAKING": "Kayaking",
+    "SKIING": "Ski",
+    "SNOWBOARDING": "Snowboard",
+    "STRENGTH_TRAINING": "Workout",
+    "YOGA": "Workout",
+    "PILATES": "Workout",
+    "ELLIPTICAL": "Workout",
+    "STAIR_CLIMBING": "Workout",
+    "JUMP_ROPE": "Workout",
+    "OTHER": "Workout",
 }
 
 MAPPING_TYPE = [

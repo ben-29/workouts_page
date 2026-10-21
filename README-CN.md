@@ -20,6 +20,7 @@
 1. 支持 APP 数据获取
    - **[咕咚](#codoon咕咚)** (因咕咚限制单个设备原因，无法自动化)
    - **[行者](#行者)**
+   - **[Google Health](#google-health)**
 1. 支持 [自驾(Google 路书)](#自驾google路书) , 把自驾路线也展示在地图上
 
 ## 一些个性化选项
@@ -113,6 +114,75 @@ python3(python) scripts/xingzhe_sync.py 13333xxxx xxxx --with-gpx
 ```python
 python3(python) scripts/xingzhe_sync.py w0xxx 185000 --from-auth-token
 ```
+
+</details>
+
+### Google Health
+
+<details>
+<summary>获取 Google Health 数据</summary>
+
+<br>
+
+Google Health API 是替代旧 Fitbit Web API 的 v4 Google API。本同步会从 `https://health.googleapis.com/v4/users/me/dataTypes/exercise/dataPoints` 读取 `exercise` 运动记录，再通过 `:exportExerciseTcx?alt=media` 导出 TCX，默认保存到 `TCX_OUT`，最后导入 `data.db` 与 `activities.json`。如果选择 GPX 输出，脚本会基于 v4 TCX 导出在本地转换 GPX，并保存到 `GPX_OUT`。
+
+1. 创建 Google Cloud 项目，启用 Google Health API，并创建 OAuth 2.0 Web client。OAuth 应用还在 Testing 状态时，需要把自己的 Google 账号加入 test users。
+   1. 前往 [Google Cloud Console](https://console.cloud.google.com/)，创建或选择一个项目。
+   2. 启用 **Google Health API**：
+      - 进入 **API和服务 → 库**
+      - 搜索 **Google Health API** 并点击 **Enable（启用）**
+   3. 创建 OAuth 2.0 凭据：
+      - 进入 **API和服务 → 凭证 → 创建凭证 → OAuth 客户端 ID**
+      - 应用类型选择 **桌面应用**
+      - 记录您的 **Client ID** 和 **Client Secret**
+   4. 配置 **OAuth 同意屏幕**（API和服务 → OAuth consent screen）：
+      - 用户类型选择 **外部**
+      - 将自己添加为 **测试用户（Test user）**
+      - 添加以下**两个**授权范围（GPX 和 TCX 均需要）：
+        - `https://www.googleapis.com/auth/googlehealth.activity_and_fitness.readonly`
+        - `https://www.googleapis.com/auth/googlehealth.location.readonly`
+
+2. 将下面链接中的 `${client_id}` 替换为你的 Client ID 后在浏览器打开。`redirect_uri` 需要和 Google Cloud 中配置的一致。
+
+   ```plaintext
+   https://accounts.google.com/o/oauth2/v2/auth?client_id=${client_id}&redirect_uri=http://localhost&response_type=code&access_type=offline&scope=https://www.googleapis.com/auth/googlehealth.activity_and_fitness.readonly%20https://www.googleapis.com/auth/googlehealth.location.readonly&prompt=consent
+   ```
+
+3. 复制返回链接中的 `code`，用它换取 `refresh_token`：
+
+   ```bash
+   curl -L -X POST 'https://oauth2.googleapis.com/token' \
+   -H 'Content-Type: application/x-www-form-urlencoded' \
+   -d 'client_id=${client_id}&client_secret=${client_secret}&code=${code}&redirect_uri=http://localhost&grant_type=authorization_code'
+   ```
+
+4. 在项目根目录同步 Google Health 数据：
+
+   ```bash
+   python run_page/google_health_sync.py ${client_id} ${client_secret} ${refresh_token}
+   ```
+
+   如果只同步跑步：
+
+   ```bash
+   python run_page/google_health_sync.py ${client_id} ${client_secret} ${refresh_token} --only-run
+   ```
+
+   可选参数：
+   - `--start-date YYYY-MM-DD`：同步该日期及之后开始的运动。如果不传，脚本会使用 `data.db` 中最新的 `start_date_local` 作为 Google Health `exercise.interval.civil_start_time` 的起始时间。
+   - `--end-date YYYY-MM-DD`：同步该日期之前开始的运动。
+   - `--all`：忽略本地数据库日期，向 Google Health 请求全部运动。
+   - `--format gpx`：导出 GPX 文件到 `GPX_OUT`；默认是 `--format tcx`。
+
+   GPX 示例：
+
+   ```bash
+   python run_page/google_health_sync.py ${client_id} ${client_secret} ${refresh_token} --format gpx
+   ```
+
+6. 如果使用 GitHub Actions，把 `GOOGLE_HEALTH_CLIENT_ID`、`GOOGLE_HEALTH_CLIENT_SECRET`、`GOOGLE_HEALTH_REFRESH_TOKEN` 添加到 GitHub Secrets，然后将 `RUN_TYPE` 设置为 `google_health`。
+7. 配置 **OAuth 同意屏幕**（API和服务 → OAuth consent screen）：
+   - 用户类型选择 **内部**， 否则需要发布应用
 
 </details>
 

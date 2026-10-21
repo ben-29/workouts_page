@@ -11,7 +11,7 @@ import os
 from collections import namedtuple
 
 import gpxpy as mod_gpxpy
-import lxml
+import lxml.etree
 import polyline
 import s2sphere as s2
 from garmin_fit_sdk import Decoder, Stream
@@ -209,8 +209,40 @@ class Track:
             "elapsed_time": datetime.timedelta(seconds=elapsed_time),
             "average_speed": self.length / moving_time if moving_time else 0,
         }
-        activity_type = tcx.activity_type.lower() if tcx.activity_type else "Run"
-        self.type = TYPE_DICT.get(activity_type)
+
+        # Parse the raw TCX XML once to read:
+        #  <Extensions><ExerciseType> → precise activity type injected by
+        #     google_health_sync.py
+        GH_EXT_NS = "http://schemas.google.com/health/tcx"
+        try:
+            tree = lxml.etree.parse(file_name)
+            root = tree.getroot()
+            ns = lxml.etree.QName(root).namespace
+            tag = lambda name: f"{{{ns}}}{name}" if ns else name
+
+            # Injected ExerciseType → precise activity type
+            ext_type_el = root.find(
+                f".//{tag('Activity')}/{tag('Extensions')}"
+                f"/{{{GH_EXT_NS}}}ExerciseType"
+            )
+            if ext_type_el is not None and ext_type_el.text:
+                injected = ext_type_el.text.strip()
+                resolved = (
+                    TYPE_DICT.get(injected)
+                    or TYPE_DICT.get(injected.lower())
+                    or TYPE_DICT.get(injected.upper())
+                    or TYPE_DICT.get(injected.replace("_", " ").title())
+                )
+                if resolved:
+                    self.type = resolved
+
+            # Creator/Name → source
+            creator_name_el = root.find(f".//{tag('Creator')}/{tag('Name')}")
+            if creator_name_el is not None and creator_name_el.text:
+                self.source = creator_name_el.text.strip()
+                self.device = self.source
+        except (OSError, lxml.etree.XMLSyntaxError) as e:
+            print(f"Error reading TCX metadata from {file_name}: {e}")
 
     def _calc_moving_time(self, trackpoints, seconds_threshold=10):
         moving_time = 0
