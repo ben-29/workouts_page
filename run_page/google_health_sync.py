@@ -54,7 +54,8 @@ def _exercise_id(data_point):
 
 def _exercise_title(data_point):
     exercise = data_point.get("exercise") or {}
-    return exercise.get("displayName") or exercise.get("exerciseType") or ""
+    notes = (exercise.get("notes") or "").strip()
+    return notes or exercise.get("displayName") or exercise.get("exerciseType") or ""
 
 
 def _exercise_type(data_point):
@@ -282,9 +283,10 @@ def _tcx_to_gpx(tcx_data, data_point, metadata):
     gpx = gpxpy.gpx.GPX()
     gpx.nsmap["gpxtpx"] = "http://www.garmin.com/xmlschemas/TrackPointExtension/v1"
     gpx.creator = "google_health"
+    gpx.name = _exercise_title(data_point)
 
     track = gpxpy.gpx.GPXTrack()
-    track.name = _exercise_title(data_point)
+    track.name = gpx.name
     track.type = _gpx_activity_type(data_point)
     gpx.tracks.append(track)
 
@@ -348,10 +350,78 @@ def _tcx_to_gpx(tcx_data, data_point, metadata):
     return gpx.to_xml().encode("utf-8")
 
 
+def _enrich_tcx(tcx_data, data_point):
+    """
+    Preserve activity notes and the precise v4 API exerciseType in TCX.
+
+    TCX activities store free-form text in Notes; their imported name is supplied
+    separately via activity_title_dict using the same notes-first title.
+
+    The TCX schema only allows Sport="Running", "Biking", or "Other", so activities
+    like Hiking, Strength Training, Swimming, etc. all get Sport="Other".  By storing
+    the precise type from the Google Health v4 API we let track.py recover the real
+    activity type without guessing.
+
+    Resulting XML (inside <Activity>):
+        <Extensions>
+          <ExerciseType xmlns="http://schemas.google.com/health/tcx">HIKING</ExerciseType>
+        </Extensions>
+    """
+    exercise_type = _exercise_type(data_point)
+    exercise = data_point.get("exercise") or {}
+    notes = (exercise.get("notes") or "").strip()
+    if not exercise_type and not notes:
+        return tcx_data
+
+    GH_EXT_NS = "http://schemas.google.com/health/tcx"
+
+    try:
+        root = ET.parse(io.BytesIO(tcx_data)).getroot()
+        ns = ET.QName(root).namespace
+        tag = lambda name: f"{{{ns}}}{name}" if ns else name
+
+        activity_el = root.find(f".//{tag('Activity')}")
+        if activity_el is None:
+            return tcx_data
+
+        if notes:
+            notes_el = activity_el.find(tag("Notes"))
+            if notes_el is None:
+                notes_el = ET.Element(tag("Notes"))
+                # The TCX schema places Notes after laps and before these fields.
+                following_tags = {
+                    tag(name) for name in ("Training", "Creator", "Extensions")
+                }
+                insert_at = next(
+                    (
+                        i for i, child in enumerate(activity_el)
+                        if child.tag in following_tags
+                    ),
+                    len(activity_el),
+                )
+                activity_el.insert(insert_at, notes_el)
+            notes_el.text = notes
+
+        if exercise_type:
+            ext_el = activity_el.find(tag("Extensions"))
+            if ext_el is None:
+                ext_el = ET.SubElement(activity_el, tag("Extensions"))
+            type_el = ext_el.find(f"{{{GH_EXT_NS}}}ExerciseType")
+            if type_el is None:
+                type_el = ET.SubElement(ext_el, f"{{{GH_EXT_NS}}}ExerciseType")
+            type_el.text = exercise_type
+
+        return ET.tostring(root, xml_declaration=True, encoding="utf-8")
+    except Exception as e:
+        print(f"Warning: could not enrich TCX activity metadata: {e}")
+        return tcx_data
+
+
 def _prepare_export_data(tcx_data, data_point, metadata, export_format):
     if export_format == "gpx":
         return _tcx_to_gpx(tcx_data, data_point, metadata)
-    return tcx_data
+    return _enrich_tcx(tcx_data, data_point)
+
 
 
 class GoogleHealthClient:
@@ -477,8 +547,6 @@ def run_google_health_sync(
         file_name = _output_file_name(file_id, export_format)
         file_path = _output_file_path(file_id, export_format)
         activity_title_dict[_metadata_key(file_id)] = _exercise_title(data_point)
-        metadata = _google_health_metadata(data_point)
-        metadata_by_file_id[file_id] = metadata
 
         if file_name in synced_files or os.path.exists(file_path):
             skipped += 1
@@ -490,6 +558,7 @@ def run_google_health_sync(
                 print(f"skip empty TCX for {data_point_name}")
                 skipped += 1
                 continue
+            metadata = _google_health_metadata(data_point)
             export_data = _prepare_export_data(
                 tcx_data,
                 data_point,
@@ -498,6 +567,7 @@ def run_google_health_sync(
             )
             with open(file_path, "wb") as f:
                 f.write(export_data)
+            metadata_by_file_id[file_id] = metadata
             downloaded += 1
             print(f"downloaded {file_name}")
         except httpx.HTTPStatusError as e:
@@ -510,7 +580,8 @@ def run_google_health_sync(
         file_suffix=export_format,
         activity_title_dict=activity_title_dict,
     )
-    _apply_google_health_metadata(generator, metadata_by_file_id, export_format)
+    if metadata_by_file_id:
+        _apply_google_health_metadata(generator, metadata_by_file_id, export_format)
     activities_list = generator.load()
     with open(JSON_FILE, "w") as f:
         json.dump(activities_list, f)

@@ -868,12 +868,7 @@ Google Health API 是替代旧 Fitbit Web API 的 v4 Google API。本同步会�
       - 添加以下**两个**授权范围（GPX 和 TCX 均需要）：
         - `https://www.googleapis.com/auth/googlehealth.activity_and_fitness.readonly`
         - `https://www.googleapis.com/auth/googlehealth.location.readonly`
-   5. 添加测试用户
-      - 进入 **API和服务 → OAuth 权限请求页面  → 目标对象**
-      - 找到 **测试用户** 区块，点击 + Add users
-      - 添加你自己的 Google 账号邮箱
-      - 保存
-      
+
 2. 将下面链接中的 `${client_id}` 替换为你的 Client ID 后在浏览器打开。`redirect_uri` 需要和 Google Cloud 中配置的一致。
 
    ```plaintext
@@ -913,8 +908,8 @@ Google Health API 是替代旧 Fitbit Web API 的 v4 Google API。本同步会�
    ```
 
 6. 如果使用 GitHub Actions，把 `GOOGLE_HEALTH_CLIENT_ID`、`GOOGLE_HEALTH_CLIENT_SECRET`、`GOOGLE_HEALTH_REFRESH_TOKEN` 添加到 GitHub Secrets，然后将 `RUN_TYPE` 设置为 `google_health`。
-
-> 注意：Google Health scopes 属于 restricted scopes。OAuth app 仍处于 Testing 状态时生成的 refresh token 可能 7 天后过期；如果要长期自动同步，需要发布应用并完成要求的验证。
+7. 配置 **OAuth 同意屏幕**（API和服务 → OAuth consent screen）：
+   - 用户类型选择 **内部**， 否则需要发布应用
 
 </details>
 
