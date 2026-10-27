@@ -18,7 +18,7 @@ import YearsStat from '@/components/YearsStat';
 import useActivities from '@/hooks/useActivities';
 import getSiteMetadata from '@/hooks/useSiteMetadata';
 import { useInterval } from '@/hooks/useInterval';
-import { IS_CHINESE } from '@/utils/const';
+import { INFO_MESSAGE, IS_CHINESE } from '@/utils/const';
 import {
   Activity,
   filterAndSortRuns,
@@ -85,11 +85,17 @@ const useRunHashId = () =>
 
 const Index = () => {
   const { siteTitle, siteUrl } = getSiteMetadata();
-  const { activities, thisYear } = useActivities();
+  const { activities, thisYear, years } = useActivities();
   const themeChangeCounter = useThemeChangeCounter();
   const [year, setYear] = useState(thisYear);
+  const infoMessage = useMemo(
+    () => INFO_MESSAGE(years.length, year),
+    [years.length, year]
+  );
   const [runIndex, setRunIndex] = useState(-1);
   const [title, setTitle] = useState('');
+  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   // Animation states for replacing intervalIdRef
   const [isAnimating, setIsAnimating] = useState(false);
   const [currentAnimationIndex, setCurrentAnimationIndex] = useState(0);
@@ -460,26 +466,90 @@ const Index = () => {
       <Helmet>
         <html lang="en" data-theme={theme} />
       </Helmet>
-      <div className="w-full lg:w-1/4">
-        <h1 className="my-12 mt-6 text-5xl font-extrabold italic">
-          <a href={siteUrl}>{siteTitle}</a>
-        </h1>
-        {(viewState.zoom ?? 0) <= 3 && IS_CHINESE ? (
-          <LocationStat
-            changeYear={changeYear}
-            changeCity={changeCity}
-            changeType={changeType}
-            onClickTypeInYear={changeTypeInYear}
-          />
-        ) : (
-          <YearsStat
-            year={year}
-            onClick={changeYear}
-            onClickTypeInYear={changeTypeInYear}
-          />
-        )}
+      <div
+        className={`relative w-full lg:shrink-0 ${desktopSidebarOpen ? 'lg:w-1/4 lg:pr-4' : 'lg:w-10'}`}
+      >
+        <button
+          type="button"
+          className="absolute top-0 right-1 hidden h-8 w-8 items-center justify-center rounded-md border border-current/20 opacity-60 hover:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 lg:inline-flex"
+          aria-expanded={desktopSidebarOpen}
+          aria-controls="sidebar-content"
+          aria-label={
+            desktopSidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'
+          }
+          onClick={() => setDesktopSidebarOpen((open) => !open)}
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            aria-hidden="true"
+          >
+            <path d={desktopSidebarOpen ? 'm14 6-6 6 6 6' : 'm10 6 6 6-6 6'} />
+          </svg>
+        </button>
+        <div className="flex items-center justify-between gap-3 lg:block">
+          <h1
+            className={`my-6 min-w-0 text-5xl font-extrabold break-words italic lg:mb-12 ${desktopSidebarOpen ? '' : 'lg:hidden'}`}
+          >
+            <a href={siteUrl}>{siteTitle}</a>
+          </h1>
+          <button
+            type="button"
+            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-current/20 opacity-70 hover:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 lg:hidden"
+            aria-label={
+              mobileSidebarOpen ? 'Collapse filters' : 'Expand filters'
+            }
+            aria-expanded={mobileSidebarOpen}
+            aria-controls="sidebar-content"
+            onClick={() => setMobileSidebarOpen((open) => !open)}
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              aria-hidden="true"
+            >
+              <path d={mobileSidebarOpen ? 'm6 14 6-6 6 6' : 'm6 10 6 6 6-6'} />
+            </svg>
+          </button>
+        </div>
+        <div className={desktopSidebarOpen ? '' : 'lg:hidden'}>
+          <section className="pb-0">
+            <p className="leading-relaxed">
+              {infoMessage}
+              <br />
+            </p>
+          </section>
+          <hr />
+        </div>
+        <div
+          id="sidebar-content"
+          className={`${mobileSidebarOpen ? 'block' : 'hidden'} ${desktopSidebarOpen ? 'lg:block' : 'lg:hidden'}`}
+        >
+          {(viewState.zoom ?? 0) <= 3 && IS_CHINESE ? (
+            <LocationStat
+              changeYear={changeYear}
+              changeCity={changeCity}
+              changeType={changeType}
+              onClickTypeInYear={changeTypeInYear}
+            />
+          ) : (
+            <YearsStat
+              year={year}
+              onClick={changeYear}
+              onClickTypeInYear={changeTypeInYear}
+            />
+          )}
+        </div>
       </div>
-      <div className="w-full lg:w-3/4" id="map-container">
+      <div className="w-full min-w-0 lg:flex-1" id="map-container">
         <RunMap
           title={title}
           viewState={viewState}
