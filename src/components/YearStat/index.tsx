@@ -122,7 +122,7 @@ const finalizeYearStat = (
     runCount: accumulator.runCount,
     streak: accumulator.streak,
     totalDistance: parseFloat(
-      (accumulator.totalDistance / M_TO_DIST).toFixed(1)
+      (accumulator.totalDistance / M_TO_DIST).toFixed(0)
     ),
     totalElevationGain: (accumulator.totalElevationGain * M_TO_ELEV).toFixed(0),
     workoutsStat: workoutsStat,
