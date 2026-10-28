@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useSyncExternalStore } from 'react';
 import {
   LineChart,
   Line,
@@ -22,7 +22,22 @@ const formatRunTime = (seconds: number) => {
   return `${m}m`;
 };
 
+const mobileQuery = '(max-width: 768px)';
+const subscribeToViewport = (onChange: () => void) => {
+  const mediaQuery = window.matchMedia(mobileQuery);
+  mediaQuery.addEventListener('change', onChange);
+  return () => mediaQuery.removeEventListener('change', onChange);
+};
+const getIsMobile = () => window.matchMedia(mobileQuery).matches;
+const getServerIsMobile = () => false;
+
 const WeeklyStat = ({ runs }: WeeklyStatProps) => {
+  const isMobile = useSyncExternalStore(
+    subscribeToViewport,
+    getIsMobile,
+    getServerIsMobile
+  );
+  const weekLimit = isMobile ? 26 : 53;
   const data = useMemo(() => {
     if (!runs || runs.length === 0) return [];
 
@@ -97,7 +112,7 @@ const WeeklyStat = ({ runs }: WeeklyStatProps) => {
 
     const weeksList = Array.from(weeksMap.values());
     const limitedWeeksList =
-      weeksList.length > 53 ? weeksList.slice(-53) : weeksList;
+      weeksList.length > weekLimit ? weeksList.slice(-weekLimit) : weeksList;
 
     return limitedWeeksList.map((item) => {
       const d = new Date(item.timestamp);
@@ -124,7 +139,7 @@ const WeeklyStat = ({ runs }: WeeklyStatProps) => {
         distance: parseFloat(item.distance.toFixed(2)),
       };
     });
-  }, [runs]);
+  }, [runs, weekLimit]);
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
