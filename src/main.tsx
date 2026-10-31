@@ -1,5 +1,6 @@
 import React, { lazy, Suspense } from 'react';
 import ReactDOM from 'react-dom/client';
+import OfflineStatus from './components/OfflineStatus';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import {
@@ -42,6 +43,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <HelmetProvider>
       <RouterProvider router={routes} />
+      {import.meta.env.PROD && <OfflineStatus />}
     </HelmetProvider>
   </React.StrictMode>
 );

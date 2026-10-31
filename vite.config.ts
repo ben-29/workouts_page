@@ -3,6 +3,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
 import tailwindcss from '@tailwindcss/vite';
+import { VitePWA } from 'vite-plugin-pwa';
 
 const colorClassMapping: { [key: string]: string } = {
   // Background
@@ -18,6 +19,19 @@ const colorClassMapping: { [key: string]: string } = {
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
+    VitePWA({
+      registerType: 'autoUpdate',
+      manifest: false,
+      workbox: {
+        // Include lazy routes and the content-hashed activities JSON.
+        globPatterns: ['**/*.{js,css,html,json,png,svg,ico,woff2}'],
+        globIgnores: ['**/.vite/**'],
+        maximumFileSizeToCacheInBytes: 20 * 1024 * 1024,
+        navigateFallback: 'index.html',
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+      },
+    }),
     react(),
     tailwindcss(),
     svgr({
